@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>lestupid waiting app</title>
+    <meta
+      name="description"
+      content="A channel-independent waiting flow prototype for lestupid certification, La, Le, Lo, and Lale."
+    />
+    <style>
+      :root {
+        --paper: #f7f3eb;
+        --ink: #181818;
+        --tulip: #b94040;
+        --mint: #4f9a78;
+        --amber: #c18a2f;
+        --blue: #426f95;
+        --soft: #eee5d8;
+        --surface: #fffaf2;
+        --line: rgba(24, 24, 24, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        letter-spacing: 0;
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        min-height: 44px;
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        background: var(--ink);
+        color: var(--paper);
+        padding: 0 14px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      button.secondary {
+        background: transparent;
+        color: var(--ink);
+      }
+
+      button.soft {
+        border-color: var(--line);
+        background: var(--surface);
+        color: var(--ink);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.44;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--ink);
+        padding: 9px 11px;
+      }
+
+      textarea {
+        min-height: 76px;
+        resize: vertical;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        color: #4f473f;
+        font-size: 12px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      header {
+        border-bottom: 1px solid var(--line);
+        padding: 16px 0;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: inherit;
+        font-weight: 950;
+        text-decoration: none;
+      }
+
+      .brand svg {
+        width: 26px;
+        height: 34px;
+      }
+
+      .tag {
+        color: #71685f;
+        font-size: 14px;
+        font-weight: 750;
+        text-align: right;
+      }
+
+      main {
+        padding: 30px 0 54px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .intro,
+      .panel,
+      .board,
+      .event-panel {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: 6px;
+      }
+
+      .intro {
+        display: grid;
+        align-content: space-between;
+        min-height: 478px;
+        padding: 26px;
+        border-color: var(--ink);
+      }
+
+      h1 {
+        max-width: 580px;
+        margin: 0;
+        font-size: clamp(46px, 7vw, 90px);
+        line-height: 0.9;
+        font-weight: 950;
+      }
+
+      .lead {
+        max-width: 590px;
+        margin: 20px 0 0;
+        color: #413b35;
+        font-size: 18px;
+        line-height: 1.58;
+      }
+
+      .status-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 28px;
+      }
+
+      .metric {
+        min-height: 86px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        background: var(--soft);
+        border-radius: 6px;
+      }
+
+      .metric b {
+        display: block;
+        color: var(--tulip);
+        font-size: 25px;
+      }
+
+      .metric span {
+        display: block;
+        margin-top: 6px;
+        color: #5d554d;
+        font-size: 13px;
+        font-weight: 750;
+      }
+
+      .panel {
+        padding: 20px;
+        background: var(--soft);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .form-grid .wide {
+        grid-column: 1 / -1;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 14px;
+      }
+
+      .boards {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 14px;
+        margin-top: 16px;
+      }
+
+      .board {
+        min-height: 260px;
+        padding: 15px;
+      }
+
+      .board h2,
+      .event-panel h2 {
+        margin: 0 0 12px;
+        font-size: 17px;
+        line-height: 1.1;
+        font-weight: 950;
+      }
+
+      .queue-list {
+        display: grid;
+        gap: 9px;
+      }
+
+      .ticket {
+        display: grid;
+        gap: 8px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        background: var(--paper);
+        border-radius: 6px;
+      }
+
+      .ticket-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .number {
+        color: var(--tulip);
+        font-size: 22px;
+        font-weight: 950;
+      }
+
+      .badge {
+        display: inline-flex;
+        width: max-content;
+        min-height: 25px;
+        align-items: center;
+        border-radius: 999px;
+        padding: 0 9px;
+        background: rgba(185, 64, 64, 0.12);
+        color: var(--tulip);
+        font-size: 12px;
+        font-weight: 950;
+      }
+
+      .ticket b {
+        font-size: 15px;
+      }
+
+      .ticket span {
+        color: #665d54;
+        font-size: 13px;
+        line-height: 1.4;
+      }
+
+      .ticket-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .ticket-actions button {
+        min-height: 34px;
+        padding: 0 10px;
+        font-size: 12px;
+      }
+
+      .empty {
+        color: #746b62;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .event-panel {
+        margin-top: 14px;
+        padding: 15px;
+      }
+
+      pre {
+        min-height: 260px;
+        max-height: 440px;
+        margin: 0;
+        padding: 14px;
+        border: 1px solid var(--line);
+        background: #121212;
+        color: #f5f0e8;
+        border-radius: 6px;
+        overflow: auto;
+        font-size: 12px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+      }
+
+      .notice {
+        margin-top: 12px;
+        padding: 12px;
+        border-left: 4px solid var(--mint);
+        background: rgba(79, 154, 120, 0.12);
+        color: #31483d;
+        font-weight: 750;
+        line-height: 1.45;
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .boards {
+          grid-template-columns: 1fr;
+        }
+
+        .intro {
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .nav,
+        .form-grid,
+        .status-strip {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+
+        .tag {
+          text-align: left;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav class="shell nav" aria-label="Waiting app">
+        <a class="brand" href="./index.html">
+          <svg viewBox="0 0 64 86" fill="none" aria-hidden="true">
+            <path
+              d="M32 82V39M32 39C21 35 16 27 17 15C26 17 31 25 32 39ZM32 39C43 35 48 27 47 15C38 17 33 25 32 39ZM32 39C31 25 32 15 32 6C39 14 40 27 32 39Z"
+              stroke="#B94040"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          lestupid waiting
+        </a>
+        <div class="tag">web now. paper, SMS, WhatsApp, Telegram, USSD later. same event.</div>
+      </nav>
+    </header>
+
+    <main class="shell">
+      <section class="hero">
+        <div class="intro">
+          <div>
+            <h1>waiting without trapping people.</h1>
+            <p class="lead">
+              A fair waiting flow for hospitals, cafes, barbers, services, workshops, tickets,
+              and local sellers. People can step outside and come back when the system calls them.
+            </p>
+          </div>
+          <div class="status-strip" aria-label="queue status">
+            <div class="metric"><b id="metric-now">-</b><span>now serving</span></div>
+            <div class="metric"><b id="metric-waiting">0</b><span>waiting</span></div>
+            <div class="metric"><b id="metric-done">0</b><span>done</span></div>
+            <div class="metric"><b id="metric-next">La</b><span>next token</span></div>
+          </div>
+        </div>
+
+        <div class="panel" aria-label="Join waiting flow">
+          <form id="waiting-form">
+            <div class="form-grid">
+              <label>
+                Channel
+                <select id="channel">
+                  <option value="web">web / QR</option>
+                  <option value="sms">SMS</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="telegram">Telegram</option>
+                  <option value="ussd">USSD</option>
+                  <option value="paper">paper token</option>
+                  <option value="manual">manual / offline</option>
+                </select>
+              </label>
+              <label>
+                Flow
+                <select id="flow-type">
+                  <option value="hospital_corridor">hospital corridor</option>
+                  <option value="barber_queue">barber queue</option>
+                  <option value="cafe_pickup">cafe pickup</option>
+                  <option value="workshop_seat">workshop seat</option>
+                  <option value="ticket_gate">ticket gate</option>
+                  <option value="local_seller">local seller</option>
+                </select>
+              </label>
+              <label class="wide">
+                Place or seller
+                <input id="place" value="Validebağ corridor queue" autocomplete="organization" />
+              </label>
+              <label>
+                Person / contact
+                <input id="contact" value="+905550000001" autocomplete="tel" />
+              </label>
+              <label>
+                Service
+                <input id="service" value="minor operation follow-up" />
+              </label>
+              <label class="wide">
+                Note
+                <textarea id="note">people can wait outside and return when called</textarea>
+              </label>
+            </div>
+            <div class="actions">
+              <button type="submit">join queue</button>
+              <button class="secondary" type="button" id="call-next">call next</button>
+              <button class="secondary" type="button" id="complete-current">complete current</button>
+              <button class="soft" type="button" id="seed-demo">seed demo</button>
+              <button class="soft" type="button" id="export-events">export JSON</button>
+              <button class="soft" type="button" id="clear-events">clear</button>
+            </div>
+            <div class="notice" id="notice">
+              Ready. This is a local prototype; all events are saved in this browser.
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <section class="boards" aria-label="Queue board">
+        <div class="board">
+          <h2>waiting</h2>
+          <div class="queue-list" id="waiting-list"></div>
+        </div>
+        <div class="board">
+          <h2>called</h2>
+          <div class="queue-list" id="called-list"></div>
+        </div>
+        <div class="board">
+          <h2>completed / no-show</h2>
+          <div class="queue-list" id="done-list"></div>
+        </div>
+      </section>
+
+      <section class="event-panel" aria-label="Latest normalized JSON">
+        <h2>latest normalized event</h2>
+        <pre id="event-json">{}</pre>
+      </section>
+    </main>
+
+    <script>
+      const storageKey = "lestupid_waiting_state_v2";
+      const form = document.querySelector("#waiting-form");
+      const waitingList = document.querySelector("#waiting-list");
+      const calledList = document.querySelector("#called-list");
+      const doneList = document.querySelector("#done-list");
+      const output = document.querySelector("#event-json");
+      const notice = document.querySelector("#notice");
+      const callNextButton = document.querySelector("#call-next");
+      const completeCurrentButton = document.querySelector("#complete-current");
+      const clearButton = document.querySelector("#clear-events");
+      const seedButton = document.querySelector("#seed-demo");
+      const exportButton = document.querySelector("#export-events");
+      const metrics = {
+        now: document.querySelector("#metric-now"),
+        waiting: document.querySelector("#metric-waiting"),
+        done: document.querySelector("#metric-done"),
+        next: document.querySelector("#metric-next")
+      };
+
+      const initialState = {
+        sequence: 1,
+        tickets: [],
+        events: []
+      };
+
+      function readState() {
+        try {
+          return { ...initialState, ...JSON.parse(localStorage.getItem(storageKey) || "{}") };
+        } catch {
+          return { ...initialState };
+        }
+      }
+
+      function writeState(state) {
+        localStorage.setItem(storageKey, JSON.stringify(state));
+      }
+
+      function id() {
+        return crypto.randomUUID();
+      }
+
+      function now() {
+        return new Date().toISOString();
+      }
+
+      function tokenFor(action, ticket) {
+        if (action === "queue_joined") return "La";
+        if (action === "queue_called") return "Le";
+        if (action === "queue_completed") return "Lale";
+        if (action === "queue_no_show") return "Lo";
+        return ticket?.token || "Le";
+      }
+
+      function buildEvent(action, ticket, extra = {}) {
+        return {
+          schema_version: "harezm.event.v1",
+          domain_schema_version: "lestupid.event.v1",
+          idempotency_key: id(),
+          occurred_at: now(),
+          source: {
+            app: "lestupid_waiting",
+            module: "waiting",
+            channel: ticket.channel
+          },
+          event_type: action,
+          token_state: {
+            token: tokenFor(action, ticket),
+            journey: "La/Le/Lo/Lale"
+          },
+          actor: {
+            type: "member",
+            contact: ticket.contact
+          },
+          entity: {
+            type: "waiting_flow",
+            name: ticket.place,
+            flow_type: ticket.flow_type,
+            claim_status: "unclaimed"
+          },
+          queue: {
+            ticket_id: ticket.id,
+            number: ticket.number,
+            status: ticket.status,
+            service: ticket.service,
+            people_before: extra.people_before ?? 0
+          },
+          evidence: {
+            source: "waiting_app_prototype",
+            note: ticket.note
+          },
+          payment: {
+            status: "not_required"
+          },
+          policy: {
+            ai_recommendation_only: true,
+            ai_review_required: false,
+            human_review_required: true,
+            web3_required: false
+          }
+        };
+      }
+
+      function saveEvent(state, action, ticket, extra) {
+        const event = buildEvent(action, ticket, extra);
+        state.events = [event, ...state.events].slice(0, 100);
+        return event;
+      }
+
+      function setNotice(text) {
+        notice.textContent = text;
+      }
+
+      function ticketTemplate(ticket) {
+        return `
+          <article class="ticket" data-ticket-id="${ticket.id}">
+            <div class="ticket-top">
+              <div class="number">${ticket.number}</div>
+              <span class="badge">${ticket.token}</span>
+            </div>
+            <b>${ticket.service}</b>
+            <span>${ticket.place} · ${ticket.channel} · ${ticket.contact}</span>
+            <span>${ticket.note}</span>
+            <div class="ticket-actions">
+              ${
+                ticket.status === "waiting"
+                  ? `<button class="soft" type="button" data-action="call" data-id="${ticket.id}">call</button>`
+                  : ""
+              }
+              ${
+                ticket.status === "called"
+                  ? `<button class="soft" type="button" data-action="done" data-id="${ticket.id}">done</button>
+                     <button class="soft" type="button" data-action="no_show" data-id="${ticket.id}">no-show</button>`
+                  : ""
+              }
+            </div>
+          </article>
+        `;
+      }
+
+      function renderList(container, tickets, emptyText) {
+        container.innerHTML = tickets.length
+          ? tickets.map(ticketTemplate).join("")
+          : `<div class="empty">${emptyText}</div>`;
+      }
+
+      function render() {
+        const state = readState();
+        const waiting = state.tickets.filter((ticket) => ticket.status === "waiting");
+        const called = state.tickets.filter((ticket) => ticket.status === "called");
+        const done = state.tickets.filter((ticket) => ticket.status === "done" || ticket.status === "no_show");
+
+        renderList(waitingList, waiting, "No one is trapped in the corridor right now.");
+        renderList(calledList, called, "Call the next person when staff is ready.");
+        renderList(doneList, done, "Completed and no-show tickets will appear here.");
+
+        metrics.now.textContent = called[0]?.number || "-";
+        metrics.waiting.textContent = String(waiting.length);
+        metrics.done.textContent = String(done.length);
+        metrics.next.textContent = waiting.length > 0 ? "Le" : "La";
+
+        callNextButton.disabled = waiting.length === 0;
+        completeCurrentButton.disabled = called.length === 0;
+        output.textContent = state.events[0] ? JSON.stringify(state.events[0], null, 2) : "{}";
+      }
+
+      function addTicketFromForm() {
+        const state = readState();
+        const ticket = {
+          id: id(),
+          number: `B${String(state.sequence).padStart(3, "0")}`,
+          token: "La",
+          status: "waiting",
+          channel: document.querySelector("#channel").value,
+          flow_type: document.querySelector("#flow-type").value,
+          place: document.querySelector("#place").value.trim(),
+          contact: document.querySelector("#contact").value.trim(),
+          service: document.querySelector("#service").value.trim(),
+          note: document.querySelector("#note").value.trim(),
+          joined_at: now(),
+          called_at: null,
+          completed_at: null
+        };
+
+        state.sequence += 1;
+        state.tickets = [ticket, ...state.tickets];
+        saveEvent(state, "queue_joined", ticket, { people_before: state.tickets.length - 1 });
+        writeState(state);
+        setNotice(`${ticket.number} joined. They can wait outside until called.`);
+        render();
+      }
+
+      function updateTicket(ticketId, nextStatus, action) {
+        const state = readState();
+        const index = state.tickets.findIndex((ticket) => ticket.id === ticketId);
+        if (index < 0) return;
+
+        const ticket = { ...state.tickets[index] };
+        ticket.status = nextStatus;
+        if (nextStatus === "called") {
+          ticket.token = "Le";
+          ticket.called_at = now();
+        }
+        if (nextStatus === "done") {
+          ticket.token = "Lale";
+          ticket.completed_at = now();
+        }
+        if (nextStatus === "no_show") {
+          ticket.token = "Lo";
+          ticket.completed_at = now();
+        }
+
+        state.tickets[index] = ticket;
+        const waitingBefore = state.tickets.filter((item) => item.status === "waiting").length;
+        saveEvent(state, action, ticket, { people_before: waitingBefore });
+        writeState(state);
+        setNotice(`${ticket.number} ${nextStatus.replace("_", "-")}. Latest event is ready for the backend.`);
+        render();
+      }
+
+      function callNext() {
+        const state = readState();
+        const waiting = state.tickets
+          .filter((ticket) => ticket.status === "waiting")
+          .sort((a, b) => a.number.localeCompare(b.number));
+        if (!waiting[0]) return;
+        updateTicket(waiting[0].id, "called", "queue_called");
+      }
+
+      function completeCurrent() {
+        const state = readState();
+        const called = state.tickets
+          .filter((ticket) => ticket.status === "called")
+          .sort((a, b) => (a.called_at || "").localeCompare(b.called_at || ""));
+        if (!called[0]) return;
+        updateTicket(called[0].id, "done", "queue_completed");
+      }
+
+      function seedDemo() {
+        const state = { ...initialState, sequence: 4, tickets: [], events: [] };
+        const samples = [
+          {
+            number: "B001",
+            contact: "+905550000001",
+            channel: "paper",
+            service: "minor operation follow-up",
+            note: "can wait in the garden",
+            status: "called",
+            token: "Le"
+          },
+          {
+            number: "B002",
+            contact: "+905550000002",
+            channel: "sms",
+            service: "lab result desk",
+            note: "notify when 3 people remain",
+            status: "waiting",
+            token: "La"
+          },
+          {
+            number: "B003",
+            contact: "+254700000001",
+            channel: "ussd",
+            service: "street seller pickup",
+            note: "same event model outside the hospital",
+            status: "waiting",
+            token: "La"
+          }
+        ];
+
+        state.tickets = samples.map((sample) => ({
+          id: id(),
+          flow_type: sample.service.includes("seller") ? "local_seller" : "hospital_corridor",
+          place: sample.service.includes("seller") ? "local maize seller" : "Validebağ corridor queue",
+          joined_at: now(),
+          called_at: sample.status === "called" ? now() : null,
+          completed_at: null,
+          ...sample
+        }));
+
+        state.tickets.forEach((ticket) => saveEvent(state, ticket.status === "called" ? "queue_called" : "queue_joined", ticket));
+        writeState(state);
+        setNotice("Demo queue seeded. Call next or complete the current ticket.");
+        render();
+      }
+
+      function exportEvents() {
+        const state = readState();
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `lestupid-waiting-events-${Date.now()}.json`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
+        setNotice("Export created. This is the payload shape the Phoenix API can receive later.");
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        addTicketFromForm();
+      });
+
+      document.body.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const action = button.dataset.action;
+        if (action === "call") updateTicket(button.dataset.id, "called", "queue_called");
+        if (action === "done") updateTicket(button.dataset.id, "done", "queue_completed");
+        if (action === "no_show") updateTicket(button.dataset.id, "no_show", "queue_no_show");
+      });
+
+      callNextButton.addEventListener("click", callNext);
+      completeCurrentButton.addEventListener("click", completeCurrent);
+      seedButton.addEventListener("click", seedDemo);
+      exportButton.addEventListener("click", exportEvents);
+      clearButton.addEventListener("click", () => {
+        localStorage.removeItem(storageKey);
+        setNotice("Cleared. Ready for a new waiting flow.");
+        render();
+      });
+
+      render();
+    </script>
+  </body>
+</html>

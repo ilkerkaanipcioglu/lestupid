@@ -1,0 +1,63 @@
+bir bekleme uygulaması yapmak istiyorum. 
+mobil bir uygulama olacak. 
+ayrıca watsapp, telegram,sms,email üzerindende çalışabilecek. 
+
+uygulama senaryoları: 
+1. senaryo: araç ürücüsü lokantaya gider
+aracnı bir lokantada park eder. 
+valeye verir, vale plakayı kameraya okutarak rezervsyonunu alır 
+sürücü onaylar 
+vale ismi, alış zamanı vs kaydedilir. 
+sürücü lokantada yemeğini yerken aracının nereye park edildiğini görür. 
+aracı almak istediğinde aracı uygulamadan çağırabilir. 
+Bütün bu süreç watsapp veya telegram üzerindende yürüyebilir. 
+
+2.snaryo: araç sürücüsü acil bir iş için örneğin eczaneden vvbirşey almak için başka sürücülerin önünü kapatacak şekilde park eder. 
+aracı park eder ve 15 dk'ya geleceğim gibi bir mesaj bırakır uygulama üzerinden 
+bu araç yüzünden çıkamayan diğer araçlar plakayı okutarak mesajı görür, adamın nerde olduğunu görür. 
+Sürücüye uygulama üzerinden bir mesaj gönderebilir. sürücü izin verdiyse watsapp veya telegramdan arayablir. 
+
+3. senaryo: AVM'deki pizzacı 
+asadan pizza siparişi verdik. bize bir fiş verdiler.
+fiş numarasını okutarak pizzamızın hazır olmasına ne kadar zaman kaldı görüyoruz. 
+pizza hazır olduğunda bize hazır mesajı app veya diğer kanallardan geliyor. gidip pizzamızı teslim alıyoruz. 
+yada pizzayı masamıza getireceklerse bizim oturduğumuz masa numarasını app'den görüp getiriyorlar. 
+
+4. senaryo :lokanta müşteri app üzerinden sipariş veriyor. 
+lokantaya bir müşteri gitti ve sipariş verdi.
+masasından sipariş verebilir. 
+masa numarasını girer yada barkot oktur ve online gelen menüden seçimini yapar
+sonra yemeğinin gelmesini app üzerinden takip edebilir.
+yeni sipariş ekleyebilir. 
+
+5.senaryo: lokantada garson masadan toplu sipariş alıyor. 
+masadaki farklı kişilerin siparişlerini menüden seçebilir. 
+aynı zamanda ses kaydını açıp yapay zekaya kim ne istedi kaydettirebilir. 
+kişiler masaya verilen siparişleri kendi uygulamalarından kendilerine çekebilir. 
+yanlışlık varsa düzeltebilir, ekleme çıkarma yapabilir .
+
+6. senaryo: taatoo removal studio
+kişi websitesinden bir paket satın alır. pakette örneğin 3 sans gitmesi gerekiyor. 
+hangi tarihte ve hangi saattegideceğini app üzerinden onaylar.
+fakat spontene şekilde o saatte randevusu olmasada gitmişse appden bir sıra alır. 
+sıra numarası daha önceki alsığı pakette ilgili seans ile eşleştirilir. 
+app üzerinden ne kadar bekleyeceğini görür ve takip eder. 
+
+7. senaryo: berber
+berberden randevu almak için kullanılabilir. 
+yada berbere gittik ve barkod okutarak sıra aldık.
+kaç dakika bekleyeceğimizi görüp o arada dışarıda dolaşabiliriz. 
+zaman yaklaşınca kişiye bildirim gider.
+bu bildirimler app, watsapp gibi birçok yerde olabilir. 
+
+ayrıca berber cuma namazına veya biyere gittyse müşteri bunu appden görebilir. 
+ne zaman geleceğine bakabilir. 
+
+8.senaryo: taksi durağı
+taksi durağından uygun taksi var mı baktım
+kaç dakika sonra bana gelecek appden kontrol edebiliyorum. 
+
+
+
+
+

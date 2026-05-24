@@ -1,0 +1,8 @@
+Bugün Validebağ Hastanesi’nde çok küçük bir operasyon geçirdim; çok önemsiz, ufak bir şey.
+Tüm çalışanlar; doktor, hemşire, hastabakıcı, memur herkes işini çok iyi şekilde yapmaya çalışıyor, yapıyor da. 
+
+Ama çok basitçe çözülebilecek ve her gün yaşadıkları bir sorun var:
+Saati gelen kişiler, küçük bir koridorda isimlerinin söylenmesini bekliyor ve çok fazla kişi birikiyor. Kapının önüne çıksanız isminiz okundu mu bilemiyorsunuz; o küçücük koridorda sıkış tepiş, havasız beklemeniz gerekiyor.
+Bunu çözmek için ukala ukala “şöyle yapın, böyle yapın, app olsun, QR olsun, ekran olsun” vs. demeye gerek yok. Herhangi bir kişi, elinde ne varsa; telefon, kâğıt, fasulye, kibrit çöpü veya başka bir şey bu sorunu 10 dakikada çözer ve sisteme oturtur. .
+
+Orada çalışanlar zaten güler yüzle ve iyi bir şekilde verdikleri hizmeti verirken daha az yorulurlar. Hastalar da hava alabiliyor olur.

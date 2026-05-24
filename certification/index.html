@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>lestupid | stupid-free everything</title>
+    <meta
+      name="description"
+      content="lestupid is a certification and community platform where people learn, belong, contribute, and grow through La, Le, Lo, and Lale tokens."
+    />
+    <style>
+      :root {
+        --paper: #f5f0e8;
+        --ink: #1a1a1a;
+        --tulip: #b94040;
+        --concrete: #8c8074;
+        --soft: #ebe3d8;
+        --line: rgba(26, 26, 26, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        letter-spacing: 0;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page {
+        min-height: 100vh;
+      }
+
+      .shell {
+        width: min(1120px, calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid var(--line);
+        background: rgba(245, 240, 232, 0.92);
+        backdrop-filter: blur(16px);
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 64px;
+        gap: 20px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 18px;
+        text-decoration: none;
+      }
+
+      .mark {
+        width: 26px;
+        height: 34px;
+        flex: 0 0 auto;
+      }
+
+      .navlinks {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        color: var(--concrete);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .navlinks a {
+        text-decoration: none;
+      }
+
+      .hero {
+        min-height: calc(100vh - 64px);
+        display: grid;
+        align-items: center;
+        padding: 56px 0 44px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.02fr) minmax(300px, 0.72fr);
+        gap: 56px;
+        align-items: center;
+      }
+
+      .eyebrow {
+        color: var(--tulip);
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 16px 0 18px;
+        font-size: clamp(64px, 12vw, 152px);
+        line-height: 0.86;
+        letter-spacing: 0;
+        font-weight: 950;
+      }
+
+      .lead {
+        max-width: 700px;
+        margin: 0;
+        font-size: clamp(20px, 3vw, 34px);
+        line-height: 1.1;
+        font-weight: 760;
+      }
+
+      .scripts {
+        max-width: 680px;
+        margin: 18px 0 0;
+        color: var(--tulip);
+        font-size: 15px;
+        line-height: 1.7;
+        font-weight: 800;
+      }
+
+      .sublead {
+        max-width: 620px;
+        margin: 22px 0 0;
+        color: #433d37;
+        font-size: 17px;
+        line-height: 1.6;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 34px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        background: var(--ink);
+        color: var(--paper);
+        font-weight: 850;
+        text-decoration: none;
+      }
+
+      .button.secondary {
+        background: transparent;
+        color: var(--ink);
+      }
+
+      .badge-board {
+        border: 1px solid var(--ink);
+        background: #fffaf2;
+        min-height: 480px;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      .badge-head,
+      .badge-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px;
+        border-bottom: 1px solid var(--line);
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+
+      .badge-foot {
+        border-top: 1px solid var(--line);
+        border-bottom: 0;
+        color: var(--concrete);
+      }
+
+      .badge-main {
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .tulip-large {
+        width: min(250px, 62vw);
+        height: auto;
+        margin-bottom: 24px;
+      }
+
+      .petal-label {
+        fill: var(--ink);
+        font-size: 18px;
+        font-weight: 950;
+        text-anchor: middle;
+      }
+
+      .cert-title {
+        margin: 0;
+        font-size: 40px;
+        line-height: 0.98;
+        font-weight: 950;
+      }
+
+      .cert-text {
+        margin: 14px auto 0;
+        max-width: 330px;
+        color: #554d45;
+        line-height: 1.5;
+        font-weight: 650;
+      }
+
+      section {
+        padding: 82px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: 0.62fr 1fr;
+        gap: 48px;
+        align-items: start;
+        margin-bottom: 34px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(34px, 6vw, 68px);
+        line-height: 0.96;
+        font-weight: 940;
+      }
+
+      .section-copy {
+        margin: 0;
+        color: #443d36;
+        font-size: 18px;
+        line-height: 1.62;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .tile {
+        min-height: 210px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        background: var(--soft);
+        border-radius: 6px;
+      }
+
+      .tile strong {
+        display: block;
+        margin-bottom: 16px;
+        font-size: 14px;
+        color: var(--tulip);
+        text-transform: uppercase;
+      }
+
+      .tile h3 {
+        margin: 0 0 10px;
+        font-size: 24px;
+        line-height: 1.08;
+      }
+
+      .tile p {
+        margin: 0;
+        color: #4e463f;
+        line-height: 1.55;
+      }
+
+      .ledger {
+        display: grid;
+        gap: 10px;
+      }
+
+      .event {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 18px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        background: #fffaf2;
+        border-radius: 6px;
+      }
+
+      .event span {
+        color: var(--concrete);
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .event b {
+        font-size: 20px;
+      }
+
+      .value {
+        color: var(--tulip);
+        font-weight: 950;
+        white-space: nowrap;
+      }
+
+      .manifesto {
+        background: var(--ink);
+        color: var(--paper);
+      }
+
+      .manifesto .section-copy {
+        color: #d9d0c4;
+      }
+
+      .rules {
+        display: grid;
+        gap: 1px;
+        background: rgba(245, 240, 232, 0.2);
+        border: 1px solid rgba(245, 240, 232, 0.2);
+        margin-top: 34px;
+      }
+
+      .rule {
+        display: grid;
+        grid-template-columns: 58px 1fr;
+        gap: 18px;
+        align-items: center;
+        background: var(--ink);
+        padding: 18px;
+      }
+
+      .rule-number {
+        color: var(--tulip);
+        font-weight: 950;
+      }
+
+      footer {
+        padding: 40px 0;
+        color: var(--concrete);
+        font-size: 14px;
+      }
+
+      @media (max-width: 820px) {
+        .shell {
+          width: min(100% - 28px, 1120px);
+        }
+
+        .nav {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 14px 0;
+        }
+
+        .navlinks {
+          width: 100%;
+          justify-content: space-between;
+          gap: 10px;
+          font-size: 12px;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+
+        .hero-grid,
+        .section-head,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .badge-board {
+          min-height: 420px;
+        }
+
+        .event {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <nav class="shell nav" aria-label="Main navigation">
+          <a class="brand" href="#top" aria-label="lestupid home">
+            <svg class="mark" viewBox="0 0 64 86" fill="none" aria-hidden="true">
+              <path
+                d="M32 82V39M32 39C21 35 16 27 17 15C26 17 31 25 32 39ZM32 39C43 35 48 27 47 15C38 17 33 25 32 39ZM32 39C31 25 32 15 32 6C39 14 40 27 32 39Z"
+                stroke="#B94040"
+                stroke-width="4"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            lestupid
+          </a>
+          <div class="navlinks">
+            <a href="#certified">certified</a>
+            <a href="#tokens">tokens</a>
+            <a href="#rules">rules</a>
+          </div>
+        </nav>
+      </header>
+
+      <main id="top">
+        <section class="hero">
+          <div class="shell hero-grid">
+            <div>
+              <div class="eyebrow">stupid-free everything</div>
+              <h1>lestupid</h1>
+              <p class="lead">money goes to pleasure. not the brand.</p>
+              <p class="scripts" aria-label="lestupid in different scripts">
+                lestupid · 𐰠𐰾𐱅𐰇𐰯𐰃𐰓 · лестюпид · لستیوبید · レストゥピッド · 레스투피드 · 莱斯图皮德
+              </p>
+              <p class="sublead">
+                lestupid is a certification and community platform. People learn, belong,
+                and contribute through a natural journey. The system does not manipulate
+                them; it simply makes growth visible.
+              </p>
+              <div class="hero-actions">
+                <a class="button" href="#certified">see the standard</a>
+                <a class="button secondary" href="#tokens">La · Le · Lo</a>
+              </div>
+            </div>
+
+            <aside class="badge-board" aria-label="lestupid certified badge">
+              <div class="badge-head">
+                <span>member product</span>
+                <span>001</span>
+              </div>
+              <div class="badge-main">
+                <svg class="tulip-large" viewBox="0 0 220 260" fill="none" aria-hidden="true">
+                  <path
+                    d="M110 244V118M110 118C78 105 60 78 64 38C93 43 108 70 110 118ZM110 118C142 105 160 78 156 38C127 43 112 70 110 118ZM110 118C106 73 111 39 110 16C134 42 138 84 110 118Z"
+                    stroke="#B94040"
+                    stroke-width="9"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <text class="petal-label" x="84" y="78">La</text>
+                  <text class="petal-label" x="110" y="57">Le</text>
+                  <text class="petal-label" x="136" y="78">Lo</text>
+                </svg>
+                <p class="cert-title">La · Le · Lo<br />Lale</p>
+                <p class="cert-text">
+                  three petals, one tulip. belonging, flow, and recognition become a
+                  visible path into the community.
+                </p>
+              </div>
+              <div class="badge-foot">
+                <span>no hype</span>
+                <span>no applause</span>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section id="certified">
+          <div class="shell">
+            <div class="section-head">
+              <h2>certification is not a logo.</h2>
+              <p class="section-copy">
+                lestupid certified is a promise and a place. A cafe, school, shop, product,
+                or service can join if it helps people learn, belong, and get fair value
+                without hype tricks or fake scarcity.
+              </p>
+            </div>
+            <div class="grid">
+              <article class="tile">
+                <strong>01</strong>
+                <h3>same idea in every script</h3>
+                <p>lestupid can be written across scripts now; full language translations can follow later.</p>
+              </article>
+              <article class="tile">
+                <strong>02</strong>
+                <h3>a place to belong</h3>
+                <p>Members are not pushed through tricks. They enter, learn, return, and become known.</p>
+              </article>
+              <article class="tile">
+                <strong>03</strong>
+                <h3>any honest place can join</h3>
+                <p>Coffee chains, independent cafes, education spaces, shops, and products can qualify.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section id="tokens">
+          <div class="shell">
+            <div class="section-head">
+              <h2>La, Le, Lo, Lale.</h2>
+              <p class="section-copy">
+                The token universe is symbolic before it is technical. La marks belonging.
+                Le marks everyday flow. Lo confirms depth. Lale blooms when the three
+                come together.
+              </p>
+            </div>
+            <div class="ledger" aria-label="lestupid token journey">
+              <div class="event">
+                <div>
+                  <span>La</span>
+                  <b>belonging token. first step into a place or community.</b>
+                </div>
+                <div class="value">belong</div>
+              </div>
+              <div class="event">
+                <div>
+                  <span>Le</span>
+                  <b>flow token. the natural by-product of daily presence.</b>
+                </div>
+                <div class="value">flow</div>
+              </div>
+              <div class="event">
+                <div>
+                  <span>Lo</span>
+                  <b>recognition token. in Turkish street speech: there it is, that is it.</b>
+                </div>
+                <div class="value">recognize</div>
+              </div>
+              <div class="event">
+                <div>
+                  <span>Lale</span>
+                  <b>La + Le + Lo. full growth, flowering, certification.</b>
+                </div>
+                <div class="value">bloom</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="rules" class="manifesto">
+          <div class="shell">
+            <div class="section-head">
+              <h2>the rule is short.</h2>
+              <p class="section-copy">
+                "Stupid" is irony. It does not call people stupid; it invites the curious
+                ones to ask better questions, learn without fear, and grow with others.
+              </p>
+            </div>
+            <div class="rules">
+              <div class="rule">
+                <div class="rule-number">01</div>
+                <div>La says: I am from this place, this community.</div>
+              </div>
+              <div class="rule">
+                <div class="rule-number">02</div>
+                <div>Le says: I show up, interact, and keep the flow alive.</div>
+              </div>
+              <div class="rule">
+                <div class="rule-number">03</div>
+                <div>Lo says: this is it. depth, trust, and recognition.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div class="shell">lestupid.com · stupid-free everything · version 0.1</div>
+      </footer>
+    </div>
+  </body>
+</html>
