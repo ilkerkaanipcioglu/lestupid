@@ -257,6 +257,19 @@ export interface KadroAgent {
   bio: string;
   avatar: string;
   responseTemplate: string;
+  category?: string;
+  identityClass?: "ai_worker" | "ai_persona" | "external_owned_agent";
+  sourceApp?: "les_ai/kadro" | "agentandbot.com";
+  imageUrl?: string;
+  fullBodyUrl?: string;
+  cvUrl?: string;
+  country?: string;
+  city?: string;
+  social?: string[];
+  skills?: string[];
+  hireMode?: string;
+  hourlyRate?: string;
+  availability?: string;
 }
 
 export interface ZkpCredential {
@@ -266,4 +279,33 @@ export interface ZkpCredential {
   issuer: string;
   value: string;
   hidden: boolean;
+}
+
+export interface AiSkillParameter {
+  name: string;
+  type: "string" | "number" | "boolean" | "select";
+  options?: string[];
+  description: string;
+  required: boolean;
+  defaultValue?: string | number | boolean;
+}
+
+export interface AiSkillAuditLog {
+  timestamp: string;
+  input: Record<string, any>;
+  output: string;
+  status: "success" | "failed";
+}
+
+export interface AiSkill {
+  id: string;
+  productId: string;
+  name: string;
+  description: string;
+  parameters: AiSkillParameter[];
+  requiredPermissions: string[];
+  status: "active" | "disabled" | "needs_approval";
+  executionCount: number;
+  lastExecutedAt?: string;
+  auditLogs: AiSkillAuditLog[];
 }

@@ -82,6 +82,7 @@ Detay sozlesmeleri:
 
 - `LESTUPID_APP_CATALOG.md`
 - `ROADMAP.md`
+- `docs/AGENTIC_AUTH_STRATEGY.md`
 - `docs/VISUAL_DEMO_FLOWS.md`
 - `docs/RENAME_INVENTORY.md`
 - `les_certification/lestupid-identity-activation-spec.md`

@@ -14,7 +14,9 @@ import {
   mockHarmonicaDevices,
   mockOyunCards,
   mockKadroAgents,
-  mockZkpCredentials
+  kadroMarketplaceAgents,
+  mockZkpCredentials,
+  mockAiSkills
 } from "./data";
 import { getOpportunityAdapter } from "./adapters";
 import type {
@@ -37,7 +39,9 @@ import type {
   OyunCard,
   KadroAgent,
   ZkpCredential,
-  FlowTempo
+  FlowTempo,
+  AiSkill,
+  AiSkillAuditLog
 } from "./types";
 
 const privacyOptions: Array<{ id: PrivacyLevel; label: string }> = [
@@ -506,15 +510,321 @@ function App() {
   const [winnerMessage, setWinnerMessage] = useState<string | null>(null);
 
   // 9. Les AI / KADRO State
-  const [selectedAgent, setSelectedAgent] = useState<KadroAgent>(mockKadroAgents[0]!);
+  const [selectedAgent, setSelectedAgent] = useState<KadroAgent>(kadroMarketplaceAgents[0] || mockKadroAgents[0]!);
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiConsoleContent, setAiConsoleContent] = useState("");
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [aiOutputReady, setAiOutputReady] = useState(false);
+  const [aiSubTab, setAiSubTab] = useState<"agents" | "skills">("agents");
+
 
   // 10. Les Certification ZKP State
   const [zkpCredentials, setZkpCredentials] = useState<ZkpCredential[]>(mockZkpCredentials);
   const [qrSeed, setQrSeed] = useState(0.85);
+
+  // 11. AI Skills Integration State
+  const [aiSkills, setAiSkills] = useState<AiSkill[]>(mockAiSkills);
+  const [globalAuditLogs, setGlobalAuditLogs] = useState<AiSkillAuditLog[]>(mockAiSkills.flatMap(s => s.auditLogs));
+
+  const handleExecuteAiSkill = (skillId: string, params: Record<string, any>): string => {
+    const skill = aiSkills.find(s => s.id === skillId);
+    if (!skill) {
+      return JSON.stringify({ status: "failed", error: "Skill not found" }, null, 2);
+    }
+
+    const timestamp = new Date().toISOString();
+
+    if (skill.status === "disabled") {
+      const output = JSON.stringify({ status: "failed", error: "Security Policy Block: This AI Skill is disabled globally by the user." }, null, 2);
+      const logEntry: AiSkillAuditLog = { timestamp, input: params, output, status: "failed" };
+      setAiSkills(prev => prev.map(s => s.id === skillId ? { ...s, executionCount: s.executionCount + 1, lastExecutedAt: timestamp, auditLogs: [logEntry, ...s.auditLogs] } : s));
+      setGlobalAuditLogs(prev => [logEntry, ...prev]);
+      return output;
+    }
+
+    if (skill.status === "needs_approval") {
+      const output = JSON.stringify({ status: "failed", error: "Consent Block: Execution requires explicit student signature. Please authorize execution request." }, null, 2);
+      const logEntry: AiSkillAuditLog = { timestamp, input: params, output, status: "failed" };
+      setAiSkills(prev => prev.map(s => s.id === skillId ? { ...s, executionCount: s.executionCount + 1, lastExecutedAt: timestamp, auditLogs: [logEntry, ...s.auditLogs] } : s));
+      setGlobalAuditLogs(prev => [logEntry, ...prev]);
+      return output;
+    }
+
+    let payload: any = { status: "success", timestamp };
+
+    switch (skillId) {
+      case "get_contextual_opportunities": {
+        const activePlace = places.find(p => p.id === placeId) || places[0]!;
+        payload.contextPlace = activePlace.name;
+        payload.contextMode = selectedMode;
+        payload.opportunities = [
+          { title: `${activePlace.name} - Study Session`, type: "education_opportunity" },
+          { title: `${activePlace.name} - Reward Quest`, type: "quest" }
+        ].slice(0, Number(params.limit || 3));
+        break;
+      }
+      case "wait_join_queue": {
+        const targetVenueId = params.venueId || "main-canteen";
+        const venue = places.find(p => p.id === targetVenueId) || { name: targetVenueId };
+        const ticket: QueueTicket = {
+          id: `ticket-${Date.now()}`,
+          venueId: targetVenueId,
+          venueName: venue.name,
+          ticketNumber: `A-${Math.floor(Math.random() * 90) + 10}`,
+          userPosition: Math.floor(Math.random() * 8) + 4,
+          estimatedMinutes: 15,
+          status: "waiting"
+        };
+        setWaitTicket(ticket);
+        payload.ticket = ticket;
+        payload.message = `Successfully joined wait queue for ${venue.name}`;
+        break;
+      }
+      case "wait_leave_queue": {
+        if (!waitTicket) {
+          payload = { status: "failed", error: "No active ticket found" };
+        } else {
+          setWaitTicket(null);
+          payload.message = "Successfully left the wait queue.";
+        }
+        break;
+      }
+      case "poke_list_quests": {
+        payload.questsCount = quests.length;
+        payload.quests = quests.map(q => ({ id: q.id, name: q.name, status: q.status, xp: q.xp }));
+        break;
+      }
+      case "poke_verify_gps": {
+        const qId = params.questId || "q-1";
+        const quest = quests.find(q => q.id === qId);
+        if (!quest) {
+          payload = { status: "failed", error: "Quest not found" };
+        } else if (quest.status === "completed") {
+          payload = { status: "success", message: "Quest is already completed", quest };
+        } else {
+          setQuests((prev) =>
+            prev.map((q) => (q.id === qId ? { ...q, status: "completed" } : q))
+          );
+          if (selectedQuest && selectedQuest.id === qId) {
+            setSelectedQuest(prev => (prev ? { ...prev, status: "completed" } : null));
+          }
+          setQuestXp((xp) => xp + quest.xp);
+          const newSignal = {
+            id: `cv-poke-${Date.now()}`,
+            sourceApp: "les_poke",
+            title: `${quest.name} tamamlandı`,
+            detail: `AI verify_gps arayüzü ile tamamlandı. +${quest.xp} XP.`,
+            status: "verified" as const
+          };
+          setCvProfile((prev) => ({
+            ...prev,
+            completionPercent: Math.min(100, prev.completionPercent + 4),
+            signals: [newSignal, ...prev.signals]
+          }));
+          payload.message = `Quest ${quest.name} completed successfully. +${quest.xp} XP.`;
+          payload.quest = { ...quest, status: "completed" };
+        }
+        break;
+      }
+      case "match_search_tags": {
+        const searchTag = (params.tag || "").toLowerCase();
+        const matches = matchProfiles.filter(p => p.tags.some(t => t.toLowerCase().includes(searchTag)));
+        payload.matchesFound = matches.length;
+        payload.profiles = matches.map(p => ({ pseudonym: p.pseudonym, distance: p.distance, tags: p.tags }));
+        break;
+      }
+      case "match_submit_consent": {
+        const profId = params.profileId || "m-1";
+        const isInterest = params.consent === undefined ? true : params.consent;
+        const targetProfile = matchProfiles.find(p => p.id === profId);
+        if (!targetProfile) {
+          payload = { status: "failed", error: "Profile not found" };
+        } else {
+          if (isInterest) {
+            setShowMatchPopup(true);
+            setMatchProfiles((prev) =>
+              prev.map((p) => (p.id === profId ? { ...p, mutualInterest: true } : p))
+            );
+            payload.message = `Submitted interest swipe on ${targetProfile.pseudonym}. It's a mutual match!`;
+            payload.mutualMatch = true;
+          } else {
+            payload.message = `Passed on profile ${targetProfile.pseudonym}.`;
+            payload.mutualMatch = false;
+          }
+        }
+        break;
+      }
+      case "otel_list_inventory": {
+        payload.itemCount = items.length;
+        payload.inventory = items.map(item => ({ id: item.id, name: item.name, category: item.category, status: item.status, location: item.storage_location }));
+        break;
+      }
+      case "otel_order_maintenance": {
+        const itemId = Number(params.itemId || 1);
+        const careType = params.careType || "waxing";
+        const notes = params.notes || "AI maintenance request";
+        const item = items.find(i => i.id === itemId);
+        if (!item) {
+          payload = { status: "failed", error: "Item not found in Otel registry" };
+        } else {
+          const newLog = {
+            id: Date.now(),
+            care_type: careType,
+            notes,
+            performed_at: new Date().toISOString()
+          };
+          setItems(prev => prev.map(i => i.id === itemId ? { ...i, status: "in_maintenance", care_logs: [newLog, ...i.care_logs] } : i));
+          payload.message = `Maintenance ticket generated for item: ${item.name}. Status set to 'in_maintenance'.`;
+          payload.ticket = newLog;
+        }
+        break;
+      }
+      case "otel_publish_listing": {
+        const itemId = Number(params.itemId || 1);
+        const listType = params.listingType || "rent";
+        const price = Number(params.price || 10);
+        const item = items.find(i => i.id === itemId);
+        if (!item) {
+          payload = { status: "failed", error: "Item not found" };
+        } else {
+          const updatedListing = {
+            id: Date.now(),
+            listing_type: listType,
+            price_sale: listType === "sale" || listType === "both" ? price : undefined,
+            price_rent_daily: listType === "rent" || listType === "both" ? price : undefined,
+            is_active: true
+          };
+          setItems(prev => prev.map(i => i.id === itemId ? { ...i, status: listType === "rent" ? "listed_for_rent" : "listed_for_sale", listing: updatedListing } : i));
+          payload.message = `Item ${item.name} successfully listed on marketplace board.`;
+          payload.listing = updatedListing;
+        }
+        break;
+      }
+      case "crm_search_timeline": {
+        const logContext = params.context || "all";
+        const filtered = logContext === "all" ? crmLogs : crmLogs.filter(log => log.context === logContext);
+        payload.count = filtered.length;
+        payload.logs = filtered;
+        break;
+      }
+      case "crm_record_interaction": {
+        const pName = params.placeName || "Campus Library";
+        const pNotes = params.notes || "Interaction logged by AI skill";
+        const pContext = params.context || "social";
+        const log: CrmLog = {
+          id: `crm-${Date.now()}`,
+          date: new Date().toISOString().split("T")[0]!,
+          placeName: pName,
+          notes: pNotes,
+          context: pContext
+        };
+        setCrmLogs((prev) => [log, ...prev]);
+        payload.message = `Logged interaction under ${pContext} context linked to ${pName}.`;
+        payload.crmRecord = log;
+        break;
+      }
+      case "care_fetch_clinic_slots": {
+        payload.slots = [
+          { time: "14:00", doctor: "Dr. Ayşe Yılmaz", status: "open" },
+          { time: "14:30", doctor: "Dr. Ayşe Yılmaz", status: "open" },
+          { time: "15:00", doctor: "Dr. Mehmet Kaya", status: "booked" }
+        ];
+        break;
+      }
+      case "care_generate_emergency_qr": {
+        const reason = params.reason || "First-aid";
+        payload.message = "Responder authorization token generated.";
+        payload.signedToken = `lestupid:emergency:${Date.now()}:sha256:d8f28fa8e932b144`;
+        payload.reason = reason;
+        setEmergencyActive(true);
+        break;
+      }
+      case "harmonica_scan_nodes": {
+        payload.nodes = harmonicaDevices.map(d => ({ id: d.id, name: d.name, signal: `${d.signalStrength}%` }));
+        break;
+      }
+      case "harmonica_pair_handshake": {
+        const devId = params.deviceId || "dev-1";
+        const dev = harmonicaDevices.find(d => d.id === devId);
+        if (!dev) {
+          payload = { status: "failed", error: "Device not found in range" };
+        } else {
+          setHarmonicaDevices(prev => prev.map(d => d.id === devId ? { ...d, paired: true } : d));
+          setPairedDevice({ ...dev, paired: true });
+          payload.message = `Handshake established with ${dev.name}. Public keys rotated.`;
+          payload.sharedPublicKey = dev.publicKey;
+        }
+        break;
+      }
+      case "oyun_analyze_deck": {
+        payload.cards = oyunHand.map(c => ({ id: c.id, name: c.name, score: c.power + c.defense }));
+        payload.totalPower = oyunHand.reduce((sum, c) => sum + c.power, 0);
+        payload.deckOptimal = true;
+        break;
+      }
+      case "oyun_trigger_auto_duel": {
+        const log = "Tur Sonucu [AI Skill Auto Run]: Kart Salındı. AI savunması delindi. AI Hasar Aldı (-15 HP).";
+        setAiHp(prev => Math.max(0, prev - 25));
+        setGameLogs((prev) => [log, ...prev]);
+        payload.message = "Initiated battle simulation round.";
+        payload.combatOutcome = { playerHpDamageDealt: 25, aiHpDamageDealt: 0 };
+        break;
+      }
+      case "ai_compile_cv_segment": {
+        const targetAgentId = params.agentId || "a-1";
+        const agent = [...kadroMarketplaceAgents, ...mockKadroAgents].find(a => a.id === targetAgentId);
+        if (!agent) {
+          payload = { status: "failed", error: "Agent not found" };
+        } else {
+          const newSignal = {
+            id: `cv-ai-${Date.now()}`,
+            sourceApp: "les_ai",
+            title: `Compiled by ${agent.name}`,
+            detail: agent.responseTemplate.slice(0, 80) + "...",
+            status: "draft" as const
+          };
+          setCvProfile((prev) => ({
+            ...prev,
+            completionPercent: Math.min(100, prev.completionPercent + 5),
+            signals: [newSignal, ...prev.signals]
+          }));
+          payload.message = "Living CV segment draft exported successfully.";
+          payload.cvSegment = newSignal;
+        }
+        break;
+      }
+      case "cert_generate_zkp_proof": {
+        const discloseStudent = params.discloseStudent === undefined ? true : params.discloseStudent;
+        const discloseAgeGate = params.discloseAgeGate === undefined ? false : params.discloseAgeGate;
+        const compiledProof = `zkp-token:${discloseStudent ? "STUDENT=TRUE" : "STUDENT=HIDDEN"}:${discloseAgeGate ? "18+=TRUE" : "18+=HIDDEN"}:sha256:${Math.random().toString(16).slice(2, 18)}`;
+        setQrSeed(Math.random());
+        setZkpCredentials(prev => prev.map(c => {
+          if (c.type === "Identity") return { ...c, hidden: !discloseStudent };
+          if (c.type === "Age Gate") return { ...c, hidden: !discloseAgeGate };
+          return c;
+        }));
+        payload.message = "ZKP credential compiled and QR updated.";
+        payload.zkpProofToken = compiledProof;
+        break;
+      }
+      default:
+        payload = { status: "failed", error: "Execution method not defined in simulator context." };
+    }
+
+    const finalOutput = JSON.stringify(payload, null, 2);
+    const logEntry: AiSkillAuditLog = { timestamp, input: params, output: finalOutput, status: payload.status === "success" ? "success" : "failed" };
+
+    setAiSkills(prev => prev.map(s => s.id === skillId ? { ...s, executionCount: s.executionCount + 1, lastExecutedAt: timestamp, auditLogs: [logEntry, ...s.auditLogs] } : s));
+    setGlobalAuditLogs(prev => [logEntry, ...prev]);
+
+    return finalOutput;
+  };
+
+  const handleUpdateSkillStatus = (skillId: string, newStatus: AiSkill["status"]) => {
+    setAiSkills(prev => prev.map(s => s.id === skillId ? { ...s, status: newStatus } : s));
+  };
+
+
 
   // Simulate queue tick down for Les Wait
   useEffect(() => {
@@ -1300,8 +1610,15 @@ function App() {
                 </div>
               </section>
             </section>
+
+            <InlineSkillAdapters 
+              productId="les-go" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
-        )}
+      )}
 
         {/* 1. Les Wait Queue Simulator View */}
         {activeView === "wait" && (
@@ -1400,6 +1717,13 @@ function App() {
                 </div>
               </div>
             </div>
+
+            <InlineSkillAdapters 
+              productId="lestupid-waiting-app" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
         )}
 
@@ -1469,6 +1793,13 @@ function App() {
                 )}
               </div>
             </div>
+
+            <InlineSkillAdapters 
+              productId="les-poke" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
         )}
 
@@ -1610,6 +1941,13 @@ function App() {
                 </div>
               </div>
             )}
+
+            <InlineSkillAdapters 
+              productId="les-match" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
         )}
 
@@ -1870,6 +2208,13 @@ function App() {
                 })}
               </div>
             </div>
+
+            <InlineSkillAdapters 
+              productId="les-itemotel" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
         )}
 
@@ -1960,6 +2305,13 @@ function App() {
                 </div>
               </div>
             </div>
+
+            <InlineSkillAdapters 
+              productId="les-contacts" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
         )}
 
@@ -2048,6 +2400,13 @@ function App() {
                 </div>
               </div>
             </div>
+
+            <InlineSkillAdapters 
+              productId="les-care" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
         )}
 
@@ -2156,6 +2515,13 @@ function App() {
                 )}
               </div>
             </div>
+
+            <InlineSkillAdapters 
+              productId="les-harmonica" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
         )}
 
@@ -2248,6 +2614,13 @@ function App() {
                 </div>
               )}
             </div>
+
+            <InlineSkillAdapters 
+              productId="les-affiliate-oyun" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
         )}
 
@@ -2255,83 +2628,250 @@ function App() {
         {activeView === "ai" && (
           <div className="sim-container">
             <div className="sim-header">
-              <h2>KADRO AI Agents</h2>
-              <p>Interact with certified AI workers, review tasks drafts, and compile CV signals.</p>
+              <h2>KADRO AI Console</h2>
+              <p>Interact with certified AI workers, manage tool adapters, and inspect audit logs.</p>
+              
+              <div className="sub-tab-bar" style={{ display: "flex", gap: "20px", marginTop: "16px", borderBottom: "1px solid var(--line)", paddingBottom: "10px" }}>
+                <button 
+                  className={`sub-tab-btn ${aiSubTab === "agents" ? "active" : ""}`}
+                  onClick={() => setAiSubTab("agents")}
+                  style={{ background: "none", border: "none", color: aiSubTab === "agents" ? "var(--teal)" : "var(--muted)", fontWeight: "bold", fontSize: "14px", cursor: "pointer", paddingBottom: "4px", borderBottom: aiSubTab === "agents" ? "2px solid var(--teal)" : "none" }}
+                >
+                  🤖 KADRO Workers
+                </button>
+                <button 
+                  className={`sub-tab-btn ${aiSubTab === "skills" ? "active" : ""}`}
+                  onClick={() => setAiSubTab("skills")}
+                  style={{ background: "none", border: "none", color: aiSubTab === "skills" ? "var(--teal)" : "var(--muted)", fontWeight: "bold", fontSize: "14px", cursor: "pointer", paddingBottom: "4px", borderBottom: aiSubTab === "skills" ? "2px solid var(--teal)" : "none" }}
+                >
+                  🔌 Ecosystem AI Skills & Security
+                </button>
+              </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: "28px" }}>
-              <div>
-                <h3>Ajan Kadrosu</h3>
-                <div style={{ display: "grid", gap: "10px", marginTop: "12px" }}>
-                  {mockKadroAgents.map((agent) => (
-                    <div
-                      key={agent.id}
-                      onClick={() => {
-                        setSelectedAgent(agent);
-                        setAiConsoleContent("");
-                        setAiOutputReady(false);
-                      }}
-                      style={{
-                        padding: "14px",
-                        border: "1px solid var(--line)",
-                        borderRadius: "12px",
-                        cursor: "pointer",
-                        background: selectedAgent.id === agent.id ? "rgba(32,117,111,0.05)" : "var(--surface)",
-                        borderColor: selectedAgent.id === agent.id ? "var(--teal)" : "var(--line)"
-                      }}
-                    >
-                      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                        <span style={{ fontSize: "24px" }}>{agent.avatar}</span>
-                        <div>
-                          <strong>{agent.name}</strong>
-                          <div style={{ fontSize: "11px", color: "var(--muted)" }}>{agent.role}</div>
+            {aiSubTab === "agents" ? (
+              <div className="kadro-market-layout">
+                <div className="kadro-roster-panel">
+                  <div className="kadro-panel-title">
+                    <h3>Ajan Kadrosu</h3>
+                    <span>{kadroMarketplaceAgents.length} worker</span>
+                  </div>
+                  <div className="kadro-agent-grid">
+                    {kadroMarketplaceAgents.map((agent) => (
+                      <button
+                        type="button"
+                        className={`kadro-agent-card ${selectedAgent.id === agent.id ? "selected" : ""}`}
+                        key={agent.id}
+                        onClick={() => {
+                          setSelectedAgent(agent);
+                          setAiConsoleContent("");
+                          setAiOutputReady(false);
+                        }}
+                      >
+                        <div className="kadro-avatar-wrap">
+                          {agent.imageUrl ? (
+                            <img
+                              src={agent.imageUrl}
+                              alt={agent.name}
+                              onError={(event) => {
+                                event.currentTarget.style.display = "none";
+                              }}
+                            />
+                          ) : null}
+                          <span>{agent.avatar}</span>
                         </div>
+                        <div className="kadro-card-copy">
+                          <strong>{agent.name}</strong>
+                          <small>{agent.role}</small>
+                          <div className="kadro-mini-meta">
+                            <span>{agent.category || "Worker"}</span>
+                            <span>{agent.availability || "Ready"}</span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="kadro-detail-card">
+                    <div className="kadro-detail-hero">
+                      <div className="kadro-detail-photo">
+                        {selectedAgent.imageUrl ? (
+                          <img
+                            src={selectedAgent.imageUrl}
+                            alt={selectedAgent.name}
+                            onError={(event) => {
+                              event.currentTarget.style.display = "none";
+                            }}
+                          />
+                        ) : null}
+                        <span>{selectedAgent.avatar}</span>
+                      </div>
+                      <div className="kadro-detail-copy">
+                        <div className="kadro-status-row">
+                          <span>{selectedAgent.identityClass || "ai_worker"}</span>
+                          <span>{selectedAgent.sourceApp || "les_ai/kadro"}</span>
+                          <span>{selectedAgent.country || "Global"}</span>
+                        </div>
+                        <h3>{selectedAgent.name}</h3>
+                        <p>{selectedAgent.role}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              <div>
-                <div style={{ border: "1px solid var(--line)", padding: "20px", borderRadius: "16px" }}>
-                  <h3>{selectedAgent.name} ile Oturum</h3>
-                  <p style={{ fontSize: "13px", color: "var(--muted)", margin: "4px 0 16px" }}>
-                    {selectedAgent.bio}
-                  </p>
+                    <p className="kadro-agent-bio">{selectedAgent.bio}</p>
 
-                  <form onSubmit={handleSendAiPrompt} style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
-                    <input
-                      type="text"
-                      placeholder={`${selectedAgent.name} için bir talimat yaz...`}
-                      value={aiPrompt}
-                      onChange={(e) => setAiPrompt(e.target.value)}
-                      style={{ flex: 1, padding: "10px 14px", border: "1px solid var(--line)", borderRadius: "8px" }}
-                      disabled={isAiTyping}
-                    />
-                    <button className="action-button primary" disabled={isAiTyping}>
-                      Çalıştır
-                    </button>
-                  </form>
+                    <div className="kadro-skill-row">
+                      {(selectedAgent.skills || []).map((skill) => (
+                        <span key={skill}>{skill}</span>
+                      ))}
+                    </div>
 
-                  <strong>Ajan Konsol Çıktısı [Simüle]:</strong>
-                  <div className="ai-terminal">
-                    <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                      {aiConsoleContent || "Talebinizi bekliyor..."}
-                    </pre>
+                    <div className="kadro-hire-strip">
+                      <div>
+                        <small>Hire mode</small>
+                        <strong>{selectedAgent.hireMode || "Task workspace"}</strong>
+                      </div>
+                      <div>
+                        <small>Price</small>
+                        <strong>{selectedAgent.hourlyRate || "Demo credits"}</strong>
+                      </div>
+                      <div>
+                        <small>Status</small>
+                        <strong>{selectedAgent.availability || "Ready"}</strong>
+                      </div>
+                    </div>
+
+                    <div className="kadro-action-row">
+                      <button
+                        className="action-button primary"
+                        onClick={() => {
+                          setAiConsoleContent(`${selectedAgent.name} hire request drafted.\nTask: ${selectedAgent.hireMode || "Task workspace"}\nConsent: user approval required before execution.`);
+                          setAiOutputReady(true);
+                        }}
+                      >
+                        Hire / Task
+                      </button>
+                      <button
+                        className="action-button"
+                        onClick={() => {
+                          setAiConsoleContent(`${selectedAgent.name} AgentAndBot card opened in demo mode.\nSource: ${selectedAgent.sourceApp || "agentandbot.com"}\nIdentity: ${selectedAgent.identityClass || "ai_worker"}`);
+                        }}
+                      >
+                        Agent Card
+                      </button>
+                      {selectedAgent.cvUrl ? (
+                        <button
+                          className="action-button"
+                          onClick={() => {
+                            setAiConsoleContent(`${selectedAgent.name} CV preview is available at ${selectedAgent.cvUrl}.\nIn production this opens AgentAndBot governance profile.`);
+                          }}
+                        >
+                          CV Preview
+                        </button>
+                      ) : null}
+                    </div>
+
+                    <form onSubmit={handleSendAiPrompt} style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
+                      <input
+                        type="text"
+                        placeholder={`${selectedAgent.name} için bir talimat yaz...`}
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        style={{ flex: 1, padding: "10px 14px", border: "1px solid var(--line)", borderRadius: "8px" }}
+                        disabled={isAiTyping}
+                      />
+                      <button className="action-button primary" disabled={isAiTyping}>
+                        Çalıştır
+                      </button>
+                    </form>
+
+                    <strong>Ajan Konsol Çıktısı [Simüle]:</strong>
+                    <div className="ai-terminal">
+                      <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
+                        {aiConsoleContent || "Talebinizi bekliyor..."}
+                      </pre>
+                    </div>
+
+                    {aiOutputReady && (
+                      <button
+                        className="action-button primary"
+                        style={{ width: "100%", marginTop: "16px", background: "var(--teal)" }}
+                        onClick={handleExportAiDraftToCv}
+                      >
+                        Bu Taslağı Living CV'ye Ekle (Export)
+                      </button>
+                    )}
                   </div>
-
-                  {aiOutputReady && (
-                    <button
-                      className="action-button primary"
-                      style={{ width: "100%", marginTop: "16px", background: "var(--teal)" }}
-                      onClick={handleExportAiDraftToCv}
-                    >
-                      Bu Taslağı Living CV'ye Ekle (Export)
-                    </button>
-                  )}
                 </div>
               </div>
-            </div>
+            ) : (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 350px", gap: "28px" }}>
+                <div>
+                  <h3 style={{ marginBottom: "12px" }}>Ecosystem Tool Adapters</h3>
+                  <div style={{ display: "grid", gap: "14px" }}>
+                    {aiSkills.map(skill => (
+                      <div key={skill.id} style={{ padding: "16px", border: "1px solid var(--line)", borderRadius: "12px", background: "var(--surface)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                          <div>
+                            <span style={{ fontSize: "11px", textTransform: "uppercase", background: "rgba(32,117,111,0.1)", color: "var(--teal)", padding: "2px 6px", borderRadius: "4px", marginRight: "8px" }}>
+                              {skill.productId}
+                            </span>
+                            <span style={{ fontWeight: "bold", fontFamily: "monospace" }}>{skill.id}()</span>
+                          </div>
+                          <select 
+                            value={skill.status} 
+                            onChange={(e) => handleUpdateSkillStatus(skill.id, e.target.value as any)}
+                            className={`skill-status-select ${skill.status}`}
+                          >
+                            <option value="active">Active</option>
+                            <option value="needs_approval">Needs Approval</option>
+                            <option value="disabled">Disabled</option>
+                          </select>
+                        </div>
+                        <h4 style={{ margin: "4px 0" }}>{skill.name}</h4>
+                        <p style={{ fontSize: "13px", color: "var(--muted)", margin: "4px 0" }}>{skill.description}</p>
+                        
+                        <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--muted)", display: "flex", gap: "16px" }}>
+                          <span>Calls: <strong>{skill.executionCount}</strong></span>
+                          {skill.lastExecutedAt && (
+                            <span>Last run: <strong>{new Date(skill.lastExecutedAt).toLocaleTimeString()}</strong></span>
+                          )}
+                          <span>Permissions: <strong>{skill.requiredPermissions.join(", ")}</strong></span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 style={{ marginBottom: "12px" }}>🛡️ Live Security Audit Trail</h3>
+                  <div style={{ padding: "16px", border: "1px solid var(--line)", borderRadius: "12px", background: "var(--surface)", maxHeight: "500px", overflowY: "auto" }}>
+                    {globalAuditLogs.length === 0 ? (
+                      <div style={{ textAlign: "center", color: "var(--muted)", padding: "24px 0" }}>No executions logged.</div>
+                    ) : (
+                      <div style={{ display: "grid", gap: "12px" }}>
+                        {globalAuditLogs.map((log, idx) => (
+                          <div key={idx} style={{ padding: "10px", borderBottom: "1px solid var(--line)", fontSize: "12px" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                              <strong style={{ color: log.status === "success" ? "var(--teal)" : "var(--rose)" }}>
+                                {log.status === "success" ? "✓ SUCCESS" : "✗ BLOCKED"}
+                              </strong>
+                              <span style={{ fontSize: "10px", color: "var(--muted)" }}>
+                                {new Date(log.timestamp).toLocaleTimeString()}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: "11px", color: "var(--muted)", fontFamily: "monospace" }}>
+                              Params: {JSON.stringify(log.input)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -2412,6 +2952,13 @@ function App() {
                 </div>
               </div>
             </div>
+
+            <InlineSkillAdapters 
+              productId="les-certification" 
+              skills={aiSkills} 
+              onExecute={handleExecuteAiSkill} 
+              onUpdateStatus={handleUpdateSkillStatus} 
+            />
           </div>
         )}
       </main>
@@ -2902,6 +3449,199 @@ function Opportunity({
         </div>
       </div>
     </article>
+  );
+}
+
+interface InlineSkillAdaptersProps {
+  productId: string;
+  skills: AiSkill[];
+  onExecute: (skillId: string, params: Record<string, any>) => string;
+  onUpdateStatus: (skillId: string, status: AiSkill["status"]) => void;
+}
+
+function InlineSkillAdapters({ productId, skills, onExecute, onUpdateStatus }: InlineSkillAdaptersProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const appSkills = skills.filter(s => s.productId === productId);
+  
+  const [paramsState, setParamsState] = useState<Record<string, Record<string, any>>>(() => {
+    const initial: Record<string, Record<string, any>> = {};
+    appSkills.forEach(s => {
+      initial[s.id] = {};
+      s.parameters.forEach(p => {
+        initial[s.id][p.name] = p.defaultValue !== undefined ? p.defaultValue : (p.type === "boolean" ? false : "");
+      });
+    });
+    return initial;
+  });
+
+  const [outputsState, setOutputsState] = useState<Record<string, string>>({});
+
+  if (appSkills.length === 0) return null;
+
+  const handleRun = (skillId: string) => {
+    const params = paramsState[skillId] || {};
+    const result = onExecute(skillId, params);
+    setOutputsState(prev => ({ ...prev, [skillId]: result }));
+  };
+
+  const handleParamChange = (skillId: string, name: string, value: any) => {
+    setParamsState(prev => ({
+      ...prev,
+      [skillId]: {
+        ...(prev[skillId] || {}),
+        [name]: value
+      }
+    }));
+  };
+
+  return (
+    <div className="skill-adapters-container" style={{ marginTop: "24px", border: "1px solid var(--line)", borderRadius: "16px", background: "rgba(255, 255, 255, 0.03)", overflow: "hidden" }}>
+      <div className="skill-adapters-header" onClick={() => setIsOpen(!isOpen)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", cursor: "pointer", borderBottom: isOpen ? "1px solid var(--line)" : "none", background: "var(--surface)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <span style={{ fontSize: "18px" }}>🔌</span>
+          <strong style={{ fontSize: "14px", color: "var(--ink)" }}>AI Skill Adapters ({appSkills.length} Available)</strong>
+        </div>
+        <span style={{ fontSize: "12px", color: "var(--muted)", transition: "transform 0.2s", transform: isOpen ? "rotate(180deg)" : "rotate(0)" }}>▼</span>
+      </div>
+
+      {isOpen && (
+        <div className="skill-adapters-content" style={{ padding: "20px" }}>
+          <p className="skills-subtitle" style={{ margin: "0 0 16px 0", fontSize: "13px", color: "var(--muted)" }}>
+            Configure boundaries and run simulated tool calls for this application's AI capabilities.
+          </p>
+          <div style={{ display: "grid", gap: "20px" }}>
+            {appSkills.map(skill => {
+              const currentParams = paramsState[skill.id] || {};
+              const currentOutput = outputsState[skill.id];
+
+              return (
+                <div key={skill.id} className="skill-card-inner" style={{ padding: "16px", border: "1px solid var(--line)", borderRadius: "12px", background: "var(--surface)" }}>
+                  <div className="skill-card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "8px" }}>
+                    <div>
+                      <span className="skill-code" style={{ fontFamily: "monospace", fontSize: "12px", background: "rgba(32,117,111,0.08)", color: "var(--teal)", padding: "2px 6px", borderRadius: "4px" }}>
+                        {skill.id}()
+                      </span>
+                      <h4 style={{ margin: "6px 0 2px 0", fontSize: "14px", fontWeight: "bold" }}>{skill.name}</h4>
+                    </div>
+                    <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                      <select 
+                        value={skill.status} 
+                        onChange={(e) => onUpdateStatus(skill.id, e.target.value as any)}
+                        className={`skill-status-select ${skill.status}`}
+                        style={{ fontSize: "12px", padding: "4px 8px", borderRadius: "6px", border: "1px solid var(--line)", background: "var(--surface)" }}
+                      >
+                        <option value="active">Active</option>
+                        <option value="needs_approval">Needs Approval</option>
+                        <option value="disabled">Disabled</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <p className="skill-description" style={{ fontSize: "13px", color: "var(--muted)", margin: "0 0 12px 0", lineHeight: 1.4 }}>
+                    {skill.description}
+                  </p>
+
+                  {skill.parameters.length > 0 && (
+                    <div className="skill-params-form" style={{ marginTop: "12px", padding: "12px", border: "1px solid var(--line)", borderRadius: "8px", background: "rgba(0,0,0,0.02)" }}>
+                      <div className="params-title" style={{ fontSize: "11px", textTransform: "uppercase", fontWeight: "bold", color: "var(--muted)", marginBottom: "8px" }}>Parameters:</div>
+                      <div className="params-grid" style={{ display: "grid", gap: "12px" }}>
+                        {skill.parameters.map(p => (
+                          <div key={p.name} className="param-field" style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <label className="param-label" style={{ fontSize: "12px", fontWeight: 600, color: "var(--ink)", display: "flex", justifyContent: "space-between" }}>
+                              <span>
+                                {p.name} {p.required && <span className="req" style={{ color: "var(--rose)" }}>*</span>}
+                              </span>
+                              <span className="param-desc" style={{ fontWeight: "normal", fontSize: "11px", color: "var(--muted)" }}>{p.description}</span>
+                            </label>
+                            
+                            {p.type === "select" ? (
+                              <select
+                                value={currentParams[p.name] || ""}
+                                onChange={(e) => handleParamChange(skill.id, p.name, e.target.value)}
+                                className="param-input"
+                                style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid var(--line)", background: "var(--surface)", fontSize: "13px" }}
+                              >
+                                {(p.options || []).map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            ) : p.type === "boolean" ? (
+                              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                                <input
+                                  type="checkbox"
+                                  checked={!!currentParams[p.name]}
+                                  onChange={(e) => handleParamChange(skill.id, p.name, e.target.checked)}
+                                  className="param-checkbox"
+                                />
+                                <span style={{ fontSize: "12px", color: "var(--muted)" }}>Enable / True</span>
+                              </div>
+                            ) : (
+                              <input
+                                type={p.type === "number" ? "number" : "text"}
+                                value={currentParams[p.name] ?? ""}
+                                onChange={(e) => handleParamChange(skill.id, p.name, p.type === "number" ? Number(e.target.value) : e.target.value)}
+                                className="param-input"
+                                placeholder={String(p.defaultValue || "")}
+                                style={{ width: "100%", padding: "8px", borderRadius: "6px", border: "1px solid var(--line)", background: "var(--surface)", fontSize: "13px" }}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ marginTop: "14px", display: "flex", gap: "10px" }}>
+                    <button 
+                      type="button" 
+                      className="action-button primary" 
+                      style={{ padding: "8px 16px", fontSize: "12px", flex: 1 }}
+                      onClick={() => handleRun(skill.id)}
+                    >
+                      Run Simulation
+                    </button>
+                    {currentOutput && (
+                      <button 
+                        type="button" 
+                        className="action-button secondary" 
+                        style={{ padding: "8px 16px", fontSize: "12px" }}
+                        onClick={() => setOutputsState(prev => {
+                          const copy = { ...prev };
+                          delete copy[skill.id];
+                          return copy;
+                        })}
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  {currentOutput && (
+                    <div className="skill-terminal-output" style={{ marginTop: "14px", border: "1px solid var(--line)", borderRadius: "8px", overflow: "hidden", background: "#0c0f12" }}>
+                      <div className="terminal-header" style={{ background: "#161b22", padding: "6px 12px", borderBottom: "1px solid var(--line)", fontSize: "11px", color: "#8b949e", display: "flex", justifyContent: "space-between" }}>
+                        <span>Output Payload (JSON-LD)</span>
+                      </div>
+                      <pre className="terminal-pre" style={{ margin: 0, padding: "12px", fontSize: "12px", color: "#58a6ff", fontFamily: "monospace", overflowX: "auto", whiteSpace: "pre-wrap" }}>{currentOutput}</pre>
+                    </div>
+                  )}
+
+                  {skill.auditLogs.length > 0 && (
+                    <div className="skill-audit-mini" style={{ marginTop: "10px", fontSize: "11px", borderTop: "1px solid var(--line)", paddingTop: "8px" }}>
+                      <span style={{ fontWeight: "bold", color: "var(--muted)", marginRight: "6px" }}>Recent Run Log:</span>
+                      {skill.auditLogs.slice(0, 1).map((log, lIdx) => (
+                        <span key={lIdx} style={{ color: log.status === "success" ? "var(--teal)" : "var(--rose)", fontFamily: "monospace" }}>
+                          [{new Date(log.timestamp).toLocaleTimeString()}] Input: {JSON.stringify(log.input)} → {log.status.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
