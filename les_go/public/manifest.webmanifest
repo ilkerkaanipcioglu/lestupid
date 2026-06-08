@@ -1,0 +1,17 @@
+{
+  "name": "LesTupid Go",
+  "short_name": "Les Go",
+  "description": "Student check-in and opportunity PWA shell for the LesTupid ecosystem.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f0e6",
+  "theme_color": "#101820",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

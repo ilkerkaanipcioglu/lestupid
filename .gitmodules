@@ -1,0 +1,19 @@
+[submodule "LesTupid_Lan"]
+	path = LesTupid_Lan
+	url = https://github.com/ilkerkaanipcioglu/Lestupid_lan.git
+
+[submodule "Les_Commerce/diy-marketplace-elixir"]
+	path = Les_Commerce/diy-marketplace-elixir
+	url = https://github.com/ilkerkaanipcioglu/lescommerce_diy.git
+
+[submodule "Les_Commerce/quick-commerce-elixir"]
+	path = Les_Commerce/quick-commerce-elixir
+	url = https://github.com/ilkerkaanipcioglu/lescomerce_lesify.git
+
+[submodule "e-any.online"]
+	path = e-any.online
+	url = https://github.com/ilkerkaanipcioglu/e-any.online.git
+
+[submodule "les_ai"]
+	path = les_ai
+	url = https://github.com/ilkerkaanipcioglu/agentandbot_com.git

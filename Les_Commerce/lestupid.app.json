@@ -1,0 +1,175 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "lescommerce-core",
+  "name": "Les Commerce",
+  "service": "lescommerce",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "Les_Commerce",
+  "summary": "LesTupid-compatible commerce family: DIY video marketplace, item hotel custody/care, general marketplace/listings, Shopify-style quick commerce, and quick-commerce storefront themes.",
+  "ecosystem_roles": [
+    "commerce",
+    "diy_marketplace",
+    "creator_craft_drop",
+    "creator_promotion_brief",
+    "influencer_content_gig",
+    "affiliate_campaign",
+    "item_custody",
+    "seasonal_storage",
+    "circular_commerce",
+    "marketplace",
+    "listing_marketplace",
+    "tap_to_filter_discovery",
+    "facet_signal_search",
+    "quick_commerce",
+    "merchant_storefront",
+    "storefront_theme_pool",
+    "merchant_rewards",
+    "certified_place_commerce"
+  ],
+  "subsystems": [
+    {
+      "id": "lescommerce-diydiy",
+      "directory": "Les_Commerce/diy-marketplace-elixir",
+      "role": "video_to_diy_products_materials_and_masters"
+    },
+    {
+      "id": "les-itemotel",
+      "directory": "Les_Commerce/les_itemotel",
+      "role": "item_custody_storage_care_rental_resale_and_recall"
+    },
+    {
+      "id": "lescommerce-marketplace",
+      "directory": "Les_Commerce/marketplace-elixir",
+      "role": "marketplace_and_listing_engine_for_home_car_service_product_and_local_offers"
+    },
+    {
+      "id": "lescommerce-quick-commerce",
+      "directory": "Les_Commerce/quick-commerce-elixir",
+      "role": "shopify_style_fast_store_builder"
+    },
+    {
+      "id": "lescommerce-storefronts",
+      "directory": "Les_Commerce/storefronts",
+      "role": "quick_commerce_storefront_theme_pool"
+    }
+  ],
+  "identity_activation": {
+    "model": "shared_lestupid_identity",
+    "registration": "local_or_lestupid_identity_layer",
+    "app_activation_required": true,
+    "activation_product_id": "lescommerce-core",
+    "activation_permissions": [
+      "commerce_profile",
+      "orders",
+      "merchant_storefront",
+      "marketplace_listings",
+      "diy_creator_drops",
+      "creator_promotion_briefs",
+      "affiliate_campaigns",
+      "item_custody_records",
+      "storage_and_care_orders",
+      "merchant_or_customer_rewards",
+      "certified_offer_interactions",
+      "private_contact_product_memory_adapter",
+      "tap_to_filter_facets"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "medium",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "identity_adapter",
+      "activation_adapter",
+      "channel_adapter",
+      "match_opportunity_adapter",
+      "certification_adapter",
+      "loyalty_adapter",
+      "contacts_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "DIY marketplace, item hotel, listing marketplace, quick commerce and storefront themes can run independently; LesTupid identity, rewards, certification and matchmaking are optional adapters."
+  },
+  "integrations": {
+    "les_match": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "merchant and offer matching",
+        "product-interest opportunities",
+        "service need matching",
+        "mentor or sponsor opportunities for opt-in creator drops",
+        "creator promotion and merchant campaign matching",
+        "item rental or resale opportunities"
+      ]
+    },
+    "les_poke": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "walk-to-store quests",
+        "local merchant rewards",
+        "creator drop quests",
+        "creator promotion quests",
+        "listing discovery quests"
+      ]
+    },
+    "les_wait": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "appointments",
+        "pickup queues",
+        "merchant onboarding slots",
+        "service reservation queues",
+        "item pickup slots",
+        "item care appointments",
+        "item return delivery queues"
+      ]
+    },
+    "les_go": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "check-in commerce opportunities",
+        "local listings",
+        "campus creator drops",
+        "creator promotion briefs from nearby merchants",
+        "merchant storefront cards",
+        "seasonal item storage prompts",
+        "item care and recall status cards"
+      ]
+    },
+    "les_contacts": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "private customer and merchant CRM memory",
+        "product bought or used relationship drafts",
+        "receipt, refund and warranty follow-up references",
+        "Item Otel custody/care/rental/resale memory through scoped references"
+      ]
+    },
+    "les_certification": {
+      "ready": true,
+      "registry_id": "lescommerce-core"
+    }
+  },
+  "well_known": [
+    "/agent-manifest.json",
+    "/.well-known/lestupid-app.json"
+  ]
+}

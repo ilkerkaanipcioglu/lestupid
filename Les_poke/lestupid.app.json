@@ -1,0 +1,270 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "les-poke",
+  "name": "Les Poke",
+  "service": "les_poke_api",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "Les_poke",
+  "summary": "Mobile-first real-world city quest and memory layer for Kadikoy and Nairobi.",
+  "ecosystem_roles": [
+    "city_memory",
+    "real_world_quest",
+    "loyalty_points_source",
+    "live_local_discovery",
+    "checkin_signal_source",
+    "place_candidate_signal",
+    "event_signal_source",
+    "creator_membership_source",
+    "paid_quest_drop_source",
+    "fan_club_trail_source",
+    "creator_promotion_quest_source",
+    "live_content_challenge_source",
+    "sponsored_content_challenge_source",
+    "student_launch_quest_source",
+    "graduate_pathway_quest_source"
+  ],
+  "certification": {
+    "registry_id": "les-poke",
+    "route": "certify safe public-space quests, opt-in live discovery, clear points, creator promotion quest labeling, sponsored content disclosure, Les Commerce brief handoff, and local memory stewardship",
+    "human_review_required": true
+  },
+  "identity_activation": {
+    "model": "shared_lestupid_identity",
+    "registration": "handled_by_lestupid_identity_layer",
+    "app_activation_required": true,
+    "activation_product_id": "les-poke",
+    "activation_permissions": [
+      "quest_profile",
+      "city_selection",
+      "location_for_quests",
+      "loyalty_points",
+      "creator_membership_preview",
+      "paid_drop_preview",
+      "creator_promotion_quest_preview",
+      "live_content_challenge_preview",
+      "student_launch_quest_preview"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "low",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "identity_adapter",
+      "activation_adapter",
+      "channel_adapter",
+      "match_opportunity_adapter",
+      "certification_adapter",
+      "loyalty_adapter",
+      "les_block_adapter",
+      "ai_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "Les Poke can run as a city quest app without Les Match, Les Commerce, or Les Wait; ecosystem features become optional integrations."
+  },
+  "integrations": {
+    "les_match": {
+      "ready": true,
+      "use_cases": [
+        "check-in based compatible people discovery",
+        "concert, travel, and local event match opportunities",
+        "quest interest to participant matching",
+        "venue check-ins as lestupid place candidate signals",
+        "creator membership opportunity signals",
+        "fan club quest interest signals",
+        "creator promotion interest signals",
+        "merchant creator campaign interest signals",
+        "graduate launch mentor or sponsor interest signals"
+      ],
+      "opportunity_events": [
+        "check_in",
+        "quest_interest",
+        "event_plan",
+        "travel_plan",
+        "creator_drop_interest",
+        "fan_club_interest",
+        "creator_promotion_interest",
+        "sponsored_content_interest",
+        "student_launch_interest"
+      ],
+      "interaction_channels": [
+        "place",
+        "travel",
+        "event",
+        "hobby"
+      ],
+      "requires_les_match_activation": true
+    },
+    "lescommerce": {
+      "ready": true,
+      "use_cases": [
+        "quest rewards for local merchants",
+        "city discovery campaigns",
+        "walk-to-store missions",
+        "paid creator drops",
+        "fan club memberships",
+        "exclusive quest access",
+        "creator promotion quest briefs",
+        "live content campaign rewards",
+        "affiliate campaign challenge handoff"
+        ,
+        "safe student income quest rewards",
+        "graduate launch challenge rewards"
+      ]
+    },
+    "les_wait": {
+      "ready": true,
+      "use_cases": [
+        "nearby queue-safe micro quests",
+        "breathable waiting walks",
+        "hospital or service-area wayfinding prompts"
+      ]
+    },
+    "les_certification": {
+      "ready": true,
+      "registry_id": "les-poke"
+    },
+    "les_ai": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "quest idea generation",
+        "local story summary",
+        "place evidence summary",
+        "city safety review draft"
+      ]
+    },
+    "agentandbot": {
+      "ready": true,
+      "optional": true,
+      "published_outside_lestupid": true,
+      "use_cases": [
+        "KADRO agent-led city quest assistance",
+        "agent-generated field note drafts",
+        "agent-to-quest task suggestions"
+        ,
+        "graduate launch quest drafts"
+      ]
+    },
+    "les_block": {
+      "ready": false,
+      "optional": true,
+      "adapter": "les_block_adapter",
+      "use_cases": [
+        "quest completion proof",
+        "badge proof",
+        "place candidate proof",
+        "point proof"
+      ]
+    }
+  },
+  "agent_capabilities": {
+    "discovery": true,
+    "semantic_metadata": true,
+    "city_filtering": true,
+    "quest_lookup": true,
+    "health_check": true
+  },
+  "endpoints": {
+    "health": {
+      "method": "GET",
+      "path": "/api/health"
+    },
+    "cities": {
+      "method": "GET",
+      "path": "/api/cities"
+    },
+    "quests": {
+      "method": "GET",
+      "path": "/api/quests",
+      "query_parameters": {
+        "city_id": "Filter quests by city id, for example kadikoy or nairobi"
+      }
+    },
+    "quest_detail": {
+      "method": "GET",
+      "path": "/api/quests/:id"
+    },
+    "manifest": {
+      "method": "GET",
+      "path": "/agent-manifest.json"
+    }
+  },
+  "well_known": [
+    "/agent-manifest.json",
+    "/.well-known/ai-agent.json",
+    "/.well-known/lestupid-app.json"
+  ],
+  "platform_strategy": {
+    "delivery_model": "simple_fast_flexible_api_first",
+    "mobile_web": "responsive_pwa_first",
+    "mobile_app": "expo_when_native_city_quest_install_is_needed",
+    "desktop_app": "web_pwa_first",
+    "admin_ops": "web_dashboard_when_api_exists"
+  },
+  "value_layer": {
+    "source_of_truth": "local_or_lestupid_core_ledger",
+    "web3_role": "optional_proof_and_portability",
+    "wallet_required": false,
+    "adapter": "les_block_adapter",
+    "supported_value_events": [
+      "la_earned",
+      "le_earned",
+      "lo_earned",
+      "lale_completed",
+      "quest_completed",
+      "point_earned",
+      "badge_earned",
+      "creator_drop_unlocked",
+      "membership_access_granted",
+      "place_candidate_signal",
+      "certificate_proof_requested"
+    ],
+    "rules": [
+      "quest_play_without_wallet",
+      "private_location_data_never_published_on_chain",
+      "mint_requires_explicit_consent",
+      "points_do_not_override_safety_or_queue_rules",
+      "reward_rules_must_be_transparent"
+      ,
+      "paid_drops_must_be_labeled",
+      "sponsored_creator_promotions_must_be_labeled",
+      "creator_promotion_briefs_and_payouts_stay_in_lescommerce",
+      "adult_creator_content_requires_18_plus_and_legal_review",
+      "sexual_service_marketplace_forbidden"
+    ]
+  },
+  "match_opportunity_policy": {
+    "source_events": [
+      "check_in",
+      "quest_interest",
+      "event_plan",
+      "travel_plan",
+      "place_candidate_signal",
+      "agent_field_note",
+      "creator_drop_interest",
+      "fan_club_interest",
+      "exclusive_content_interest",
+      "creator_promotion_interest",
+      "sponsored_content_interest",
+      "student_launch_interest"
+    ],
+    "requires_les_match_activation": true,
+    "both_sides_matchmaking_required_for_people": true,
+    "agent_matches_must_be_labeled": true,
+    "private_location_precision": "coarse_or_user_approved"
+  }
+}

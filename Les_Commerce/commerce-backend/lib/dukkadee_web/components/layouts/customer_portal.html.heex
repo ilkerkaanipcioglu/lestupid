@@ -1,0 +1,31 @@
+<div class="customer-portal-layout">
+  <!-- Import brand colors styles -->
+  <style>
+    /* Pull in dynamic customer color preferences */
+    :root {
+      <%= raw DukkadeeWeb.Components.BrandColors.css_variables() %>
+    }
+  </style>
+
+  <main class="customer-portal">
+    <div class="mx-auto px-4 py-6 sm:px-6 lg:px-8">
+      <.flash_group flash={@flash} />
+      <%= @inner_content %>
+    </div>
+  </main>
+
+  <footer class="bg-brand-dark-9 text-white py-6 mt-8">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-wrap">
+        <div class="w-full md:w-1/2 mb-4 md:mb-0">
+          <p>© <%= DateTime.utc_now().year %> Dukkadee. All rights reserved.</p>
+        </div>
+        <div class="w-full md:w-1/2 text-right">
+          <a href="#" class="text-white hover:text-brand-yellow mx-2">Privacy Policy</a>
+          <a href="#" class="text-white hover:text-brand-yellow mx-2">Terms of Service</a>
+          <a href="#" class="text-white hover:text-brand-yellow mx-2">Help Center</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+</div>

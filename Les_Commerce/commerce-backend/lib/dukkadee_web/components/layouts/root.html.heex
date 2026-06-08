@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix=" · Dukkadee">
+      <%= assigns[:page_title] || "Home" %>
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+  </head>
+  <body class="h-full bg-gray-50 antialiased">
+    <header class="bg-white shadow">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8" aria-label="Global">
+        <div class="flex items-center gap-4">
+          <a href="/" class="text-xl font-bold text-indigo-600">Dukkadee</a>
+          <a href="/marketplace" class="text-sm font-semibold text-gray-900">Marketplace</a>
+          <a href="/stores" class="text-sm font-semibold text-gray-900">Stores</a>
+          <a href="/open_new_store" class="text-sm font-semibold text-gray-900">Create Store</a>
+        </div>
+        <div>
+          <%= if @current_user do %>
+            <div class="flex items-center gap-4">
+              <span class="text-sm"><%= @current_user.email %></span>
+              <a href="/admin" class="text-sm font-semibold text-gray-900">Admin</a>
+              <a href="/users/settings" class="text-sm font-semibold text-gray-900">Settings</a>
+              <form action="/users/log_out" method="post">
+                <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+                <button type="submit" class="text-sm font-semibold text-gray-900">
+                  Log out
+                </button>
+              </form>
+            </div>
+          <% else %>
+            <div class="flex items-center gap-4">
+              <a href="/users/register" class="text-sm font-semibold text-gray-900">Register</a>
+              <a href="/users/log_in" class="text-sm font-semibold text-gray-900">Log in</a>
+            </div>
+          <% end %>
+        </div>
+      </nav>
+    </header>
+    <%= @inner_content %>
+  </body>
+</html>

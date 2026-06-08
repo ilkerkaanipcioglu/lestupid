@@ -1,0 +1,50 @@
+Les Wait scenario notes
+
+1. Valet / restaurant parking
+
+A driver leaves a car with a valet. The valet records the plate, pickup time,
+and parking note. The driver can see where the car is and request the car when
+ready. The flow can also work through WhatsApp or Telegram.
+
+2. Temporary blocked parking
+
+A driver blocks another car briefly while buying medicine or handling an urgent
+errand. The driver leaves a time-limited note. A blocked driver can scan the
+plate, see the message, and contact the owner only through allowed channels.
+
+3. Mall pizza / food court order
+
+A customer orders pizza, receives a ticket, and scans the ticket number to see
+the status. When the order is ready, the customer receives a notification. If
+table delivery is available, the app can carry the table number.
+
+4. Restaurant table order
+
+A customer orders from the table by entering or scanning a table code. The
+customer can track the food state and add items.
+
+5. Waiter group order
+
+A waiter records multiple people's orders at one table. Voice capture and AI can
+help summarize who ordered what. Customers can review and correct their own
+items.
+
+6. Tattoo removal studio
+
+A customer buys a package with multiple sessions, confirms appointment times,
+and can also join a spontaneous queue. The queue entry links back to the package
+session.
+
+7. Barber
+
+A customer books an appointment or scans a code to join a walk-in queue. The app
+shows estimated wait time and notifies the customer when it is time to return.
+If the barber steps out, the return time can be visible.
+
+8. Taxi stand
+
+A customer checks whether a taxi is available and sees the estimated arrival or
+turn time.
+
+Core principle: each scenario should work through app, web, QR, WhatsApp,
+Telegram, SMS, staff entry, or manual/offline fallback.

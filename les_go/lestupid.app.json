@@ -1,0 +1,337 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "les-go",
+  "name": "LesTupid Go",
+  "service": "les_go",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "les_go",
+  "summary": "Mobile web/PWA shell for contextual place and mode check-ins, app activation, channel consent, and cross-app LesTupid opportunities.",
+  "ecosystem_roles": [
+    "activation_shell",
+    "student_checkin",
+    "contextual_checkin",
+    "place_mode_flow",
+    "contextual_ui_system",
+    "semantic_tempo_design",
+    "place_soul_layout",
+    "density_aware_feed",
+    "risk_honesty_ui",
+    "visual_demo_gallery",
+    "cross_app_storyboard",
+    "travel_readiness_preview",
+    "safe_trip_flow",
+    "student_launch_board",
+    "university_viral_loop",
+    "graduate_pathway_preview",
+    "nearby_place_discovery",
+    "attention_limited_topics",
+    "place_utility_launcher",
+    "aggregate_next_stop_flow",
+    "micro_gig_preview",
+    "creator_promotion_preview",
+    "live_content_gig_preview",
+    "living_cv_profile",
+    "student_application_launcher",
+    "education_opportunity_preview",
+    "opportunity_feed",
+    "manifest_launcher",
+    "pwa_shell"
+  ],
+  "identity_activation": {
+    "model": "shared_lestupid_identity",
+    "registration": "handled_by_lestupid_identity_layer",
+    "app_activation_required": false,
+    "activation_product_id": "les-go",
+    "activation_permissions": [
+      "app_activation_center",
+      "channel_activation_center",
+      "place_checkin",
+      "place_mode_selection",
+      "nearby_place_preview",
+      "nearby_topic_preview",
+      "opportunity_preview",
+      "place_menu_preview",
+      "third_party_ticket_link_preview",
+      "route_link_preview",
+      "aggregate_next_stop_preview",
+      "service_gig_preview",
+      "creator_promotion_preview",
+      "live_content_gig_preview",
+      "living_cv_profile",
+      "cv_signal_preview",
+      "application_launcher",
+      "education_opportunity_preview",
+      "pseudonymous_trust_badge_preview",
+      "selective_trust_disclosure",
+      "safe_contact_preview",
+      "student_launch_preview",
+      "graduate_pathway_preview",
+      "trusted_proximity_preview",
+      "private_relationship_event_preview",
+      "contact_place_graph_preview",
+      "affiliate_game_card_preview",
+      "quest_deck_preview",
+      "adult_venue_safety_mode",
+      "local_listing_preview"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "low",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "identity_adapter",
+      "activation_adapter",
+      "channel_adapter",
+      "match_opportunity_adapter",
+      "certification_adapter",
+      "loyalty_adapter",
+      "les_block_adapter",
+      "ai_adapter",
+      "contacts_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "LesTupid Go is a PWA shell and opportunity launcher; each source app keeps its own runtime, data, and business logic."
+  },
+  "platform_strategy": {
+    "delivery_model": "simple_fast_flexible_pwa_first",
+    "mobile_web": "responsive_pwa_first",
+    "mobile_app": "after_loop_proves_useful",
+    "desktop_app": "web_pwa_first",
+    "backend": "none_in_v1",
+    "runtime_config": ".env",
+    "opportunity_adapter_modes": [
+      "mock",
+      "http"
+    ],
+    "ui_principles": "les_go/contextual-ui-principles.md",
+    "semantic_ui_rule": "fast things feel fast, flowing things flow, static things stand still, crowded contexts feel dense, calm contexts breathe, risky contexts look risky, and each app keeps its own mood",
+    "visual_demo_flows": "docs/VISUAL_DEMO_FLOWS.md"
+  },
+  "integrations": {
+    "les_wait": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "queue-safe actions",
+        "waiting status opportunities",
+        "qr queue join",
+        "table or sign code queue join",
+        "phone number queue join",
+        "proximity place discovery",
+        "venue owner enabled queue",
+        "inactive venue request prompt",
+        "canteen queue",
+        "barber slot",
+        "concert or club entry flow",
+        "gym locker or class flow",
+        "item pickup and return flow"
+      ]
+    },
+    "place_utility": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "menu preview",
+        "queue entry launcher",
+        "third-party ticket or reservation link",
+        "route and return link",
+        "aggregate next-stop trend",
+        "late-night return safety prompt"
+      ]
+    },
+    "les_poke": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "nearby quests",
+        "place check-in signals",
+        "city memory",
+        "coffee break quests",
+        "club and concert creator prompts",
+        "creator promotion quests",
+        "live content challenges",
+        "sport and beach quests",
+        "village route quests",
+        "graduate launch circle quests",
+        "university viral challenge loops"
+      ]
+    },
+    "les_match": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "student sponsor matching",
+        "mentor matching",
+        "agent matching",
+        "club or concert opt-in prompts",
+        "adult dating and travel companion expectation prompts",
+        "adult venue matchmaking disabled",
+        "date mode opt-in prompts",
+        "creator to merchant or sponsor opt-in prompts",
+        "student sponsor opt-in prompts for graduate launch"
+      ]
+    },
+    "les_harmonica": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "anonymous safe contact",
+        "trusted proximity prompt",
+        "pairwise pseudonymous handoff",
+        "guardian or school approved contact",
+        "certified venue staff contact",
+        "peer service contact",
+        "Les Match opt-in contact handoff"
+      ]
+    },
+    "les_contacts": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "saved place context",
+        "private person/place timeline draft from check-in",
+        "lead or follow-up activation prompt",
+        "contact/place graph preview without raw address book sharing"
+      ]
+    },
+    "les_travel": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "official visa/source readiness card",
+        "student travel planning",
+        "Nairobi student launch travel readiness",
+        "safe accommodation and route prompt",
+        "travel risk briefing",
+        "arrival place mode",
+        "private trip memory"
+      ]
+    },
+    "les_affiliate_oyun": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "product card drop",
+        "quest deck challenge",
+        "creator card drop",
+        "certified merchant card",
+        "affiliate reward preview",
+        "opt-in duel or team prompt"
+      ]
+    },
+    "lescommerce": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "student offers",
+        "merchant rewards",
+        "service credits",
+        "barber rewards",
+        "coffee and canteen offers",
+        "club or concert labeled offers",
+        "peer resale listings",
+        "car rental listings",
+        "clothing or outfit listings",
+        "food mode offers",
+        "menu preview",
+        "beach and sport offers",
+        "item hotel rental and storage cards",
+        "micro service gigs",
+        "creator promotion briefs",
+        "influencer live photo video gigs",
+        "affiliate campaign handoff",
+        "academic integrity bounded study help",
+        "campus delivery and carrying gigs",
+        "safe student income paths",
+        "graduate launch board commerce handoff"
+      ]
+    },
+    "les_career": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "living CV profile",
+        "CV signal preview",
+        "student job applications",
+        "internship applications",
+        "education and scholarship opportunities",
+        "portfolio and project signals",
+        "student-reviewed application drafts",
+        "graduate launch pathway preview",
+        "Nairobi geography student CV launch"
+      ]
+    },
+    "les_ai": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "KADRO agent help",
+        "KADRO AI worker suggestions",
+        "AgentAndBot task launches",
+        "ai_senaryo collective scenario launches",
+        "opportunity explanation",
+        "review drafts",
+        "CV summary drafts",
+        "application preparation"
+      ]
+    },
+    "agentandbot": {
+      "ready": true,
+      "optional": true,
+      "published_outside_lestupid": true,
+      "use_cases": ["labeled AI agent suggestions", "task help"]
+    },
+    "les_certification": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "place candidate signals",
+        "certification evidence",
+        "CV proof signals",
+        "pseudonymous trust badges",
+        "selective disclosure policy",
+        "sponsored content disclosure",
+        "creator visit proof and fake engagement risk review"
+      ]
+    },
+    "les_block": {
+      "ready": false,
+      "optional": true,
+      "adapter": "les_block_adapter",
+      "use_cases": ["optional point proof", "certificate proof", "pseudonymous trust credential proof"]
+    }
+  },
+  "trust_credentials": {
+    "ready": true,
+    "issuer": "les-certification",
+    "disclosure_default": "summary_badge",
+    "identity_policy": "pairwise_pseudonymous_by_default",
+    "web3_policy": "optional_hash_only_revocable",
+    "domains": [
+      "queue_fairness",
+      "commerce_delivery",
+      "marketplace_listing",
+      "item_custody",
+      "peer_courier",
+      "learning_contribution",
+      "place_evidence"
+    ]
+  },
+  "well_known": [
+    "/.well-known/lestupid-app.json"
+  ]
+}

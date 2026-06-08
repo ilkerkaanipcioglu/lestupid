@@ -1,0 +1,107 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "les-certification",
+  "name": "Les Certification",
+  "service": "les_certification",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "les_certification",
+  "summary": "LesTupid registry, certification policy, identity activation, portability, loyalty, and proof layer.",
+  "ecosystem_roles": [
+    "certification",
+    "registry",
+    "identity_policy",
+    "activation_policy",
+    "portability_policy",
+    "loyalty_policy",
+    "pseudonymous_trust_credentials",
+    "web3_proof_policy"
+  ],
+  "identity_activation": {
+    "model": "shared_lestupid_identity",
+    "registration": "local_or_lestupid_identity_layer",
+    "app_activation_required": false,
+    "activation_product_id": "les-certification",
+    "activation_permissions": [
+      "registry_review",
+      "certification_evidence",
+      "pseudonymous_trust_credential_issue",
+      "trust_badge_disclosure_policy",
+      "revocation_registry",
+      "policy_admin"
+    ],
+    "user_controls": [
+      "export"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "low",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "identity_adapter",
+      "activation_adapter",
+      "loyalty_adapter",
+      "les_block_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "Les Certification can run as a standalone registry and review system; ecosystem apps consume it through manifests and optional adapters."
+  },
+  "integrations": {
+    "les_poke": {
+      "ready": true,
+      "optional": true
+    },
+    "les_match": {
+      "ready": true,
+      "optional": true
+    },
+    "les_wait": {
+      "ready": true,
+      "optional": true
+    },
+    "lescommerce": {
+      "ready": true,
+      "optional": true
+    },
+    "les_block": {
+      "ready": false,
+      "optional": true,
+      "use_cases": [
+        "credential hash anchoring",
+        "revocation proof",
+        "pairwise pseudonymous trust proof"
+      ]
+    }
+  },
+  "trust_credentials": {
+    "ready": true,
+    "source_of_truth": "app_or_core_ledger_first",
+    "public_identity_policy": "pairwise_pseudonymous_by_default",
+    "web3_policy": "hash_only_user_consent_required_revocable",
+    "supported_domains": [
+      "queue_fairness",
+      "commerce_delivery",
+      "marketplace_listing",
+      "item_custody",
+      "peer_courier",
+      "learning_contribution",
+      "place_evidence"
+    ],
+    "excluded_default_domains": [
+      "health_private_context",
+      "dating_history",
+      "minor_private_context",
+      "adult_venue_history"
+    ]
+  },
+  "well_known": [
+    "/.well-known/lestupid-app.json"
+  ]
+}

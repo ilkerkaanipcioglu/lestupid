@@ -1,0 +1,252 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "les-contacts",
+  "name": "Les Contacts",
+  "service": "les_contacts",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "les_contacts",
+  "summary": "Private multi-context contact, place, product, service and asset graph for importing personal, work, family, school, social, travel and commerce relationships, deduplicating them, tracking timeline events, and routing consented opportunities to LesTupid apps.",
+  "ecosystem_roles": [
+    "contact_import",
+    "place_save",
+    "multi_context_crm",
+    "personal_context",
+    "work_context",
+    "family_context",
+    "school_context",
+    "social_context",
+    "travel_context",
+    "commerce_context",
+    "product_relationship_graph",
+    "service_relationship_graph",
+    "asset_relationship_graph",
+    "private_relationship_graph",
+    "relationship_timeline",
+    "person_crm",
+    "place_crm",
+    "activity_event_log",
+    "product_usage_event_log",
+    "purchase_history_memory",
+    "asset_custody_memory",
+    "follow_up_tasks",
+    "lead_graph",
+    "place_graph",
+    "role_candidate_router",
+    "source_attribution",
+    "dedupe_and_merge"
+  ],
+  "identity_activation": {
+    "model": "local_or_shared_lestupid_identity",
+    "registration": "local_first_linkable_to_lestupid_identity",
+    "app_activation_required": false,
+    "activation_product_id": "les-contacts",
+    "activation_permissions": [
+      "phone_contact_import",
+      "google_contact_import",
+      "instagram_contact_signal_import",
+      "linkedin_contact_signal_import",
+      "tiktok_profile_signal_import",
+      "airbnb_travel_signal_import",
+      "shopping_site_signal_import",
+      "email_receipt_import",
+      "calendar_import",
+      "maps_saved_place_import",
+      "context_space_management",
+      "place_save",
+      "product_relationship_private_log",
+      "service_relationship_private_log",
+      "asset_relationship_private_log",
+      "commerce_event_private_log",
+      "itemotel_event_private_log",
+      "relationship_event_private_log",
+      "place_event_log",
+      "person_event_log",
+      "crm_follow_up",
+      "sensitive_event_private_notes",
+      "private_tags",
+      "role_candidate_preview",
+      "dedupe_merge",
+      "export"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export",
+      "delete_import_source",
+      "delete_record"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "low",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "go_context_adapter",
+      "source_import_adapter",
+      "relationship_event_adapter",
+      "match_adapter",
+      "commerce_adapter",
+      "itemotel_adapter",
+      "poke_adapter",
+      "harmonica_adapter",
+      "certification_adapter",
+      "care_adapter",
+      "ai_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "Les Contacts owns imported contacts, saved places, private product/service/asset relationship memory, private relationship events, context spaces, private tags, source attribution, and consent state. Other apps may consume scoped role candidates or reviewed event outputs through adapters, but raw address books, private place lists, receipts, ownership details, asset custody details, family/work/personal notes, and sensitive timeline events stay under Les Contacts control."
+  },
+  "integrations": {
+    "les_go": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "show saved places",
+        "context space switcher",
+        "contextual place roles",
+        "contact/place opportunity cards",
+        "lead/place activation prompts",
+        "private draft timeline events from check-ins",
+        "product or asset reminder cards"
+      ]
+    },
+    "les_match": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "match candidate only after explicit opt-in",
+        "mentor or sponsor candidate",
+        "teammate candidate",
+        "travel companion candidate"
+      ]
+    },
+    "external_sources": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "phone contacts import",
+        "Google Contacts, Calendar and Maps import",
+        "LinkedIn selected profile signal import",
+        "Instagram or TikTok selected profile signal import",
+        "Airbnb or travel platform booking and saved place import",
+        "shopping-site order, wishlist, receipt, warranty and return import",
+        "email receipt import with scoped consent",
+        "manual URL, product, place or profile save"
+      ],
+      "rules": [
+        "official APIs, user exports, scoped email imports or manual saves only",
+        "no third-party password collection",
+        "no unsupported private scraping",
+        "source attribution required",
+        "per-source revoke and delete required"
+      ]
+    },
+    "lescommerce": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "lead",
+        "customer",
+        "seller",
+        "merchant place",
+        "service provider",
+        "driver or courier",
+        "customer interaction history after explicit commerce consent",
+        "product bought or used memory",
+        "receipt or refund follow-up reference without raw receipt exposure"
+      ]
+    },
+    "les_itemotel": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "stored asset memory",
+        "item custody private reference",
+        "care due event",
+        "rental or resale candidate",
+        "recall follow-up card"
+      ]
+    },
+    "les_poke": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "memory place",
+        "city trail",
+        "quest place",
+        "place to visit"
+      ]
+    },
+    "les_harmonica": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "safe contact candidate",
+        "trusted proximity candidate",
+        "guardian or school approved contact",
+        "private safe-contact timeline after consent"
+      ]
+    },
+    "les_care": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "private clinic or dental visit event",
+        "private wellness visit event",
+        "care follow-up task",
+        "no diagnosis or prescription sharing through contacts"
+      ]
+    },
+    "les_certification": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "certified place candidate",
+        "merchant lead review",
+        "pseudonymous trust credential source",
+        "relationship event promoted to scoped evidence only after review"
+      ]
+    },
+    "les_ai": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "dedupe suggestions",
+        "role suggestion with human review",
+        "timeline summary with explicit consent",
+        "import summary",
+        "no model training on imported contacts or relationship events"
+      ]
+    }
+  },
+  "privacy_policy": {
+    "default_visibility": "private",
+    "raw_address_book_shared": false,
+    "ai_training_allowed": false,
+    "relationship_events_private_by_default": true,
+    "context_spaces_private_by_default": true,
+    "cross_context_use_requires_explicit_promotion": true,
+    "product_relationships_private_by_default": true,
+    "asset_relationships_private_by_default": true,
+    "sensitive_events_cross_app_default": "blocked",
+    "raw_receipts_shared": false,
+    "raw_asset_custody_records_shared": false,
+    "third_party_password_collection_allowed": false,
+    "unsupported_private_scraping_allowed": false,
+    "source_attribution_required": true,
+    "role_inference_requires_review": true,
+    "matchmaking_requires_les_match_activation": true,
+    "sexual_service_marketplace_forbidden": true
+  },
+  "well_known": [
+    "/.well-known/lestupid-app.json"
+  ]
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content={get_csrf_token()} />
+    <.live_title suffix=" · #{@store.name}">
+      <%= assigns[:page_title] || @store.name %>
+    </.live_title>
+    <link phx-track-static rel="stylesheet" href={~p"/assets/app.css"} />
+    <script defer phx-track-static type="text/javascript" src={~p"/assets/app.js"}>
+    </script>
+    <style>
+      /* Custom store styles */
+      :root {
+        --primary-color: <%= @store.primary_color || "#fddb24" %>;
+        --secondary-color: <%= @store.secondary_color || "#b7acd4" %>;
+        --accent-color: <%= @store.accent_color || "#272727" %>;
+      }
+      .store-nav a {
+        color: var(--accent-color);
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+      .store-nav a:hover {
+        color: var(--primary-color);
+      }
+      .store-btn {
+        background-color: var(--primary-color);
+        color: var(--accent-color);
+      }
+      .store-btn:hover {
+        background-color: var(--secondary-color);
+      }
+    </style>
+  </head>
+  <body class="h-full bg-gray-50 antialiased">
+    <header class="bg-white shadow">
+      <nav class="mx-auto flex max-w-7xl items-center justify-between p-4 lg:px-8" aria-label="Global">
+        <div class="flex lg:flex-1">
+          <a href={~p"/stores/#{@store.slug}"} class="-m-1.5 p-1.5">
+            <span class="sr-only"><%= @store.name %></span>
+            <img class="h-16 w-auto" src={~p"/images/inklessismore-logo.png"} alt={"#{@store.name} Logo"} />
+          </a>
+        </div>
+        <div class="hidden lg:flex lg:gap-x-8 store-nav">
+          <a href={~p"/stores/#{@store.slug}"} class="text-sm font-semibold">Home</a>
+          <a href={~p"/stores/#{@store.slug}/how-it-works"} class="text-sm font-semibold">How does it work?</a>
+          <a href={~p"/stores/#{@store.slug}/treatment-cost"} class="text-sm font-semibold">Treatment Cost</a>
+          <a href={~p"/stores/#{@store.slug}/faq"} class="text-sm font-semibold">Questions & Answers</a>
+          <a href={~p"/stores/#{@store.slug}/about"} class="text-sm font-semibold">About us</a>
+          <a href={~p"/stores/#{@store.slug}/gallery"} class="text-sm font-semibold">Gallery</a>
+          <a href={~p"/stores/#{@store.slug}/contact"} class="text-sm font-semibold">Contact</a>
+        </div>
+        <div class="flex flex-1 justify-end">
+          <a href={~p"/stores/#{@store.slug}/cart"} class="text-sm font-semibold leading-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+            </svg>
+          </a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <.flash_group flash={@flash} />
+      <%= @inner_content %>
+    </main>
+    <footer class="bg-white border-t border-gray-200 mt-12">
+      <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div>
+            <h3 class="text-lg font-semibold mb-4"><%= @store.name %></h3>
+            <p class="text-gray-600"><%= @store.description %></p>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul class="space-y-2">
+              <li><a href={~p"/stores/#{@store.slug}"} class="text-gray-600 hover:text-gray-900">Home</a></li>
+              <li><a href={~p"/stores/#{@store.slug}/how-it-works"} class="text-gray-600 hover:text-gray-900">How It Works</a></li>
+              <li><a href={~p"/stores/#{@store.slug}/treatment-cost"} class="text-gray-600 hover:text-gray-900">Treatment Cost</a></li>
+              <li><a href={~p"/stores/#{@store.slug}/faq"} class="text-gray-600 hover:text-gray-900">FAQ</a></li>
+              <li><a href={~p"/stores/#{@store.slug}/gallery"} class="text-gray-600 hover:text-gray-900">Gallery</a></li>
+              <li><a href={~p"/stores/#{@store.slug}/contact"} class="text-gray-600 hover:text-gray-900">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
+            <p class="text-gray-600">Nairobi, Kenya</p>
+            <p class="text-gray-600">Email: info@inklessismore.com</p>
+            <p class="text-gray-600">Phone: +254 700 000 000</p>
+          </div>
+        </div>
+        <div class="mt-8 border-t border-gray-200 pt-8 text-center text-gray-600">
+          <p>&copy; <%= DateTime.utc_now().year %> <%= @store.name %>. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

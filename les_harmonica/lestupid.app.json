@@ -1,0 +1,123 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "les-harmonica",
+  "name": "Les Harmonica",
+  "service": "les_harmonica",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "les_harmonica",
+  "summary": "Safe communication and trusted-proximity app for identity-hidden contact, pairwise pseudonymous trust, encrypted messaging, and consented handoff.",
+  "ecosystem_roles": [
+    "safe_contact",
+    "trusted_proximity",
+    "encrypted_communication",
+    "pairwise_pseudonymous_contact",
+    "guardian_safe_contact",
+    "venue_staff_contact",
+    "emergency_contact_signal",
+    "trust_credential_consumer"
+  ],
+  "identity_activation": {
+    "model": "local_or_shared_lestupid_identity",
+    "registration": "local_first_linkable_to_lestupid_identity",
+    "app_activation_required": false,
+    "activation_product_id": "les-harmonica",
+    "activation_permissions": [
+      "safe_contact_invites",
+      "encrypted_messages",
+      "trusted_proximity_signals",
+      "pairwise_pseudonymous_contact",
+      "selective_trust_disclosure",
+      "guardian_safe_mode",
+      "report_and_block"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export",
+      "delete_local_contact"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "low",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "identity_adapter",
+      "activation_adapter",
+      "certification_adapter",
+      "les_block_adapter",
+      "go_context_adapter",
+      "match_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "Les Harmonica owns secure contact and encrypted communication. Other LesTupid apps may launch or certify contact flows, but Harmonica must run alone with local registration and local consent."
+  },
+  "integrations": {
+    "les_go": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "safe contact card after check-in",
+        "trusted proximity prompt",
+        "guardian or school approved contact",
+        "venue staff contact",
+        "emergency helper signal"
+      ]
+    },
+    "les_certification": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "pseudonymous trust credential",
+        "certified venue staff",
+        "certified guardian contact",
+        "revocation and report evidence"
+      ]
+    },
+    "les_match": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "open contact only after explicit matchmaking opt-in",
+        "date or social contact handoff",
+        "block/report sync"
+      ]
+    },
+    "les_block": {
+      "ready": false,
+      "optional": true,
+      "adapter": "les_block_adapter",
+      "use_cases": [
+        "pairwise contact proof hash",
+        "trust credential proof",
+        "revocation proof"
+      ]
+    }
+  },
+  "trust_credentials": {
+    "ready": true,
+    "issuer": "les-certification",
+    "identity_policy": "pairwise_pseudonymous_by_default",
+    "web3_policy": "optional_hash_only_revocable",
+    "domains": [
+      "trusted_contact",
+      "guardian_safe_contact",
+      "venue_staff_contact",
+      "peer_courier_contact",
+      "commerce_contact",
+      "emergency_helper_contact",
+      "school_group_contact"
+    ]
+  },
+  "well_known": [
+    "/.well-known/lestupid-app.json"
+  ]
+}

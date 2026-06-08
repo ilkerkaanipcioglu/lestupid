@@ -1,0 +1,59 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Node / frontend
+node_modules/
+dist/
+build/
+.next/
+.turbo/
+.vite/
+.expo/
+.expo-shared/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Elixir / Phoenix
+_build/
+deps/
+*.ez
+erl_crash.dump
+.elixir_ls/
+.mix_tmp/
+.git_backup/
+
+# Logs / temp
+*.log
+*.db
+*.db-shm
+*.db-wal
+pgpass.conf
+tmp/
+temp/
+.tmp/
+coverage/
+priv/static/assets/
+.cursor/
+.cursorrules
+
+# Local generated artifacts
+/reports/
+/data/
+
+# Generated/large AI media libraries stay outside the source repo for now.
+les_ai/ai_kadro/**/*.png
+les_ai/ai_kadro/**/*.jpg
+les_ai/ai_kadro/**/*.jpeg
+les_ai/agentandbot/**/priv/static/images/kadro/**/*.png
+les_ai/agentandbot/**/priv/static/images/kadro/**/*.jpg
+les_ai/agentandbot/**/priv/static/images/kadro/**/*.jpeg

@@ -1,0 +1,156 @@
+OMNI-DECK ARENA: KOLEKSİYON FABRİKASI
+Versiyon: 1.0 (MVP) Kod Adı: Project Social-Commerce Tür: Sosyal Ticaret + Kart Strateji (CCG) Platform: Hibrit (Web, Mobil App, WhatsApp/Telegram Botları)
+
+1. OYUNUN ÖZETİ VE VİZYON
+Omni-Deck Arena, oyuncuların dijital varlıklarını (ürünler, sosyal medya hesapları, klasik kartlar) birer oyun kartına dönüştürdüğü, bunları korumak için strateji geliştirdiği ve affiliate (satış ortaklığı) sistemiyle gerçek gelir elde ettiği bir ekosistemdir.
+
+Temel Felsefe: "Hayatındaki her şeyi bir karta dönüştür, desteni kur, ticaret yap veya savaş."
+
+Unique Selling Point (USP): Oyunun sadece bir uygulama içinde değil, WhatsApp, Instagram gibi sosyal kanallar üzerinden "Headless" (arayüzsüz) olarak da oynanabilmesi.
+
+2. OYNANIŞ MEKANİKLERİ (CORE LOOP)
+2.1. Kart Oluşturma (Mining)
+Oyuncu oyuna başlar ve kart üretmeye hak kazanır.
+
+Giriş Yöntemi: Mobil Uygulama, Web Sitesi veya WhatsApp Botu.
+
+Limit: Günde 1 Kart (Standart).
+
+Bonus: Yeni arkadaş davet ederse +3 Kart veya 1 Süper Kart.
+
+Cüzdan (Wallet): Kartlar oyuncunun dijital cüzdanında birikir. Oyuncu Instagram veya WhatsApp hesabını bağlayarak "Sosyal Cüzdan"larını birleştirebilir ve bonus kazanır.
+
+2.2. Kart Tipleri
+Oyun evreninde 3 tip kart bulunur:
+
+Klasik Kartlar (Collectibles): Oyunun kendi lore'una (hikayesine) ait kartlar. (Örn: Türk Mitolojisi "Umay Ana", İskambil Ası, Futbolcu).
+
+Kullanıcı Kartları (User-Gen): Oyuncunun tanıtmak veya satmak istediği değerler.
+
+Örn: "Sahibinden temiz Macbook" (Satış linki içerir).
+
+Örn: "Benim Spotify Şarkım" (Dinleme linki içerir).
+
+Sponsor/Dummy Kartlar (System): Sistemin boşlukları doldurmak için atadığı reklam kartları.
+
+Örn: "Amazon iPhone Kılıfı" (Affiliate linki içerir).
+
+2.3. Deste Mantığı ve "Risk" (The Hook)
+Bu oyunun en kritik mekaniğidir.
+
+Kural: Bir deste 5 karttan oluşur.
+
+Otomatik Tamamlama: Oyuncu 1 kart ürettiğinde, sistem desteyi 5'e tamamlamak için yanına 4 adet Dummy (Reklam) kartı ekler.
+
+Tehlike (Affiliate Buyout): Deste bu haldeyken "Savunmasız"dır. Başka bir oyuncu (veya müşteri), destedeki en ucuz affiliate ürününü satın alırsa:
+
+Satın alan, ürüne sahip olur + Destenin TÜMÜNÜ (5 kartı) kazanır.
+
+Destenin eski sahibi, affiliate gelirinin %10'unu kazanır ama KARTLARINI KAYBEDER. Oyuna sıfırdan başlar (Rogue-like öğesi).
+
+2.4. Savunma Stratejisi (Crafting & Locking)
+Oyuncu kartlarını kaybetmemek için onları kombine ederek "Kilitlemelidir". Kilitli kartların yanına Dummy reklamı gelmez, dolayısıyla satın alınamaz ve kaybolmazlar.
+
+Sıralı Kombo: Güçleri ardışık 3 kart (Örn: 96-97-98) -> Kilitlenir.
+
+İkiz Kombo: Aynı güçte 2 kart (Örn: 88-88) -> Kilitlenir.
+
+Kategori Kombo: Aynı alt kategoride 3 kart (Örn: 3 tane Samsung Telefon, 3 tane Marvel Çizgi Romanı) -> Kilitlenir.
+
+Sonuç: Kilitli desteler gelir getirmez ama Statü ve Düello Gücü sağlar.
+
+2.5. Düello ve Sosyal Savaş (PvP)
+Meydan Okuma: Oyuncu, hazırladığı desteyi bir link veya mesaj olarak WhatsApp/Instagram üzerinden arkadaşına atar.
+
+Kabul/Red Mekaniği:
+
+Kabul: Kartlar açılır. Kategori çarpanları ve kart güçleri hesaplanır. Kazanan, kaybedenden puan veya kart çalar.
+
+Red: Karşı taraf korkup reddederse, toplam gücünün %1'ini ceza olarak meydan okuyana kaptırır.
+
+Sınır: Günde 10 düello gönderme hakkı.
+
+3. EKONOMİ VE WEB3 ENTEGRASYONU
+3.1. Gelir Havuzu (Pool)
+Sistemde toplanan tüm gelirler (Affiliate komisyonları, Reklam gelirleri, Token satışları) şeffaf bir havuzda birikir.
+
+3.2. Dağıtım (Smart Contract)
+Her gece 00:00'da havuz şu şekilde dağıtılır:
+
+%80 - Liderler: Günün, Haftanın ve Ayın liderlerine (Puan ve Düello başarısına göre).
+
+%10 - Satıcı: Affiliate kartı satın alındığında o an kartı elinde tutan oyuncuya (Teselli ödülü).
+
+%10 - Kasa: Oyunun geliştirilmesi ve bakım masrafları için.
+
+3.3. Tokenomics
+Reklam verenler (Markalar veya Ürününü öne çıkarmak isteyen oyuncular), sisteme reklam vermek için oyunun Token'ını satın alıp yakarlar.
+
+4. TEKNİK MİMARİ (TECH STACK)
+4.1. Backend (The Brain)
+Dil/Framework: Elixir + Ash Framework.
+
+Neden: Karmaşık kart kurallarını (Policy), düello hesaplamalarını ve binlerce eşzamanlı WhatsApp mesajını yönetmek için en sağlam yapı.
+
+Veritabanı: PostgreSQL.
+
+4.2. Frontend (The Face)
+Oyun Motoru: React (Next.js) + Pixi.js.
+
+Detay: Balatro benzeri akıcı, shader efektli, yüksek performanslı 2D kart görselleri için.
+
+Mobil: Capacitor. (React projesini iOS ve Android uygulamasına çevirir).
+
+Desktop: Electron veya Web.
+
+4.3. Web3 & Blockchain
+Sağlayıcı: Thirdweb.
+
+İşlev: Cüzdan oluşturma, Token dağıtımı ve şeffaflık.
+
+4.4. Sosyal Entegrasyon (Headless)
+Botlar: Meta Graph API (WhatsApp/Instagram) ve Telegram API. Elixir backend'e bağlı webhook'lar.
+
+5. MVP GELİŞTİRME PLANI (ADIM ADIM)
+Bu projeyi hayata geçirmek için izleyeceğimiz yol haritası:
+
+FAZ 1: İskelet (Backend)
+Ash Kaynakları (Resources): Card, Deck, User, Wallet yapılarının kodlanması.
+
+Kurallar: "5 karta tamamla", "Affiliate var mı kontrol et", "Kilitlenme şartlarını sına" mantığının yazılması.
+
+Dummy Data: Sistemin test edilmesi için sahte Amazon ürünlerinin veritabanına eklenmesi.
+
+FAZ 2: Başsız Oyun (Headless Play)
+WhatsApp Botu: Metin tabanlı olarak "Kart Üret", "Destemi Göster", "Meydan Oku" komutlarının çalıştırılması.
+
+Düello Motoru: İki oyuncunun verilerinin karşılaştırılıp kazananın belirlenmesi.
+
+FAZ 3: Görsel Dünya (Frontend)
+Pixi.js Kurulumu: Kart şablonunun (Template) tasarlanması.
+
+Arayüz: Cüzdan, Market ve Liderlik tablosu ekranlarının React ile yazılması.
+
+Web3 Bağlantısı: Thirdweb ile giriş yapma ve basit token bakiyesi görüntüleme.
+
+FAZ 4: Paketleme
+Mobil Build: Capacitor ile APK oluşturma.
+
+Beta Test: Kapalı bir grupla (önce WhatsApp üzerinden) test sürüşü.
+
+6. MVP SONRASI (V2 ve GELECEK)
+MVP çalışıp kullanıcı topladıktan sonra eklenecek "Büyük Özellikler":
+
+Evrenler Arası Geçit (Cross-Game Assets):
+
+Diğer oyunlardan (Minecraft, CS:GO, Futbol oyunları) kazanılan NFT veya başarımların, Omni-Deck Arena'ya import edilmesi.
+
+Örn: Minecraft'ta kazandığın "Elmas Kılıç"ı buraya aktarıp, saldırı kartı olarak kullanmak.
+
+AI Görselleştirme:
+
+Kullanıcı "Eski gitarım" diye ilan açtığında, AI'ın bunu "Efsanevi Ozanın Gitarı" şeklinde fantastik bir kart çizimine dönüştürmesi.
+
+Canlı Arena Modu:
+
+Sadece sonucu görmek değil, kartların masaya vuruşunu izlemek isteyenler için gerçek zamanlı grafiksel savaş.

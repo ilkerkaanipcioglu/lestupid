@@ -1,0 +1,37 @@
+<h1 class="text-3xl font-bold mb-6">Store Templates</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <%= for template <- @templates do %>
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <div class="h-48 bg-gray-200 relative">
+        <%= if template.preview_url do %>
+          <img src="<%= template.preview_url %>" alt="<%= template.name %> Preview" class="w-full h-full object-cover">
+        <% else %>
+          <div class="flex items-center justify-center h-full">
+            <span class="text-gray-400">No preview available</span>
+          </div>
+        <% end %>
+      </div>
+      <div class="p-4">
+        <h3 class="text-xl font-semibold mb-2"><%= template.name %></h3>
+        <p class="text-gray-600 mb-4"><%= template.description %></p>
+        <div class="flex justify-between items-center">
+          <a href="<%= Routes.store_template_path(@conn, :show, template.id) %>" class="text-indigo-600 hover:text-indigo-800">
+            View details
+          </a>
+          <a href="<%= Routes.store_template_path(@conn, :new, template_id: template.id) %>" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+            Use template
+          </a>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<div class="mt-8">
+  <h2 class="text-2xl font-bold mb-4">Import Legacy Store</h2>
+  <p class="mb-4">Already have an existing store? Import it to create a new store on our platform.</p>
+  <a href="<%= Routes.store_template_path(@conn, :import_legacy) %>" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+    Import Legacy Store
+  </a>
+</div>

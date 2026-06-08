@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "Les Poke",
+    "slug": "les-poke",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "lespoke",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#111827"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
