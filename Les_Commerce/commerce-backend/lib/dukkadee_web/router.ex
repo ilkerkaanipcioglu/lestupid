@@ -179,6 +179,13 @@ defmodule DukkadeeWeb.Router do
     live "/contact", StoreLive.ContactLive, :index
   end
 
+  # Store public routes - /stores/:slug/contact for treatment cost and other pages
+  scope "/", DukkadeeWeb do
+    pipe_through :browser
+
+    live "/stores/:slug/contact", StoreLive.ContactLive, :show
+  end
+
   # Diyabi Store Routes with custom glassmorphic layout
   scope "/stores/diyabi", DukkadeeWeb do
     pipe_through :store_browser

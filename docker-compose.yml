@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # LesTupid Go Shell (Frontend)
+  frontend:
+    build:
+      context: ./les_go
+      dockerfile: Dockerfile
+      args:
+        VITE_LESTUPID_API_BASE_URL: ${VITE_LESTUPID_API_BASE_URL:-http://commerce-backend:4003}
+        VITE_OPPORTUNITY_ADAPTER: ${VITE_OPPORTUNITY_ADAPTER:-http}
+    ports:
+      - "4005:80"
+    restart: always
+    networks:
+      - lestupid-network
+      - proxy-network
+
+  # Commerce Database
+  commerce-db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres_pass
+      - POSTGRES_DB=dukkadee_prod
+    volumes:
+      - commerce_db_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - lestupid-network
+
+  # Commerce Backend (Phoenix)
+  commerce-backend:
+    build:
+      context: ./Les_Commerce/commerce-backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=ecto://postgres:postgres_pass@commerce-db/dukkadee_prod
+      - SECRET_KEY_BASE=BurasıÇokGizliDoldurunBurasıÇokGizliDoldurunBurasıÇokGizliDoldurunBurasıÇokGizliDoldurun
+      - MIX_ENV=prod
+      - PORT=4003
+      - PHX_SERVER=true
+      - PHX_HOST=demoles.e-any.online
+    ports:
+      - "4003:4003"
+    depends_on:
+      - commerce-db
+    restart: always
+    networks:
+      - lestupid-network
+
+networks:
+  lestupid-network:
+    driver: bridge
+  proxy-network:
+    external: true
+
+volumes:
+  commerce_db_data:
