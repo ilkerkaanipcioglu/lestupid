@@ -1,0 +1,21 @@
+<h1 class="text-3xl font-bold mb-4"><%= @template.name %></h1>
+
+<div class="bg-white shadow rounded-lg p-6 mb-6">
+  <p class="text-gray-600"><%= @template.description %></p>
+  
+  <div class="mt-6">
+    <img src={@template.preview_image_url || "/images/template-placeholder.jpg"} 
+         alt={"Preview of #{@template.name} template"} 
+         class="w-full h-auto rounded-lg shadow-md" />
+  </div>
+  
+  <div class="mt-6 flex space-x-4">
+    <.link navigate={~p"/store_templates/#{@template.id}/new"} class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-brand-yellow hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-yellow">
+      Create Store from Template
+    </.link>
+    
+    <.link navigate={~p"/store_templates"} class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-light-purple">
+      Back to Templates
+    </.link>
+  </div>
+</div>

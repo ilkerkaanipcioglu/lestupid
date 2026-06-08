@@ -1,0 +1,12 @@
+{
+  "name": "les-poke",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/mobile"
+  ],
+  "scripts": {
+    "mobile:start": "npm --prefix apps/mobile run start",
+    "mobile:typecheck": "npm --prefix apps/mobile run typecheck"
+  }
+}

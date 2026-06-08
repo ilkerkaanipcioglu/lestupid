@@ -1,0 +1,122 @@
+/* Dukkadee Platform Brand Colors */
+
+:root {
+  /* Primary colors */
+  --brand-yellow: #fddb24;
+  --brand-light-purple: #b7acd4;
+  --brand-white: #ffffff;
+
+  /* Dark variations */
+  --brand-dark-1: #272727;
+  --brand-dark-2: #282828;
+  --brand-dark-3: #292929;
+  --brand-dark-4: #2a2a2a;
+  --brand-dark-5: #2b2b2b;
+  --brand-dark-6: #2c2c2c;
+  --brand-dark-7: #2d2d2d;
+  --brand-dark-8: #2e2e2e;
+  --brand-dark-9: #2f2f2f;
+  --brand-dark-10: #303030;
+  --brand-dark-11: #313131;
+  --brand-dark-12: #323232;
+  --brand-dark-13: #333333;
+  --brand-dark-14: #343434;
+  --brand-dark-15: #353535;
+  --brand-dark-16: #363636;
+  --brand-dark-17: #373737;
+
+  /* Semantic color assignments */
+  --color-primary: var(--brand-yellow);
+  --color-secondary: var(--brand-light-purple);
+  --color-background: var(--brand-white);
+  --color-text: var(--brand-dark-9);
+  --color-text-light: var(--brand-dark-2);
+  --color-heading: var(--brand-dark-1);
+  --color-border: var(--brand-dark-12);
+  
+  /* Button colors */
+  --button-primary-bg: var(--brand-yellow);
+  --button-primary-text: var(--brand-dark-1);
+  --button-primary-hover: #e9c920;
+  
+  --button-secondary-bg: var(--brand-light-purple);
+  --button-secondary-text: var(--brand-white);
+  --button-secondary-hover: #a69bc3;
+  
+  /* Links */
+  --link-color: var(--brand-dark-8);
+  --link-hover: var(--brand-light-purple);
+
+  /* Form elements */
+  --input-border: var(--brand-dark-12);
+  --input-focus-border: var(--brand-light-purple);
+  
+  /* Customer portal specific */
+  --portal-sidebar-bg: var(--brand-white);
+  --portal-content-bg: #f7f7f7;
+  --portal-card-bg: var(--brand-white);
+  --portal-accent: var(--brand-yellow);
+  --portal-secondary-accent: var(--brand-light-purple);
+}
+
+/* Store specific overrides can be added dynamically */
+body[data-store="inklessismore-ke"] {
+  /* Inkless Is More specific colors can be configured here */
+}
+
+/* Classes for direct color application */
+.bg-brand-yellow { background-color: var(--brand-yellow); }
+.bg-brand-purple { background-color: var(--brand-light-purple); }
+.bg-brand-dark { background-color: var(--brand-dark-9); }
+
+.text-brand-yellow { color: var(--brand-yellow); }
+.text-brand-purple { color: var(--brand-light-purple); }
+.text-brand-dark { color: var(--brand-dark-9); }
+
+/* Button styling with brand colors */
+.btn-primary {
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+}
+
+.btn-primary:hover {
+  background-color: var(--button-primary-hover);
+}
+
+.btn-secondary {
+  background-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+}
+
+.btn-secondary:hover {
+  background-color: var(--button-secondary-hover);
+}
+
+/* Customer portal specific styling */
+.customer-portal {
+  background-color: var(--portal-content-bg);
+}
+
+.customer-portal .sidebar {
+  background-color: var(--portal-sidebar-bg);
+}
+
+.customer-portal .card {
+  background-color: var(--portal-card-bg);
+  border: 1px solid var(--input-border);
+}
+
+.customer-portal .progress-bar {
+  background-color: var(--portal-accent);
+}
+
+/* Allow for user customization via data attributes */
+[data-user-primary-color] {
+  --color-primary: attr(data-user-primary-color);
+  --button-primary-bg: attr(data-user-primary-color);
+}
+
+[data-user-secondary-color] {
+  --color-secondary: attr(data-user-secondary-color);
+  --button-secondary-bg: attr(data-user-secondary-color);
+}

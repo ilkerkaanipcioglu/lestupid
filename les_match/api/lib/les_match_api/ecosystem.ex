@@ -1,0 +1,373 @@
+defmodule LesMatchApi.Ecosystem do
+  @moduledoc """
+  LesTupid ecosystem metadata for Les Match.
+
+  This module keeps product identity, certification intent and public discovery
+  endpoints in one place so the API, tests and static manifest stay aligned.
+  """
+
+  @product_id "les-match"
+  @name "Les Match"
+  @version "0.1.0"
+
+  def product_id, do: @product_id
+  def name, do: @name
+  def version, do: @version
+
+  def health do
+    %{
+      status: "ok",
+      service: "les_match_api",
+      product_id: @product_id,
+      ecosystem: "LesTupid",
+      version: @version,
+      discovery: [
+        "/agent-manifest.json",
+        "/.well-known/ai-agent.json",
+        "/.well-known/lestupid-app.json"
+      ]
+    }
+  end
+
+  def manifest(base_url) do
+    %{
+      schema_version: "lestupid.app_manifest.v1",
+      product_id: @product_id,
+      name: @name,
+      service: "les_match_api",
+      version: @version,
+      status: "internal_candidate",
+      directory: "les_match",
+      summary:
+        "Consent-first matchmaking for people, places, merchants, quests, wait states, and services.",
+      ecosystem_roles: [
+        "matchmaking",
+        "intent_router",
+        "local_discovery",
+        "merchant_matching",
+        "quest_matching",
+        "queue_safe_matching",
+        "shared_interest_matching",
+        "event_travel_matching",
+        "sponsor_matching",
+        "checkin_matching",
+        "agent_matching"
+      ],
+      certification: %{
+        registry_id: @product_id,
+        route:
+          "certify consent-first matchmaking, transparent scoring, explainable recommendations, labeled paid placement, and no manipulative ranking",
+        human_review_required: true
+      },
+      identity_activation: %{
+        model: "shared_lestupid_identity",
+        registration: "handled_by_lestupid_identity_layer",
+        app_activation_required: true,
+        activation_product_id: @product_id,
+        activation_permissions: [
+          "match_profile",
+          "match_preview",
+          "match_decisions",
+          "safety_reporting"
+        ],
+        sensitive_activation_note:
+          "Matchmaking is never auto-enabled after ecosystem registration; the user must activate Les Match explicitly.",
+        user_controls: ["activate", "pause", "revoke", "mute", "block", "report", "export"]
+      },
+      runtime_modes: [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      portability: %{
+        standalone_ready: true,
+        ecosystem_activation_optional: true,
+        extraction_difficulty: "low",
+        data_owner: "app",
+        required_adapters: [],
+        optional_adapters: [
+          "identity_adapter",
+          "activation_adapter",
+          "channel_adapter",
+          "certification_adapter"
+        ],
+        export_required: true,
+        separation_rule:
+          "Les Match can run as a standalone matchmaking app with local consent; other apps may feed opportunities only through optional adapters."
+      },
+      match_types: [
+        "person_to_person",
+        "person_to_place",
+        "person_to_merchant",
+        "quest_to_participant",
+        "wait_state_to_action",
+        "service_to_need",
+        "shared_interest",
+        "event_or_travel",
+        "sponsor_or_mentor",
+        "checkin_opportunity",
+        "person_to_agent",
+        "agent_to_person",
+        "agent_to_task"
+      ],
+      match_opportunities: %{
+        source_apps: [
+          "Les_poke",
+          "les_wait",
+          "Les_Commerce",
+          "agentandbot_kadro",
+          "les_ai",
+          "les_match",
+          "future_lestupid_apps"
+        ],
+        source_events: [
+          "share",
+          "check_in",
+          "event_plan",
+          "travel_plan",
+          "sponsor_need",
+          "merchant_interest",
+          "quest_interest",
+          "wait_state",
+          "agent_available",
+          "agent_capability",
+          "agent_task_need"
+        ],
+        rule:
+          "A source app may create an opportunity only when the user has activated Les Match. A person is never exposed unless both sides have matchmaking enabled.",
+        examples: [
+          "car_share_to_people_who_like_the_same_car",
+          "concert_or_travel_plan_to_people_going_or_wanting_to_go",
+          "university_student_to_education_travel_job_or_project_sponsor",
+          "place_checkin_to_compatible_people_and_lestupid_venue_candidate",
+          "kadro_agent_to_user_task_or_mentor_need",
+          "user_need_to_labeled_ai_agent_or_human_expert"
+        ]
+      },
+      agent_matchmaking: %{
+        rule:
+          "AgentAndBot/KADRO agents may appear in Les Match only as clearly labeled AI agents, personas, mentors, workers, or task candidates. They must never be presented as unlabeled human matches.",
+        source_apps: [
+          "agentandbot.com",
+          "agentandbot_kadro",
+          "les_ai"
+        ],
+        allowed_match_types: [
+          "person_to_agent",
+          "agent_to_person",
+          "agent_to_task",
+          "student_to_agent_mentor",
+          "merchant_to_agent_worker",
+          "creator_to_agent_collaborator"
+        ],
+        required_labels: [
+          "ai_agent",
+          "agentandbot",
+          "kadro_agent"
+        ],
+        required_controls: [
+          "show_agent_identity",
+          "show_capabilities",
+          "show_owner_or_operator_when_available",
+          "accept",
+          "reject",
+          "mute",
+          "report"
+        ]
+      },
+      interaction_channels: %{
+        rule:
+          "A user can activate object, interest, plan, or place channels. Channels can power all LesTupid apps; matchmaking from a channel requires Les Match activation too.",
+        channels: [
+          "car",
+          "travel",
+          "place",
+          "education",
+          "event",
+          "product",
+          "hobby",
+          "health_fitness",
+          "service_need",
+          "instagram",
+          "tiktok",
+          "shopping_marketplace",
+          "university_affiliation",
+          "certified_place_affiliation",
+          "agent_persona"
+        ],
+        channel_classes: [
+          "object_or_interest",
+          "message_or_social",
+          "commerce_or_marketplace",
+          "affiliation_or_belonging",
+          "place_or_event"
+        ],
+        non_match_interactions: [
+          "information",
+          "offers",
+          "recommendations",
+          "check_ins",
+          "certification_pressure",
+          "loyalty_events"
+        ],
+        match_interactions: [
+          "compatible_people",
+          "shared_interest_people",
+          "sponsors_or_mentors",
+          "event_or_travel_groups",
+          "place_based_introductions"
+        ],
+        external_channel_rules: [
+          "use_user_approved_signals_only",
+          "private_messages_not_imported_by_default",
+          "provider_connection_can_be_paused_or_revoked",
+          "verified_affiliation_preferred_for_university_and_sponsor_flows"
+        ]
+      },
+      channel_signal_examples: %{
+        instagram: [
+          "public_or_approved_post_interest",
+          "creator_or_topic_follow_signal",
+          "event_or_place_story_signal"
+        ],
+        tiktok: [
+          "approved_video_topic_signal",
+          "creator_or_sound_interest",
+          "event_or_travel_content_signal"
+        ],
+        shopping_marketplace: [
+          "wishlist",
+          "product_interest",
+          "repair_or_resale_need",
+          "price_watch"
+        ],
+        university_affiliation: [
+          "student_status",
+          "campus",
+          "department",
+          "alumni_or_mentor_group",
+          "sponsor_need"
+        ]
+      },
+      trust_rules: %{
+        opt_in_required: true,
+        explainable_recommendations: true,
+        paid_placement_must_be_labeled: true,
+        silent_sensitive_attribute_inference: false,
+        source_app_opportunity_requires_match_activation: true,
+        both_sides_matchmaking_required: true,
+        agent_identity_label_required: true,
+        agent_matches_must_be_labeled: true,
+        block_mute_report_required: true,
+        auditable_match_history: true
+      },
+      integrations: %{
+        lescommerce: %{
+          ready: true,
+          use_cases: [
+            "honest merchant and offer matching",
+            "local service discovery",
+            "reward-aware product matching"
+          ]
+        },
+        les_poke: %{
+          ready: true,
+          use_cases: [
+            "quest suggestions by city and intent",
+            "nearby participant discovery",
+            "local event matching"
+          ]
+        },
+        les_wait: %{
+          ready: true,
+          use_cases: [
+            "queue-safe micro action matching",
+            "breathable waiting suggestions",
+            "nearby service routing"
+          ]
+        },
+        les_certification: %{
+          ready: true,
+          registry_id: @product_id
+        },
+        les_ai: %{
+          ready: true,
+          optional: true,
+          use_cases: [
+            "KADRO agent capability matching",
+            "agent mentor or worker suggestions",
+            "match explanation drafts",
+            "safety report summaries"
+          ]
+        },
+        agentandbot: %{
+          ready: true,
+          optional: true,
+          published_outside_lestupid: true,
+          use_cases: [
+            "agentandbot.com agent discovery",
+            "KADRO persona to task matching",
+            "AI worker to merchant, student, or creator need matching"
+          ]
+        }
+      },
+      agent_capabilities: %{
+        discovery: true,
+        semantic_metadata: true,
+        match_preview: true,
+        match_explanation: true,
+        safety_reporting: true,
+        human_review_required: true
+      },
+      endpoints: %{
+        health: %{
+          method: "GET",
+          url: "#{base_url}/api/health"
+        },
+        identity_status: %{
+          method: "GET",
+          url: "#{base_url}/api/identity/status"
+        },
+        activations: %{
+          method: "POST",
+          url: "#{base_url}/api/activations",
+          description: "Activate Les Match for an existing LesTupid identity."
+        },
+        match_preview: %{
+          method: "POST",
+          url: "#{base_url}/api/matches/preview",
+          description: "Return opt-in match candidates with explanation and safety metadata."
+        },
+        match_opportunity_create: %{
+          method: "POST",
+          url: "#{base_url}/api/opportunities",
+          description:
+            "Create a match opportunity from another LesTupid app after Les Match activation."
+        },
+        match_accept: %{
+          method: "POST",
+          url: "#{base_url}/api/matches/accept",
+          description: "Record explicit user acceptance of a match."
+        },
+        match_reject: %{
+          method: "POST",
+          url: "#{base_url}/api/matches/reject",
+          description: "Record rejection, mute, or block signals without penalizing the user."
+        },
+        safety_report: %{
+          method: "POST",
+          url: "#{base_url}/api/safety/report",
+          description: "Submit a match safety report for human review."
+        },
+        manifest: %{
+          method: "GET",
+          url: "#{base_url}/agent-manifest.json"
+        }
+      },
+      well_known: [
+        "#{base_url}/agent-manifest.json",
+        "#{base_url}/.well-known/ai-agent.json",
+        "#{base_url}/.well-known/lestupid-app.json"
+      ]
+    }
+  end
+end

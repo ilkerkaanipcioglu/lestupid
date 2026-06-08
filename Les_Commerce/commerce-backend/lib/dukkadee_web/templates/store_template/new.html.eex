@@ -1,0 +1,58 @@
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+  <div class="p-6">
+    <h1 class="text-3xl font-bold mb-6">Create Store from Template</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div>
+        <h2 class="text-xl font-semibold mb-2">Template: <%= @template.name %></h2>
+        <p class="text-gray-600 mb-4"><%= @template.description %></p>
+        
+        <div class="h-60 bg-gray-200 rounded-lg overflow-hidden mb-4">
+          <%= if @template.preview_url do %>
+            <img src="<%= @template.preview_url %>" alt="<%= @template.name %> Preview" class="w-full h-full object-cover">
+          <% else %>
+            <div class="flex items-center justify-center h-full">
+              <span class="text-gray-400">No preview available</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+      <div>
+        <h2 class="text-xl font-semibold mb-4">Store Details</h2>
+        
+        <%= form_for @changeset, Routes.store_template_path(@conn, :create, template_id: @template.id), fn f -> %>
+          <div class="mb-4">
+            <%= label f, :name, class: "block text-gray-700 font-medium mb-2" %>
+            <%= text_input f, :name, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+            <%= error_tag f, :name %>
+          </div>
+          
+          <div class="mb-4">
+            <%= label f, :description, class: "block text-gray-700 font-medium mb-2" %>
+            <%= textarea f, :description, rows: 3, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+            <%= error_tag f, :description %>
+          </div>
+          
+          <div class="mb-4">
+            <%= label f, :domain, class: "block text-gray-700 font-medium mb-2" %>
+            <div class="flex">
+              <%= text_input f, :domain, class: "w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+              <span class="inline-flex items-center px-3 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-500 rounded-r-md">
+                .dukkadee.com
+              </span>
+            </div>
+            <%= error_tag f, :domain %>
+          </div>
+          
+          <div class="flex justify-end">
+            <a href="<%= Routes.store_template_path(@conn, :index) %>" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded mr-2">
+              Cancel
+            </a>
+            <%= submit "Create Store", class: "bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,78 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "lestupid-roof",
+  "name": "LesTupid",
+  "service": "lestupid_roof",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": ".",
+  "summary": "LesTupid ecosystem roof for honest value, certification, identity activation, portability, and app discovery.",
+  "ecosystem_roles": [
+    "ecosystem_roof",
+    "identity_activation_roof",
+    "certification_roof",
+    "app_discovery"
+  ],
+  "identity_activation": {
+    "model": "shared_lestupid_identity",
+    "registration": "handled_by_lestupid_identity_layer",
+    "app_activation_required": false,
+    "activation_product_id": "lestupid-roof",
+    "activation_permissions": [
+      "ecosystem_identity",
+      "app_activation_center",
+      "channel_activation_center"
+    ],
+    "user_controls": [
+      "export"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "low",
+    "data_owner": "ecosystem",
+    "required_adapters": [],
+    "optional_adapters": [
+      "identity_adapter",
+      "activation_adapter",
+      "certification_adapter",
+      "loyalty_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "The LesTupid roof coordinates identity, activation and discovery, but individual apps must remain independently runnable."
+  },
+  "integrations": {
+    "les_certification": {
+      "ready": true,
+      "optional": false
+    },
+    "les_match": {
+      "ready": true,
+      "optional": true
+    },
+    "les_poke": {
+      "ready": true,
+      "optional": true
+    },
+    "les_wait": {
+      "ready": true,
+      "optional": true
+    },
+    "les_care": {
+      "ready": true,
+      "optional": true
+    },
+    "lescommerce": {
+      "ready": true,
+      "optional": true
+    }
+  },
+  "well_known": [
+    "/.well-known/lestupid-app.json"
+  ]
+}

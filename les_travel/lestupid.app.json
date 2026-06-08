@@ -1,0 +1,169 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "les-travel",
+  "name": "Les Travel",
+  "service": "les_travel",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "les_travel",
+  "summary": "Travel readiness, official visa/source routing, accommodation safety, route planning, emergency contacts, scam/risk briefing and private trip memory for LesTupid.",
+  "ecosystem_roles": [
+    "travel_readiness",
+    "visa_source_router",
+    "official_source_check",
+    "accommodation_safety",
+    "trip_budget_guardrail",
+    "route_and_return_plan",
+    "travel_risk_briefing",
+    "emergency_contact_pack",
+    "student_travel_opportunity",
+    "Nairobi_student_Turkiye_readiness",
+    "private_trip_memory",
+    "arrival_place_mode"
+  ],
+  "identity_activation": {
+    "model": "local_or_shared_lestupid_identity",
+    "registration": "local_first_linkable_to_lestupid_identity",
+    "app_activation_required": false,
+    "activation_product_id": "les-travel",
+    "activation_permissions": [
+      "trip_intent",
+      "visa_source_check",
+      "document_checklist",
+      "accommodation_safety_preview",
+      "route_and_return_preview",
+      "emergency_contact_pack",
+      "travel_risk_briefing",
+      "private_trip_memory",
+      "travel_offer_preview"
+      ,
+      "student_launch_travel_readiness_preview"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export",
+      "delete_trip"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "low",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "go_context_adapter",
+      "contacts_adapter",
+      "commerce_adapter",
+      "certification_adapter",
+      "harmonica_adapter",
+      "match_adapter",
+      "care_adapter",
+      "ai_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "Les Travel owns trip intent, travel readiness, official-source routing, safety briefing and private trip memory. Visa decisions, checkout, messaging, matching and health guidance remain owned by their source systems or official authorities."
+  },
+  "integrations": {
+    "les_go": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "travel mode cards",
+        "arrival place mode",
+        "airport, dorm, campus and safe return prompts",
+        "visual travel flow demo"
+        ,
+        "Nairobi student launch travel card"
+      ]
+    },
+    "les_contacts": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "private trip memory",
+        "travel contacts",
+        "saved places",
+        "booking and stay notes"
+      ]
+    },
+    "lescommerce": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "accommodation offers",
+        "ticket or insurance offers",
+        "travel gear listings",
+        "safe operator listings"
+      ]
+    },
+    "les_certification": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "official source confidence",
+        "certified place or operator signal",
+        "fake visa site warning",
+        "risk label policy"
+      ]
+    },
+    "les_harmonica": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "trusted travel contact",
+        "emergency handoff",
+        "pairwise contact with host or venue"
+      ]
+    },
+    "les_match": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "opt-in travel companion",
+        "student sponsor or mentor",
+        "same event or conference group",
+        "no automatic dating or adult expectations"
+      ]
+    },
+    "les_care": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "travel health info",
+        "clinic routing",
+        "emergency-first guidance"
+      ]
+    },
+    "les_ai": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "document checklist draft",
+        "risk summary",
+        "itinerary draft",
+        "language help",
+        "official source explanation with citation"
+      ]
+    }
+  },
+  "privacy_policy": {
+    "default_visibility": "private",
+    "visa_rules_require_official_source": true,
+    "official_source_attribution_required": true,
+    "no_hidden_person_tracking": true,
+    "matchmaking_requires_les_match_activation": true,
+    "sexual_service_marketplace_forbidden": true,
+    "unsupported_private_scraping_allowed": false,
+    "ai_training_allowed": false
+  },
+  "well_known": [
+    "/.well-known/lestupid-app.json"
+  ]
+}

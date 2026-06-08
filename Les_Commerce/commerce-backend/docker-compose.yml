@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=20911980
+      - POSTGRES_DB=dukkadee_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dukkadee_network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=20911980
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=dukkadee_dev
+      - POSTGRES_TEST_DB=dukkadee_test
+      - PORT=4003
+      - SECRET_KEY_BASE=BurasıÇokGizliDoldurun
+      - MIX_ENV=dev
+    ports:
+      - "4003:4003"
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+    networks:
+      - dukkadee_network
+
+networks:
+  dukkadee_network:
+    driver: bridge
+
+volumes:
+  postgres_data:

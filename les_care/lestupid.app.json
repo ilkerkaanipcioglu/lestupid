@@ -1,0 +1,124 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "les-care",
+  "name": "Les Care",
+  "service": "les_care",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "les_care",
+  "summary": "Safe health information, first-aid guidance, clinic/pharmacy routing, certified contributor content, and optional knowledge rewards.",
+  "ecosystem_roles": [
+    "health_information",
+    "first_aid_guidance",
+    "clinic_pharmacy_routing",
+    "certified_content",
+    "knowledge_rewards",
+    "safety_triage"
+  ],
+  "identity_activation": {
+    "model": "shared_lestupid_identity",
+    "registration": "local_or_lestupid_identity_layer",
+    "app_activation_required": true,
+    "activation_product_id": "les-care",
+    "activation_permissions": [
+      "care_profile",
+      "private_health_questions",
+      "safe_info_feed",
+      "contributor_rewards",
+      "clinic_or_pharmacy_routing"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "medium",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "identity_adapter",
+      "activation_adapter",
+      "ai_triage_adapter",
+      "certification_adapter",
+      "clinic_routing_adapter",
+      "pharmacy_listing_adapter",
+      "loyalty_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "Les Care can run as its own safe information and routing app; LesTupid identity, AI triage, commerce, wait queues, certification and rewards remain optional adapters."
+  },
+  "safety_policy": {
+    "not_medical_advice": true,
+    "no_diagnosis": true,
+    "no_prescription": true,
+    "emergency_first": true,
+    "human_review_required_for_certified_health_content": true,
+    "minor_safe_mode_required": true,
+    "risky_home_remedy_labeling_required": true
+  },
+  "integrations": {
+    "les_go": {
+      "mode": "optional",
+      "use_cases": [
+        "nearby_clinic_or_pharmacy_cards",
+        "campus_health_center_cards",
+        "first_aid_info_cards"
+      ]
+    },
+    "les_ai": {
+      "mode": "optional",
+      "use_cases": [
+        "symptom_intake_questions",
+        "urgency_triage",
+        "source_backed_summary",
+        "do_not_do_warning"
+      ]
+    },
+    "les_wait": {
+      "mode": "optional",
+      "use_cases": [
+        "clinic_queue",
+        "pharmacy_consultation_queue",
+        "student_health_center_booking"
+      ]
+    },
+    "lescommerce": {
+      "mode": "optional",
+      "use_cases": [
+        "pharmacy_listing",
+        "safe_product_information",
+        "first_aid_kit_listing"
+      ]
+    },
+    "les_certification": {
+      "mode": "required_for_certified_content",
+      "use_cases": [
+        "expert_badge",
+        "source_quality_signal",
+        "health_content_review",
+        "product_claim_review"
+      ]
+    },
+    "les_block": {
+      "mode": "optional",
+      "use_cases": [
+        "knowledge_reward_event",
+        "training_completion_proof",
+        "contributor_reputation_event"
+      ]
+    }
+  },
+  "well_known": [
+    "/agent-manifest.json",
+    "/.well-known/lestupid-app.json"
+  ]
+}

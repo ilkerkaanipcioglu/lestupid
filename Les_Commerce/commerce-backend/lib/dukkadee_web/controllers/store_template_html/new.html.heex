@@ -1,0 +1,25 @@
+<h1 class="text-3xl font-bold mb-4">Create Store from Template: <%= @template.name %></h1>
+
+<div class="bg-white shadow rounded-lg p-6 mb-6">
+  <.form :let={f} for={@changeset} action={~p"/store_templates/#{@template.id}"}>
+    <div class="space-y-4">
+      <div>
+        <.input field={f[:name]} type="text" label="Store Name" />
+      </div>
+      
+      <div>
+        <.input field={f[:subdomain]} type="text" label="Subdomain" />
+        <p class="mt-1 text-sm text-gray-500">Your store will be available at yourdomain.dukkadee.com</p>
+      </div>
+      
+      <div class="flex items-center mt-6">
+        <.button type="submit" class="bg-brand-yellow hover:bg-yellow-600">
+          Create Store
+        </.button>
+        <.link navigate={~p"/store_templates/#{@template.id}"} class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-light-purple">
+          Cancel
+        </.link>
+      </div>
+    </div>
+  </.form>
+</div>

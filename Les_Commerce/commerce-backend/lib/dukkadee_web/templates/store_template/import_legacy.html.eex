@@ -1,0 +1,40 @@
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+  <div class="p-6">
+    <h1 class="text-3xl font-bold mb-6">Import Legacy Store</h1>
+    
+    <p class="text-gray-600 mb-6">
+      Import your existing store to create a new store on our platform. 
+      We'll analyze your store's design and content to create a modern version while preserving your brand identity.
+    </p>
+    
+    <%= form_for @conn, Routes.store_template_path(@conn, :create_from_legacy), [as: :legacy_site, multipart: true], fn f -> %>
+      <div class="mb-4">
+        <%= label f, :path, "Legacy Site Path", class: "block text-gray-700 font-medium mb-2" %>
+        <%= text_input f, :path, placeholder: "e.g., d:/DEV/AFRICA_ECOMMERCE/legacy_sites/inklessismore-ke", class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+        <p class="text-sm text-gray-500 mt-1">Enter the full path to your legacy site directory</p>
+      </div>
+      
+      <div class="mb-4">
+        <%= label f, :store_name, "Store Name", class: "block text-gray-700 font-medium mb-2" %>
+        <%= text_input f, :store_name, class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500" %>
+      </div>
+      
+      <div class="flex justify-end">
+        <a href="<%= Routes.store_template_path(@conn, :index) %>" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded mr-2">
+          Cancel
+        </a>
+        <%= submit "Import Store", class: "bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded" %>
+      </div>
+    <% end %>
+    
+    <div class="mt-8 border-t pt-6">
+      <h2 class="text-xl font-semibold mb-4">Or Use a Template</h2>
+      <p class="text-gray-600 mb-4">
+        Prefer to start with one of our pre-designed templates? Browse our collection of modern, responsive store templates.
+      </p>
+      <a href="<%= Routes.store_template_path(@conn, :index) %>" class="text-indigo-600 hover:text-indigo-800">
+        View templates &rarr;
+      </a>
+    </div>
+  </div>
+</div>

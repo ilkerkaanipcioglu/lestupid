@@ -1,0 +1,29 @@
+{
+  "name": "dukkadee",
+  "version": "1.0.0",
+  "description": "Dukkadee.com e-commerce platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "cd .. && mix assets.deploy && rm -f _build/esbuild*",
+    "watch": "tailwindcss -i css/app.css -o ../priv/static/assets/app.css --watch"
+  },
+  "keywords": [
+    "ecommerce",
+    "phoenix",
+    "elixir"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "alpinejs": "^3.13.3",
+    "phoenix": "file:../deps/phoenix",
+    "phoenix_html": "file:../deps/phoenix_html",
+    "phoenix_live_view": "file:../deps/phoenix_live_view"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5"
+  }
+}

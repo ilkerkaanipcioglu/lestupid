@@ -1,0 +1,655 @@
+{
+  "schema_version": "lestupid.certification_registry.v1",
+  "updated_at": "2026-06-02",
+  "policy": {
+    "source_of_truth": "PostgreSQL in the future Lestupid core service",
+    "identity_model": "one_lestupid_identity_many_app_activations",
+    "identity_spec": "les_certification/lestupid-identity-activation-spec.md",
+    "web3_role": "proof_and_portability_only",
+    "ai_role": "recommendation_and_evidence_summary_only",
+    "human_review_required_for_final_certification": true,
+    "portability_model": "standalone_apps_with_optional_ecosystem_activation",
+    "portability_spec": "les_certification/lestupid-app-portability-spec.md",
+    "required_manifest_fields": [
+      "identity_activation",
+      "runtime_modes",
+      "portability",
+      "well_known"
+    ],
+    "delivery_model": "simple_fast_flexible_api_first_apps",
+    "frontend_strategy": {
+      "mobile_web": "responsive_pwa_first",
+      "mobile_app": "expo_when_native_install_needed",
+      "desktop_app": "web_pwa_first_tauri_when_needed",
+      "shared_code_rule": "share helpers and UI only when it reduces real duplication"
+    },
+    "web3_adapter": "les_block_adapter",
+    "web3_adapter_spec": "les_certification/les-block-adapter-spec.md",
+    "web3_source_of_truth": "postgres_or_app_ledger_first_blockchain_proof_only",
+    "trust_credentials_spec": "les_certification/pseudonymous-trust-credentials-spec.md",
+    "trust_credential_policy": "domain_scoped_pairwise_pseudonymous_hash_only_revocable"
+  },
+  "statuses": [
+    "internal_candidate",
+    "candidate",
+    "claimed",
+    "reviewed",
+    "certified",
+    "paused",
+    "revoked"
+  ],
+  "products": [
+    {
+      "id": "lestupid-roof",
+      "name": "lestupid",
+      "type": "loyalty_and_philosophy_roof",
+      "directory": ".",
+      "status": "internal_candidate",
+      "priority": 1,
+      "certificate_route": "certify loyalty standard, anti-hype criteria, clear value-oriented philosophy",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      },
+      "manifest": "lestupid.app.json"
+    },
+    {
+      "id": "les-certification",
+      "name": "Les Certification",
+      "type": "certification_registry_and_policy_app",
+      "directory": "les_certification",
+      "manifest": "les_certification/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 2,
+      "certificate_route": "certify registry integrity, human review, portability policy, identity activation rules, and evidence-based certification",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "les-go",
+      "name": "LesTupid Go",
+      "type": "student_checkin_opportunity_pwa_shell",
+      "directory": "les_go",
+      "manifest": "les_go/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 3,
+      "certificate_route": "certify activation shell clarity, student check-in consent, university launch board clarity, opportunity explainability, creator promotion context labeling, sponsored content disclosure, agent labeling, adult-context separation, and no hidden location trails",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "lestupid-waiting-app",
+      "name": "lestupid bekleme",
+      "type": "waiting_queue_app",
+      "directory": "les_wait/lestupid-waiting-app-spec.md",
+      "prototype": "les_wait/waiting.html",
+      "status": "internal_candidate",
+      "priority": 4,
+      "certificate_route": "certify queue fairness, wait breathability, QR/table/sign/phone/proximity/staff tablet entry, venue owner onboarding, staff override audit, inactive venue request behavior, SMS/WhatsApp/USSD/Web channels, and La/Le/Lo/Lale journey",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      },
+      "manifest": "les_wait/lestupid.app.json"
+    },
+    {
+      "id": "les-poke",
+      "name": "Les Poke",
+      "type": "city_memory_quest_app",
+      "directory": "Les_poke",
+      "manifest": "Les_poke/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 5,
+      "certificate_route": "certify safe public-space quests, graduate launch circle boundaries, opt-in live discovery, clear points, creator membership drops, creator promotion quest labeling, sponsored content disclosure, Les Commerce brief handoff, paid access labeling, adult content age-gating, no sexual service marketplace behavior, and local memory stewardship",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "les-match",
+      "name": "Les Match",
+      "type": "consent_first_matchmaking_app",
+      "directory": "les_match",
+      "manifest": "les_match/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 6,
+      "certificate_route": "certify consent-first matchmaking, transparent scoring, explainable recommendations, local meal/experience plans, creator/fan membership matching, labeled paid access, adult-mode age-gating, no sexual service marketplace behavior, and no manipulative ranking",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "les-care",
+      "name": "Les Care",
+      "type": "safe_health_information_and_first_aid_routing_app",
+      "directory": "les_care",
+      "manifest": "les_care/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 7,
+      "certificate_route": "certify safe health information boundaries, emergency-first triage, no diagnosis or prescription behavior, human-reviewed certified content, minor-safe mode, source quality, clinic/pharmacy routing clarity, and non-manipulative knowledge rewards",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "medium",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "les-harmonica",
+      "name": "Les Harmonica",
+      "type": "safe_communication_and_trusted_proximity_app",
+      "directory": "les_harmonica",
+      "manifest": "les_harmonica/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 7.1,
+      "certificate_route": "certify encrypted communication boundaries, pairwise pseudonymous contact, trusted proximity consent, guardian-safe contact, certified venue/staff contact, revocation/report flows, no public people browsing, and optional hash-only proof",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "les-contacts",
+      "name": "Les Contacts",
+      "type": "private_contact_and_place_graph_app",
+      "directory": "les_contacts",
+      "manifest": "les_contacts/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 7.2,
+      "certificate_route": "certify private multi-context contact/place/product/service/asset import, personal/work/family/school/social/travel/commerce context separation, relationship timeline privacy, product usage and purchase memory rules, legal source connectors, source attribution, per-source revoke/delete, dedupe/merge controls, sensitive event rules, role candidate review, no raw address book, receipt, ownership or custody sharing, no third-party password collection, no unsupported private scraping, no automatic matchmaking, no AI training on imported contacts or events, and clear consent before commerce, care, safe contact, certification, or match use",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "les-travel",
+      "name": "Les Travel",
+      "type": "travel_readiness_stay_safety_and_trip_memory_app",
+      "directory": "les_travel",
+      "manifest": "les_travel/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 7.3,
+      "certificate_route": "certify official visa/source routing, source attribution, student travel readiness, trip readiness, accommodation safety, scam/risk briefing, route and return planning, emergency contact handoff, private trip memory, no fake official links, no hidden commission, no unsupported scraping, no automatic matchmaking, no sexual service marketplace behavior, and clear consent before commerce, match, care, safe contact, or certification use",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "lescommerce-core",
+      "name": "lescommerce",
+      "type": "lestupid_ecommerce_app",
+      "directory": "Les_Commerce",
+      "status": "internal_candidate",
+      "priority": 8,
+      "certificate_route": "certify honest checkout, no hidden costs, clear value presentation, creator promotion brief clarity, affiliate and commission disclosure, sponsored filter labeling, tap-to-filter facet clarity, no sensitive inferred filters, and private purchase or location history not becoming public facets",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      },
+      "manifest": "Les_Commerce/lestupid.app.json"
+    },
+    {
+      "id": "lescommerce-quick-commerce",
+      "name": "Les Commerce Quick Commerce",
+      "type": "shopify_style_quick_commerce",
+      "directory": "Les_Commerce/quick-commerce-elixir",
+      "status": "internal_candidate",
+      "priority": 9,
+      "certificate_route": "certify fast merchant onboarding, storefront theme selection, catalog publishing, checkout clarity, order flows, tap-to-filter storefront facets, and optional marketplace or DIY drop adapters",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      },
+      "manifest": "Les_Commerce/quick-commerce-elixir/lestupid.app.json"
+    },
+    {
+      "id": "lescommerce-diydiy",
+      "name": "diydiy",
+      "type": "diy_video_marketplace",
+      "directory": "Les_Commerce/diy-marketplace-elixir",
+      "status": "internal_candidate",
+      "priority": 10,
+      "certificate_route": "certify creator workshops, video-based appointments, honest DIY kit pricing, and video/material/master/product tap-to-filter signals",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      },
+      "manifest": "Les_Commerce/diy-marketplace-elixir/lestupid.app.json"
+    },
+    {
+      "id": "les-itemotel",
+      "name": "Les Item Otel",
+      "type": "item_custody_storage_care_rental_resale_and_recall_app",
+      "directory": "Les_Commerce/les_itemotel",
+      "manifest": "Les_Commerce/les_itemotel/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 11,
+      "certificate_route": "certify custody proof, owner consent before listing, condition logs, care history, hygiene or safety labels, rental terms, recall rules, clear ownership transfer for resale, and private-safe item facet filtering",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "medium",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "les-affiliate-oyun",
+      "name": "Les Affiliate Oyun",
+      "type": "social_commerce_affiliate_card_game",
+      "directory": "les_affiliate_oyun",
+      "manifest": "les_affiliate_oyun/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 11.1,
+      "certificate_route": "certify affiliate disclosure, paid placement labels, odds/rarity clarity, reward split transparency, no forced wallet, no manipulative duel penalties, no real-value deck confiscation, and clean Les Commerce/Poke/Match boundaries",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "les-ai",
+      "name": "Les AI",
+      "type": "ai_agent_compatibility_adapter_layer",
+      "directory": "les_ai",
+      "manifest": "les_ai/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 12,
+      "certificate_route": "certify optional AI agent adapters, labeled KADRO workers, evidence summaries, human review boundaries, privacy defaults, no deceptive agent behavior, and agentandbot.com compatibility",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "medium",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      },
+      "publication": {
+        "primary_domain": "agentandbot.com",
+        "published_outside_lestupid": true,
+        "lestupid_role": "compatibility_adapter_layer"
+      }
+    },
+    {
+      "id": "agentandbot-governance-core",
+      "name": "agentandbot.com Governance Core",
+      "type": "independent_ai_agent_platform_lestupid_compatible",
+      "directory": "les_ai/agentandbot/governance_core",
+      "status": "internal_candidate",
+      "priority": 13,
+      "certificate_route": "certify independent agentandbot.com agent runtime, safe tool governance, agent task workspace, scenario board routing, agent portability, and LesTupid-compatible adapters",
+      "agent_friendly": true,
+      "lescommerce_integration": false,
+      "web3_ready": true,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "external",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      },
+      "manifest": "les_ai/agentandbot/governance_core/lestupid.app.json",
+      "publication": {
+        "primary_domain": "agentandbot.com",
+        "published_outside_lestupid": true,
+        "lestupid_dependency": false,
+        "lestupid_compatibility": true
+      }
+    },
+    {
+      "id": "ai-senaryo",
+      "name": "ai_senaryo",
+      "type": "scenario_video_collective",
+      "directory": "les_ai/ai_beraberproje",
+      "status": "internal_candidate",
+      "priority": 14,
+      "certificate_route": "certify collective scenario prompts, contributor consent/credit, AI video render pipeline honesty, minor-safe creative policy, and asset metadata",
+      "agent_friendly": true,
+      "lescommerce_integration": false,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "external",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      },
+      "manifest": "les_ai/ai_beraberproje/lestupid.app.json"
+    },
+    {
+      "id": "e-any-com",
+      "name": "e-any.com",
+      "type": "egov_portal",
+      "directory": "e-any.com",
+      "status": "internal_candidate",
+      "priority": 15,
+      "repository_scope": "external_expected",
+      "certificate_route": "certify e-government service clarity, transparent documentation, and clean public pricing",
+      "agent_friendly": true,
+      "lescommerce_integration": false,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "external",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "eny-com-tr",
+      "name": "eny.com.tr",
+      "type": "egov_portal_tr",
+      "directory": "eny.com.tr",
+      "status": "internal_candidate",
+      "priority": 16,
+      "repository_scope": "external_expected",
+      "certificate_route": "certify TR e-Fatura/e-Arsiv service clarity, transparent SAP integration evidence, and no dark billing patterns",
+      "agent_friendly": true,
+      "lescommerce_integration": false,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "external",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "e-any-info",
+      "name": "e-any.info",
+      "type": "social_and_news_feed",
+      "directory": "e-any.info",
+      "status": "internal_candidate",
+      "priority": 17,
+      "repository_scope": "external_expected",
+      "certificate_route": "certify otonom news aggregation, honest blog reporting, and no engagement baiting patterns",
+      "agent_friendly": true,
+      "lescommerce_integration": false,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "external",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "e-any-online-tools",
+      "name": "e-any.online",
+      "type": "tools_and_integration_hub",
+      "directory": "e-any.online",
+      "manifest": "e-any.online/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 18,
+      "certificate_route": "certify internal/customer tool clarity, public tool safety, embeddable widget boundaries, secure Activepieces/Windmill metadata handling, no committed workflow/customer secrets, human approval for customer-affecting flows, audit trails for internal flows, clear output retention, and safe executable scripts",
+      "agent_friendly": true,
+      "lescommerce_integration": false,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "ipcioglu-com",
+      "name": "ipcioglu.com",
+      "type": "family_holding_site",
+      "directory": "ipcioglu",
+      "status": "internal_candidate",
+      "priority": 19,
+      "repository_scope": "external_expected",
+      "certificate_route": "certify corporate holding clarity, family stewardship ethics, and correct portfolio directory links",
+      "agent_friendly": true,
+      "lescommerce_integration": false,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "external",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "ilkerkaan-ipcioglu-com",
+      "name": "ilkerkaan.ipcioglu.com",
+      "type": "personal_page_and_blog",
+      "directory": "ipcioglu/ilkerkaan.ipcioglu.com",
+      "status": "internal_candidate",
+      "priority": 20,
+      "repository_scope": "external_expected",
+      "certificate_route": "certify personal documentation honesty, transparent developer log reporting, and open learning pathways",
+      "agent_friendly": true,
+      "lescommerce_integration": false,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "external",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
+      "id": "lestupid-lan",
+      "name": "LesTupid Lan",
+      "type": "language_renderer_and_tooling",
+      "directory": "LesTupid_Lan",
+      "manifest": "LesTupid_Lan/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 21,
+      "certificate_route": "certify language renderer clarity, safe local tooling, and portable spec outputs",
+      "agent_friendly": true,
+      "lescommerce_integration": false,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    }
+  ]
+}

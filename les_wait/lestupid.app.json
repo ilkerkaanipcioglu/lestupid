@@ -1,0 +1,216 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "lestupid-waiting-app",
+  "name": "Les Wait",
+  "service": "les_wait",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "les_wait",
+  "summary": "Breathable waiting, queue, appointment, and service-state application for LesTupid places and services.",
+  "ecosystem_roles": [
+    "queue",
+    "waiting",
+    "appointment",
+    "service_state",
+    "place_pressure",
+    "venue_owner_entry",
+    "staff_queue_dashboard",
+    "entry_surface_management",
+    "qr_join",
+    "table_code_join",
+    "phone_number_join",
+    "proximity_discovery_join"
+  ],
+  "identity_activation": {
+    "model": "shared_lestupid_identity",
+    "registration": "local_or_lestupid_identity_layer",
+    "app_activation_required": true,
+    "activation_product_id": "lestupid-waiting-app",
+    "activation_permissions": [
+      "queue_profile",
+      "service_notifications",
+      "check_in",
+      "appointment_status",
+      "qr_queue_join",
+      "table_code_queue_join",
+      "phone_number_queue_join",
+      "proximity_place_discovery",
+      "staff_tablet_entry",
+      "venue_owner_queue_flow"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "low",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "identity_adapter",
+      "activation_adapter",
+      "channel_adapter",
+      "match_opportunity_adapter",
+      "certification_adapter",
+      "loyalty_adapter",
+      "venue_owner_adapter",
+      "proximity_adapter",
+      "les_block_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "Les Wait can run as a standalone queue and appointment app; Les Match, Les Poke, Les Commerce and certification signals are optional adapters."
+  },
+  "platform_strategy": {
+    "delivery_model": "simple_fast_flexible_api_first",
+    "mobile_web": "responsive_pwa_first",
+    "mobile_app": "expo_only_when_install_push_or_offline_field_use_is_needed",
+    "desktop_app": "responsive_web_or_kiosk_first",
+    "admin_ops": "web_dashboard_when_api_exists"
+  },
+  "core_events": [
+    "waiting_flow_created",
+    "venue_owner_claimed_place",
+    "entry_surface_created",
+    "entry_surface_scanned",
+    "proximity_place_detected",
+    "queue_joined",
+    "queue_status_viewed",
+    "notification_sent",
+    "staff_override_recorded",
+    "queue_completed",
+    "queue_abandoned"
+  ],
+  "channel_policy": {
+    "rule": "Every channel maps to the same event model; no channel is mandatory.",
+    "supported_channels": [
+      "web",
+      "qr",
+      "table_code",
+      "short_link",
+      "sms",
+      "whatsapp",
+      "telegram",
+      "ussd",
+      "phone_number",
+      "proximity_discovery",
+      "staff_tablet",
+      "phone_call",
+      "manual_offline"
+    ],
+    "user_entry_methods": [
+      "qr_scan",
+      "table_code_scan",
+      "short_link",
+      "phone_number",
+      "sms_or_chat",
+      "proximity_discovery",
+      "staff_tablet",
+      "manual_offline"
+    ],
+    "venue_owner_entry_required_for_live_queue": true,
+    "inactive_venue_behavior": "show_request_les_wait_prompt_only"
+  },
+  "venue_owner_model": {
+    "owner_actions": [
+      "claim_or_create_place",
+      "verify_owner_or_staff_permission",
+      "create_waiting_flow",
+      "choose_join_methods",
+      "print_or_display_qr_and_table_codes",
+      "open_staff_tablet_mode",
+      "set_capacity_and_service_windows",
+      "call_next",
+      "delay",
+      "pause",
+      "close",
+      "override",
+      "complete",
+      "mark_no_show",
+      "export_queue_history",
+      "request_certification"
+    ],
+    "certification_required_for": [
+      "public_certified_place_badge",
+      "high_risk_health_or_public_service_flow",
+      "paid_priority_policy",
+      "multi_staff_admin_access"
+    ],
+    "rule": "A venue can be requested by users, but a live official queue requires an owner, staff member, or authorized integration to enable and manage the flow."
+  },
+  "value_layer": {
+    "source_of_truth": "local_or_lestupid_core_ledger",
+    "web3_role": "optional_proof_and_portability",
+    "wallet_required": false,
+    "adapter": "les_block_adapter",
+    "supported_value_events": [
+      "la_earned",
+      "le_earned",
+      "lo_earned",
+      "lale_completed",
+      "point_earned",
+      "point_spent",
+      "certificate_proof_requested",
+      "certificate_proof_revoked"
+    ],
+    "rules": [
+      "queue_join_without_wallet",
+      "private_waiting_data_never_published_on_chain",
+      "mint_requires_explicit_consent",
+      "paid_priority_disabled_by_default",
+      "spend_rules_must_be_transparent"
+    ]
+  },
+  "integrations": {
+    "les_match": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "queue-safe nearby introductions",
+        "wait-state to useful action matching"
+      ]
+    },
+    "les_poke": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "breathable waiting walks",
+        "nearby micro quests"
+      ]
+    },
+    "lescommerce": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "pickup queues",
+        "service appointment slots"
+      ]
+    },
+    "les_certification": {
+      "ready": true,
+      "registry_id": "lestupid-waiting-app"
+    },
+    "les_block": {
+      "ready": false,
+      "optional": true,
+      "adapter": "les_block_adapter",
+      "use_cases": [
+        "certificate proof",
+        "point proof",
+        "spend or redeem receipt",
+        "revocation proof"
+      ]
+    }
+  },
+  "well_known": [
+    "/.well-known/lestupid-app.json"
+  ]
+}

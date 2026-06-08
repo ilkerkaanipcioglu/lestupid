@@ -1,0 +1,167 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "les-itemotel",
+  "name": "Les Item Otel",
+  "service": "les_itemotel",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "Les_Commerce/les_itemotel",
+  "summary": "Item custody, seasonal storage, professional care, rental, resale, and recall management for physical belongings.",
+  "ecosystem_roles": [
+    "commerce",
+    "item_custody",
+    "seasonal_storage",
+    "item_maintenance",
+    "rental_marketplace",
+    "resale_marketplace",
+    "circular_commerce",
+    "certified_item_care",
+    "passive_income_from_items",
+    "item_recall",
+    "peer_courier_jobs",
+    "campus_logistics"
+  ],
+  "identity_activation": {
+    "model": "shared_lestupid_identity",
+    "registration": "local_or_lestupid_identity_layer",
+    "app_activation_required": true,
+    "activation_product_id": "les-itemotel",
+    "activation_permissions": [
+      "storage_records",
+      "item_custody_records",
+      "maintenance_orders",
+      "care_log_records",
+      "rental_offers",
+      "resale_listings",
+      "rental_income_records",
+      "ownership_transfer_records",
+      "item_recall_requests",
+      "delivery_and_pickup_events",
+      "peer_courier_jobs",
+      "delivery_proof_records"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "medium",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "identity_adapter",
+      "activation_adapter",
+      "channel_adapter",
+      "marketplace_listing_adapter",
+      "match_opportunity_adapter",
+      "certification_adapter",
+      "wait_queue_adapter",
+      "ai_condition_adapter",
+      "loyalty_adapter",
+      "proof_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "Les Item Otel can run independently as an item custody, storage, care, rental, resale and recall manager; marketplace, matchmaking, wait queues, certification, AI condition checks and rewards remain optional adapters."
+  },
+  "trust_policy": {
+    "owner_consent_required_for_listing": true,
+    "custody_proof_required": true,
+    "condition_log_required_before_rent_or_sale": true,
+    "recall_allowed_only_when_not_sold": true,
+    "rental_terms_required": true,
+    "hygiene_or_safety_label_required_for_sensitive_categories": true,
+    "delivery_proof_required_for_peer_courier": true,
+    "high_value_or_sensitive_items_require_certified_courier": true
+  },
+  "integrations": {
+    "lescommerce_marketplace": {
+      "mode": "optional",
+      "use_cases": [
+        "publish_stored_item_as_rent_listing",
+        "publish_stored_item_as_sale_listing",
+        "local_item_offer"
+      ]
+    },
+    "lescommerce_quick_commerce": {
+      "mode": "optional",
+      "use_cases": [
+        "item_hotel_operator_storefront",
+        "storage_subscription_checkout",
+        "maintenance_service_checkout"
+      ]
+    },
+    "les_go": {
+      "mode": "optional",
+      "use_cases": [
+        "seasonal_storage_prompt",
+        "travel_or_sport_item_rental_card",
+        "care_due_feed_card",
+        "recall_status_card",
+        "peer_courier_job_card",
+        "campus_dorm_dropoff_prompt"
+      ]
+    },
+    "les_match": {
+      "mode": "explicit_opt_in",
+      "use_cases": [
+        "item_need_to_item_supply_match",
+        "rental_opportunity_match",
+        "buyer_interest_match"
+      ]
+    },
+    "les_wait": {
+      "mode": "optional",
+      "use_cases": [
+        "pickup_queue",
+        "care_appointment",
+        "return_delivery_queue",
+        "warehouse_intake_slot",
+        "peer_courier_pickup_slot"
+      ]
+    },
+    "les_ai": {
+      "mode": "optional",
+      "use_cases": [
+        "photo_based_category_suggestion",
+        "condition_summary",
+        "care_recommendation",
+        "rental_or_sale_price_hint"
+      ]
+    },
+    "les_certification": {
+      "mode": "required_for_certified_custody",
+      "registry_id": "les-itemotel",
+      "use_cases": [
+        "custody_proof",
+        "delivery_proof",
+        "condition_certificate",
+        "care_log_certificate",
+        "hygiene_or_safety_signal",
+        "ownership_transfer_signal"
+      ]
+    },
+    "les_block": {
+      "mode": "optional",
+      "use_cases": [
+        "custody_proof_event",
+        "peer_courier_delivery_proof_event",
+        "care_log_proof_event",
+        "rental_or_resale_reward_event",
+        "loyalty_point_event"
+      ]
+    }
+  },
+  "well_known": [
+    "/agent-manifest.json",
+    "/.well-known/lestupid-app.json"
+  ]
+}

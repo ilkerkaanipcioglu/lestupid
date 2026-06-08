@@ -1,0 +1,49 @@
+<div class="bg-white rounded-lg shadow-md overflow-hidden">
+  <div class="p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-3xl font-bold"><%= @template.name %></h1>
+      <a href="<%= Routes.store_template_path(@conn, :new, template_id: @template.id) %>" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+        Use this template
+      </a>
+    </div>
+    
+    <div class="mb-6">
+      <h2 class="text-xl font-semibold mb-2">Description</h2>
+      <p class="text-gray-600"><%= @template.description %></p>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div>
+        <h2 class="text-xl font-semibold mb-2">Preview</h2>
+        <div class="h-80 bg-gray-200 rounded-lg overflow-hidden">
+          <%= if @template.preview_url do %>
+            <img src="<%= @template.preview_url %>" alt="<%= @template.name %> Preview" class="w-full h-full object-cover">
+          <% else %>
+            <div class="flex items-center justify-center h-full">
+              <span class="text-gray-400">No preview available</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+      <div>
+        <h2 class="text-xl font-semibold mb-2">Features</h2>
+        <ul class="list-disc pl-5 space-y-2 text-gray-600">
+          <li>Modern, responsive design</li>
+          <li>Optimized for mobile devices</li>
+          <li>Built-in SEO features</li>
+          <li>Customizable color scheme</li>
+          <li>Product quick view</li>
+          <li>Advanced filtering options</li>
+          <li>Integrated blog functionality</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="flex justify-between">
+      <a href="<%= Routes.store_template_path(@conn, :index) %>" class="text-indigo-600 hover:text-indigo-800">
+        &larr; Back to templates
+      </a>
+    </div>
+  </div>
+</div>

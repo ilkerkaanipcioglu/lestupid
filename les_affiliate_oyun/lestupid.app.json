@@ -1,0 +1,136 @@
+{
+  "schema_version": "lestupid.app_manifest.v1",
+  "product_id": "les-affiliate-oyun",
+  "name": "Les Affiliate Oyun",
+  "service": "les_affiliate_oyun",
+  "version": "0.1.0",
+  "status": "internal_candidate",
+  "directory": "les_affiliate_oyun",
+  "summary": "Social-commerce card game for product cards, quest drops, creator drops, opt-in duels, transparent affiliate rewards, and certified game economy rules.",
+  "ecosystem_roles": [
+    "affiliate_card_game",
+    "social_commerce_game",
+    "product_card_layer",
+    "quest_drop_game",
+    "creator_drop_game",
+    "opt_in_duel_layer",
+    "transparent_reward_game",
+    "certified_game_economy"
+  ],
+  "identity_activation": {
+    "model": "local_or_shared_lestupid_identity",
+    "registration": "local_first_linkable_to_lestupid_identity",
+    "app_activation_required": false,
+    "activation_product_id": "les-affiliate-oyun",
+    "activation_permissions": [
+      "card_inventory",
+      "deck_builder",
+      "quest_drop_preview",
+      "affiliate_reward_preview",
+      "product_card_preview",
+      "creator_drop_preview",
+      "opt_in_duel_preview",
+      "leaderboard_preview"
+    ],
+    "user_controls": [
+      "activate",
+      "pause",
+      "revoke",
+      "export"
+    ]
+  },
+  "runtime_modes": [
+    "standalone_app",
+    "ecosystem_activated_app"
+  ],
+  "portability": {
+    "standalone_ready": true,
+    "ecosystem_activation_optional": true,
+    "extraction_difficulty": "low",
+    "data_owner": "app",
+    "required_adapters": [],
+    "optional_adapters": [
+      "lescommerce_adapter",
+      "les_poke_adapter",
+      "les_match_adapter",
+      "certification_adapter",
+      "les_block_adapter",
+      "go_context_adapter"
+    ],
+    "export_required": true,
+    "separation_rule": "Les Affiliate Oyun owns card/deck/game state. Commerce, quest, match and certification integrations are optional adapters and must not be required for standalone play."
+  },
+  "integrations": {
+    "lescommerce": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "product cards",
+        "affiliate link attribution",
+        "transparent commission receipt",
+        "merchant offer cards",
+        "DIY kit and creator product cards",
+        "Item Otel rental or resale cards",
+        "checkout handoff"
+      ]
+    },
+    "les_poke": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "quest cards",
+        "campus drops",
+        "event drops",
+        "city discovery decks",
+        "proof-of-participation",
+        "creator challenge cards"
+      ]
+    },
+    "les_match": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "opt-in duel opponent matching",
+        "team deck matching",
+        "mentor or sponsor matching",
+        "creator fan club matching",
+        "brand or merchant campaign matching"
+      ]
+    },
+    "les_certification": {
+      "ready": true,
+      "optional": true,
+      "use_cases": [
+        "paid placement labeling",
+        "affiliate disclosure",
+        "anti-manipulation review",
+        "game economy certification",
+        "odds and rarity disclosure",
+        "reward policy review"
+      ]
+    },
+    "les_block": {
+      "ready": false,
+      "optional": true,
+      "adapter": "les_block_adapter",
+      "use_cases": [
+        "optional card proof",
+        "reward receipt proof",
+        "season result hash",
+        "revocation proof"
+      ]
+    }
+  },
+  "game_economy_policy": {
+    "wallet_required": false,
+    "affiliate_disclosure_required": true,
+    "paid_placement_label_required": true,
+    "no_forced_purchase": true,
+    "no_real_value_deck_confiscation": true,
+    "no_duel_rejection_penalty": true,
+    "legal_review_required_for_cash_prizes_or_odds": true
+  },
+  "well_known": [
+    "/.well-known/lestupid-app.json"
+  ]
+}

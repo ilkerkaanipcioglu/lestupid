@@ -1,0 +1,43 @@
+name: Validate LesTupid
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  registry-and-go:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: les_go/package-lock.json
+
+      - name: Validate certification registry
+        run: node les_certification/validate-registry.mjs
+
+      - name: Parse manifests
+        run: |
+          node -e "for (const f of ['lestupid.app.json','les_go/lestupid.app.json','les_match/lestupid.app.json','Les_poke/lestupid.app.json','Les_Commerce/lestupid.app.json','les_ai/lestupid.app.json','les_certification/lestupid.app.json']) { JSON.parse(require('fs').readFileSync(f,'utf8')); console.log('JSON_OK '+f); }"
+
+      - name: Install Les Go dependencies
+        working-directory: les_go
+        run: npm ci
+
+      - name: Typecheck Les Go
+        working-directory: les_go
+        run: npm run typecheck
+
+      - name: Build Les Go
+        working-directory: les_go
+        run: npm run build
