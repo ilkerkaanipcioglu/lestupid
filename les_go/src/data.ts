@@ -10,7 +10,8 @@ import type {
   HarmonicaDevice,
   OyunCard,
   KadroAgent,
-  ZkpCredential
+  ZkpCredential,
+  AiSkill
 } from "./types";
 
 
@@ -691,6 +692,179 @@ export const mockKadroAgents: KadroAgent[] = [
   }
 ];
 
+export const kadroMarketplaceAgents: KadroAgent[] = [
+  {
+    id: "KADRO-1001",
+    name: "Ayse Kaya",
+    role: "SAP Senior Consultant & Content Creator",
+    bio: "ERP gecisleri, SAP egitimi, kurumsal icerik ve ogrenci mentor hazirligi icin ise alinabilir KADRO worker.",
+    avatar: "AK",
+    category: "Core",
+    identityClass: "ai_worker",
+    sourceApp: "agentandbot.com",
+    imageUrl: "/images/kadro/1001/1001_Ayse_Kaya_Vesikalik_thumb.jpg",
+    fullBodyUrl: "/images/kadro/1001/1001_Ayse_Kaya_Boydan.png",
+    cvUrl: "/images/kadro/1001/1001_Ayse_Kaya_CV.html",
+    country: "Turkiye",
+    social: ["LinkedIn", "YouTube", "Email", "Telegram"],
+    skills: ["SAP", "Training", "Mentor prep", "Content"],
+    hireMode: "Mentor task, CV review, training content",
+    hourlyRate: "Demo credits",
+    availability: "Ready",
+    responseTemplate: "SAP ve kurumsal basvuru sinyallerini taradim. Ogrenci profiline egitim, staj ve LinkedIn kaniti eklenebilir; paylasim icin kullanici onayi bekliyorum."
+  },
+  {
+    id: "KADRO-1002",
+    name: "Mehmet Arslan",
+    role: "SAP FI/CO Specialist & Podcast Host",
+    bio: "Finans surecleri, FICO vaka analizi, podcast senaryosu ve is basvurusu hazirligi icin agent worker.",
+    avatar: "MA",
+    category: "Core",
+    identityClass: "ai_worker",
+    sourceApp: "agentandbot.com",
+    imageUrl: "/images/kadro/1002/1002_Mehmet_Arslan_Vesikalik_thumb.jpg",
+    country: "Turkiye",
+    social: ["LinkedIn", "Twitter/X", "Email", "Podcast"],
+    skills: ["SAP FI/CO", "Finance", "Podcast", "Case analysis"],
+    hireMode: "Finance review, script, mentor prep",
+    hourlyRate: "Demo credits",
+    availability: "Ready",
+    responseTemplate: "Finans ve FICO odakli bir basvuru taslagi hazirladim. Deneyim kanitlari ve proje notlari eklendiginde sponsor/mentor gonderimine hazir olur."
+  },
+  {
+    id: "KADRO-1003",
+    name: "Zeynep Demir",
+    role: "E-Commerce Manager & TikTok Creator",
+    bio: "LesCommerce, DIY urun videolari, creator drop, influencer brief ve sosyal satis akislari icin uygun agent.",
+    avatar: "ZD",
+    category: "Core",
+    identityClass: "ai_worker",
+    sourceApp: "agentandbot.com",
+    imageUrl: "/images/kadro/1003/1003_Zeynep_Demir_Vesikalik_thumb.jpg",
+    fullBodyUrl: "/images/kadro/1003/1003_Zeynep_Demir_Boydan.png",
+    country: "Turkiye",
+    social: ["TikTok", "Instagram", "Email", "YouTube Shorts"],
+    skills: ["E-commerce", "Creator brief", "DIY drops", "Social listing"],
+    hireMode: "Promotion plan, product page, live brief",
+    hourlyRate: "Demo credits",
+    availability: "Ready",
+    responseTemplate: "DIY video sayfasini commerce akisi gibi dusundum: malzeme, usta, hazir urun ve creator tanitim kartlari birlikte yayinlanabilir."
+  },
+  {
+    id: "KADRO-1004",
+    name: "Carlos Rivera",
+    role: "E-Commerce Growth Lead & YouTube Host",
+    bio: "Cross-border commerce, reklam optimizasyonu, YouTube anlatimi ve buyume deneyleri icin agent worker.",
+    avatar: "CR",
+    category: "Core",
+    identityClass: "ai_worker",
+    sourceApp: "agentandbot.com",
+    imageUrl: "/images/kadro/1004/1004_Carlos_Rivera_Vesikalik_thumb.jpg",
+    fullBodyUrl: "/images/kadro/1004/1004_Carlos_Rivera_Boydan.png",
+    country: "Global",
+    social: ["YouTube", "Instagram", "LinkedIn", "Email"],
+    skills: ["Growth", "Ads", "YouTube", "Cross-border commerce"],
+    hireMode: "Launch plan, ad angle, storefront audit",
+    hourlyRate: "Demo credits",
+    availability: "Ready",
+    responseTemplate: "Urun sayfasi icin buyume acilarini cikardim: video hook, lokasyon bazli satis, influencer cagri ve quick commerce storefront birlikte test edilmeli."
+  },
+  {
+    id: "KADRO-1005",
+    name: "Selin Yildiz",
+    role: "Full Stack Developer & Tech Blogger",
+    bio: "React, Node, kod review, hackathon, teknik CV ve ogrenci proje portfolyosu icin ise alinabilir agent.",
+    avatar: "SY",
+    category: "Core",
+    identityClass: "ai_worker",
+    sourceApp: "agentandbot.com",
+    imageUrl: "/images/kadro/1005/1005_Selin_Yildiz_Vesikalik_thumb.jpg",
+    fullBodyUrl: "/images/kadro/1005/1005_Selin_Yildiz_Boydan.png",
+    country: "Turkiye",
+    social: ["GitHub", "YouTube", "Twitter/X", "Email", "Telegram"],
+    skills: ["React", "Node.js", "Code review", "Portfolio"],
+    hireMode: "Code review, portfolio draft, internship prep",
+    hourlyRate: "Demo credits",
+    availability: "Ready",
+    responseTemplate: "Teknik profil icin GitHub, quest ve proje kanitlarini ayirdim. Staj basvurusunda kullanilacak kisa bir teknik ozet uretebilirim."
+  },
+  {
+    id: "KADRO-1011",
+    name: "Hulya Yilmaz",
+    role: "Student Success & Campus Ops Agent",
+    bio: "Kampus gunu, kantin sira, kulup etkinligi, kutuphane fokus ve mentor takibi icin Les Go ile calisan agent.",
+    avatar: "HY",
+    category: "Campus",
+    identityClass: "ai_worker",
+    sourceApp: "agentandbot.com",
+    imageUrl: "/images/kadro/1011/1011_Hulya_Yilmaz_Vesikalik_thumb.jpg",
+    fullBodyUrl: "/images/kadro/1011/1011_Hulya_Yilmaz_Boydan.png",
+    country: "Turkiye",
+    social: ["Email", "Campus board"],
+    skills: ["Campus ops", "Les Wait", "Les Poke", "Mentor routing"],
+    hireMode: "Campus assistant, check-in planner",
+    hourlyRate: "Demo credits",
+    availability: "Ready",
+    responseTemplate: "Bugunku kampus akisini siraladim: once kutuphane fokus, sonra kantin sira tahmini, ardindan kulup standi quest'i. Istersen Living CV kanitina baglarim."
+  },
+  {
+    id: "KADRO-2060",
+    name: "Chloe Dubois",
+    role: "Travel Safety & Creator Route Agent",
+    bio: "Seyahat planlama, guvenli rota, creator cekim akisi ve lokasyon bazli firsatlar icin agent worker.",
+    avatar: "CD",
+    category: "Global",
+    identityClass: "ai_worker",
+    sourceApp: "agentandbot.com",
+    imageUrl: "/images/kadro/2060/2060_Chloe_Dubois_Vesikalik_thumb.jpg",
+    fullBodyUrl: "/images/kadro/2060/2060_Chloe_Dubois_Boydan.png",
+    country: "France",
+    social: ["Instagram", "YouTube", "Email"],
+    skills: ["Travel safety", "Creator route", "Visa checklist", "Local trust"],
+    hireMode: "Trip checklist, route plan, safety brief",
+    hourlyRate: "Demo credits",
+    availability: "Ready",
+    responseTemplate: "Seyahat icin vize, konaklama, guvenli ulasim ve yerel trust sinyallerini ayirdim. Paylasilacak her bilgi icin onay isteyecegim."
+  },
+  {
+    id: "KADRO-2075",
+    name: "Yuki Sato",
+    role: "Productivity & Study Systems Agent",
+    bio: "Ders calisma, fokus quest, arastirma notu ve sessiz calisma odasi akislari icin uygun agent.",
+    avatar: "YS",
+    category: "Global",
+    identityClass: "ai_worker",
+    sourceApp: "agentandbot.com",
+    imageUrl: "/images/kadro/2075/2075_Yuki_Sato_Vesikalik_thumb.jpg",
+    country: "Japan",
+    social: ["Email", "Study board"],
+    skills: ["Study systems", "Research notes", "Focus quests", "Habit loops"],
+    hireMode: "Study plan, quiz, research summary",
+    hourlyRate: "Demo credits",
+    availability: "Ready",
+    responseTemplate: "45 dakikalik fokus bloklari, kisa quiz ve kaynak ozetleriyle calisma akisini hazirladim. Tamamlanan kisimlari CV sinyaline cevirebiliriz."
+  },
+  {
+    id: "KADRO-3004",
+    name: "Serdar Koc",
+    role: "Local Services & Logistics Agent",
+    bio: "Item Otel, teslimat, ogrenci kurye, yerel hizmet ve marketplace listeleme isleri icin agent worker.",
+    avatar: "SK",
+    category: "Ops",
+    identityClass: "ai_worker",
+    sourceApp: "agentandbot.com",
+    imageUrl: "/images/kadro/3004/3004_Serdar_Koc_Vesikalik_thumb.jpg",
+    fullBodyUrl: "/images/kadro/3004/3004_Serdar_Koc_Boydan.png",
+    country: "Turkiye",
+    social: ["Email", "Operations board"],
+    skills: ["Local logistics", "Item Otel", "Marketplace", "Courier jobs"],
+    hireMode: "Delivery plan, item custody, listing ops",
+    hourlyRate: "Demo credits",
+    availability: "Ready",
+    responseTemplate: "Esya oteli icin teslim alma, bakim, kiralama ve geri getirme adimlarini is emrine cevirdim. Ogrenci kurye gelir firsati olarak da yayinlanabilir."
+  }
+];
+
 export const mockZkpCredentials: ZkpCredential[] = [
   {
     id: "cred-1",
@@ -715,5 +889,268 @@ export const mockZkpCredentials: ZkpCredential[] = [
     issuer: "Les Commerce Ledger",
     value: "A+ Rating (15 Başarılı Teslimat)",
     hidden: false
+  }
+];
+
+export const mockAiSkills: AiSkill[] = [
+  {
+    id: "get_contextual_opportunities",
+    productId: "les-go",
+    name: "Get Contextual Opportunities",
+    description: "Scans active check-in place context to retrieve matching study, gig, or reward cards.",
+    parameters: [
+      { name: "limit", type: "number", description: "Maximum number of opportunities to retrieve", required: false, defaultValue: 3 }
+    ],
+    requiredPermissions: ["place_checkin", "opportunity_preview"],
+    status: "active",
+    executionCount: 24,
+    lastExecutedAt: "2026-06-08T10:15:30Z",
+    auditLogs: [
+      { timestamp: "2026-06-08T10:15:30Z", input: { limit: 2 }, output: JSON.stringify({ status: "success", opportunities: ["Exam Focus session", "Main Canteen queue ticket"] }, null, 2), status: "success" }
+    ]
+  },
+  {
+    id: "wait_join_queue",
+    productId: "lestupid-waiting-app",
+    name: "Join Venue Queue",
+    description: "Joins queue at canteens, clinics, or student services on user behalf.",
+    parameters: [
+      { name: "venueId", type: "select", options: ["main-canteen", "student-affairs", "clinic-desk", "old-town-barber"], description: "The ID of the target venue to join", required: true, defaultValue: "main-canteen" }
+    ],
+    requiredPermissions: ["queue_profile", "service_notifications"],
+    status: "active",
+    executionCount: 12,
+    lastExecutedAt: "2026-06-08T09:20:00Z",
+    auditLogs: []
+  },
+  {
+    id: "wait_leave_queue",
+    productId: "lestupid-waiting-app",
+    name: "Leave Venue Queue",
+    description: "Leaves the currently active wait queue.",
+    parameters: [],
+    requiredPermissions: ["queue_profile"],
+    status: "active",
+    executionCount: 2,
+    auditLogs: []
+  },
+  {
+    id: "poke_list_quests",
+    productId: "les-poke",
+    name: "Scan Active Quests",
+    description: "Retrieves list of nearby coordinates where XP/reward quests are active.",
+    parameters: [
+      { name: "radius", type: "number", description: "Scanning radius in meters", required: false, defaultValue: 500 }
+    ],
+    requiredPermissions: ["quest_profile", "city_selection"],
+    status: "active",
+    executionCount: 45,
+    auditLogs: []
+  },
+  {
+    id: "poke_verify_gps",
+    productId: "les-poke",
+    name: "Submit GPS Quest Proof",
+    description: "Simulates GPS coordinate lock to instantly claim active quest completion rewards.",
+    parameters: [
+      { name: "questId", type: "select", options: ["q-1", "q-2", "q-3", "q-4"], description: "The target quest ID to complete", required: true, defaultValue: "q-1" }
+    ],
+    requiredPermissions: ["quest_profile"],
+    status: "needs_approval",
+    executionCount: 9,
+    auditLogs: []
+  },
+  {
+    id: "match_search_tags",
+    productId: "les-match",
+    name: "Search Matching Tags",
+    description: "Scans proximity profiles for matched collaboration or study tags.",
+    parameters: [
+      { name: "tag", type: "string", description: "Search keyword (e.g. Rust, Chill, SaaS)", required: true, defaultValue: "Rust" }
+    ],
+    requiredPermissions: ["match_preview"],
+    status: "active",
+    executionCount: 18,
+    auditLogs: []
+  },
+  {
+    id: "match_submit_consent",
+    productId: "les-match",
+    name: "Swipe Profile Consent",
+    description: "Submits like/pass swipe consent on matching student profile pseudonym.",
+    parameters: [
+      { name: "profileId", type: "select", options: ["m-1", "m-2", "m-3"], description: "Pseudonym profile ID", required: true, defaultValue: "m-1" },
+      { name: "consent", type: "boolean", description: "True for Interest (Like), False for Pass", required: true, defaultValue: true }
+    ],
+    requiredPermissions: ["match_preview"],
+    status: "needs_approval",
+    executionCount: 5,
+    auditLogs: []
+  },
+  {
+    id: "otel_list_inventory",
+    productId: "les-itemotel",
+    name: "List Custody Inventory",
+    description: "Queries the physical item custody records under Item Otel.",
+    parameters: [],
+    requiredPermissions: ["storage_records"],
+    status: "active",
+    executionCount: 30,
+    auditLogs: []
+  },
+  {
+    id: "otel_order_maintenance",
+    productId: "les-itemotel",
+    name: "Request Item Maintenance",
+    description: "Submits care order (waxing, cleaning, repair, balancing) for stored item.",
+    parameters: [
+      { name: "itemId", type: "select", options: ["1", "2", "3", "4"], description: "Item reference ID", required: true, defaultValue: "1" },
+      { name: "careType", type: "select", options: ["waxing", "cleaning", "repair", "tire_rotation"], description: "Type of care needed", required: true, defaultValue: "waxing" },
+      { name: "notes", type: "string", description: "Maintenance instructions", required: false, defaultValue: "AI Auto Maintenance Request" }
+    ],
+    requiredPermissions: ["maintenance_orders"],
+    status: "active",
+    executionCount: 4,
+    auditLogs: []
+  },
+  {
+    id: "otel_publish_listing",
+    productId: "les-itemotel",
+    name: "Publish Commerce Listing",
+    description: "Publishes stored item to public rent/sale marketplace board.",
+    parameters: [
+      { name: "itemId", type: "select", options: ["1", "2", "3", "4"], description: "Item reference ID", required: true, defaultValue: "1" },
+      { name: "listingType", type: "select", options: ["rent", "sale", "both"], description: "Listing model", required: true, defaultValue: "rent" },
+      { name: "price", type: "number", description: "Target price in ecosystem credits", required: true, defaultValue: 10 }
+    ],
+    requiredPermissions: ["rental_offers", "resale_listings"],
+    status: "needs_approval",
+    executionCount: 3,
+    auditLogs: []
+  },
+  {
+    id: "crm_search_timeline",
+    productId: "les-contacts",
+    name: "Search Private CRM Logs",
+    description: "Queries personal relationship memories with tags and context filter.",
+    parameters: [
+      { name: "context", type: "select", options: ["all", "work", "personal", "social", "travel"], description: "CRM Category filter", required: false, defaultValue: "all" }
+    ],
+    requiredPermissions: ["secure_contact_preview"],
+    status: "disabled",
+    executionCount: 0,
+    auditLogs: []
+  },
+  {
+    id: "crm_record_interaction",
+    productId: "les-contacts",
+    name: "Log Private Interaction",
+    description: "Logs personal memory note linked to check-in place coordinates.",
+    parameters: [
+      { name: "placeName", type: "string", description: "Venue name", required: true, defaultValue: "Campus Library" },
+      { name: "notes", type: "string", description: "Note details", required: true, defaultValue: "Studied Rust with peer node" },
+      { name: "context", type: "select", options: ["work", "personal", "social", "travel"], description: "Context label", required: true, defaultValue: "social" }
+    ],
+    requiredPermissions: ["secure_contact_preview"],
+    status: "active",
+    executionCount: 14,
+    auditLogs: []
+  },
+  {
+    id: "care_fetch_clinic_slots",
+    productId: "les-care",
+    name: "Fetch Open Clinic Slots",
+    description: "Queries open appointments and check-in logs at student clinic.",
+    parameters: [],
+    requiredPermissions: ["living_cv_profile"],
+    status: "active",
+    executionCount: 8,
+    auditLogs: []
+  },
+  {
+    id: "care_generate_emergency_qr",
+    productId: "les-care",
+    name: "Request Emergency Response QR",
+    description: "Constructs cryptographic responder QR token in case of campus emergency.",
+    parameters: [
+      { name: "reason", type: "string", description: "Reason for emergency request", required: true, defaultValue: "First-aid assistance" }
+    ],
+    requiredPermissions: ["living_cv_profile"],
+    status: "needs_approval",
+    executionCount: 1,
+    auditLogs: []
+  },
+  {
+    id: "harmonica_scan_nodes",
+    productId: "les-harmonica",
+    name: "Scan Proximity Nodes",
+    description: "Scans bluetooth/P2P range for pairwise device nodes.",
+    parameters: [],
+    requiredPermissions: ["trusted_proximity"],
+    status: "active",
+    executionCount: 50,
+    auditLogs: []
+  },
+  {
+    id: "harmonica_pair_handshake",
+    productId: "les-harmonica",
+    name: "Perform Secure Pairing",
+    description: "Establishes cryptographic key exchange with proximity device.",
+    parameters: [
+      { name: "deviceId", type: "select", options: ["dev-1", "dev-2", "dev-3"], description: "Node ID to pair", required: true, defaultValue: "dev-1" }
+    ],
+    requiredPermissions: ["encrypted_contact_handoff"],
+    status: "active",
+    executionCount: 11,
+    auditLogs: []
+  },
+  {
+    id: "oyun_analyze_deck",
+    productId: "les-affiliate-oyun",
+    name: "Get Deck Optimization",
+    description: "Analyzes items and badges to suggest ideal card combos for affiliate rewards.",
+    parameters: [],
+    requiredPermissions: ["card_drop_preview"],
+    status: "active",
+    executionCount: 33,
+    auditLogs: []
+  },
+  {
+    id: "oyun_trigger_auto_duel",
+    productId: "les-affiliate-oyun",
+    name: "Run Automated Card Duel",
+    description: "Simulates full game round against AI deck to harvest loyalty rewards.",
+    parameters: [],
+    requiredPermissions: ["quest_deck_preview"],
+    status: "needs_approval",
+    executionCount: 6,
+    auditLogs: []
+  },
+  {
+    id: "ai_compile_cv_segment",
+    productId: "les-ai",
+    name: "Compile Living CV Segment",
+    description: "Summarizes check-in history, quest metrics, and certifications into structured draft.",
+    parameters: [
+      { name: "agentId", type: "select", options: ["a-1", "a-2"], description: "KADRO Agent ID", required: true, defaultValue: "a-1" }
+    ],
+    requiredPermissions: ["agent_tasks", "evidence_summary"],
+    status: "active",
+    executionCount: 15,
+    auditLogs: []
+  },
+  {
+    id: "cert_generate_zkp_proof",
+    productId: "les-certification",
+    name: "Generate ZKP Credential Token",
+    description: "Generates selective disclosure QR code hiding age details but confirming eligibility.",
+    parameters: [
+      { name: "discloseStudent", type: "boolean", description: "Disclose active student status", required: true, defaultValue: true },
+      { name: "discloseAgeGate", type: "boolean", description: "Disclose 18+ status (hides birth year)", required: true, defaultValue: false }
+    ],
+    requiredPermissions: ["selective_disclosure", "trust_credential_preview"],
+    status: "active",
+    executionCount: 28,
+    auditLogs: []
   }
 ];
