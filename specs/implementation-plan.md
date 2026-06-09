@@ -1,33 +1,45 @@
-# Implementation Plan: Local Dev Environment Execution
+# Implementation Plan: Les Commerce Local Launch & Integration
 
-This plan outlines the steps to make the local version of the ecosystem components fully operational and running on this machine.
+This plan outlines the steps to run all existing **Les Commerce** family components locally and update the main **Les Go PWA** to link directly to these live local instances.
 
 ## Proposed Changes
 
-### 1. Environment Configuration Setup
-- **`[NEW]` [les_go/.env](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/.env)**
-  - Copy `les_go/.env.example` content to `les_go/.env` to configure Vite with mock adapters by default:
-    ```env
-    VITE_LESTUPID_API_BASE_URL=http://127.0.0.1:4000
-    VITE_LES_CONTACTS_API_BASE_URL=http://127.0.0.1:4004
-    VITE_LES_MATCH_API_BASE_URL=http://127.0.0.1:4002
-    VITE_LES_POKE_API_BASE_URL=http://127.0.0.1:4003
-    VITE_CORE_ADAPTER=mock
-    VITE_OPPORTUNITY_ADAPTER=mock
+### 1. PWA Storefront Link Alignment
+- **`[MODIFY]` [main.tsx](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/main.tsx)**
+  - Align Quick Commerce storefront standalone URL to port `3005` (matching the Astro server configuration):
+    ```diff
+    - standaloneUrl: "http://127.0.0.1:4321/",
+    + standaloneUrl: "http://127.0.0.1:3005/",
     ```
 
-### 2. Launch Local Dev Servers
-We will run the main application components locally as background processes:
-- **Les Go PWA Client**: Launch the Vite development server using `npm run dev` in `les_go/`.
-- **Les Wait Mock API Server**: Launch the mock node server via `node dev-server.mjs` in `les_wait/`.
+### 2. Launching Backends & Storefronts
+We will launch the following 4 servers as background processes:
+1. **Dukkadee DIY Backend** (Elixir/Phoenix):
+   - Directory: `Les_Commerce/commerce-backend`
+   - Command: `PowerShell.exe -File start_diy.ps1` (runs on Port 4003)
+2. **Dukkadee Quick Commerce Backend** (Elixir/Phoenix):
+   - Directory: `Les_Commerce/commerce-backend`
+   - Command: `PowerShell.exe -File start_quick.ps1` (runs on Port 4005)
+3. **DIY Marketplace Storefront** (Next.js):
+   - Directory: `Les_Commerce/diy-marketplace-elixir/storefront`
+   - Command: `npx next dev -p 3006` (runs on Port 3006)
+4. **Quick Commerce Storefront** (Astro):
+   - Directory: `Les_Commerce/quick-commerce-elixir/storefront`
+   - Command: `npm run dev` (runs on Port 3005 based on `astro.config.mjs`)
 
 ---
 
 ## Verification Plan
 
-### Automated Checks
-- Verify that `les_go` dev server starts without errors.
-- Verify that the local ports (5174 for Vite PWA, 4010 for Les Wait) are listening.
+### Port Scanning
+Verify that the following local ports are active and listening:
+- `3005` (Astro storefront)
+- `3006` (Next.js storefront)
+- `4003` (DIY Backend)
+- `4005` (Quick Commerce Backend)
 
 ### Manual Verification
-- Access the PWA locally via browser.
+- Access `http://127.0.0.1:5174/` (PWA)
+- Click on "Les Commerce" tab
+- Verify that clicking "Open DIY storefront" opens the Next.js app at port `3006`
+- Verify that clicking "Open quick storefront" opens the Astro app at port `3005`

@@ -488,7 +488,7 @@ const commerceProducts = [
     stack: "Phoenix backend / Astro storefront",
     role: "Shopify-style fast merchant store creation, catalog, checkout, custom storefront and optional marketplace publishing.",
     path: "Les_Commerce/quick-commerce-elixir",
-    standaloneUrl: "http://127.0.0.1:4321/",
+    standaloneUrl: "http://127.0.0.1:3005/",
     actionLabel: "Open quick storefront"
   },
   {
