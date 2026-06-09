@@ -19,6 +19,26 @@
         --soft: #eee5d8;
         --surface: #fffaf2;
         --line: rgba(24, 24, 24, 0.16);
+        scroll-behavior: smooth;
+      }
+
+      /* Custom Premium Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--paper);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--line);
+        border-radius: 4px;
+        border: 2px solid var(--paper);
+        transition: background 0.2s ease;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--ink);
       }
 
       * {
@@ -63,6 +83,13 @@
         color: var(--ink);
       }
 
+      button.icon {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+      }
+
       button:disabled {
         cursor: not-allowed;
         opacity: 0.44;
@@ -78,6 +105,15 @@
         background: var(--surface);
         color: var(--ink);
         padding: 9px 11px;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--ink);
+        box-shadow: 0 0 0 3px rgba(24, 24, 24, 0.08);
+        outline: none;
       }
 
       textarea {
@@ -220,6 +256,132 @@
         grid-column: 1 / -1;
       }
 
+      .entry-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin: 0 0 14px;
+      }
+
+      .entry-card {
+        display: grid;
+        gap: 10px;
+        min-height: 160px;
+        padding: 13px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+
+      .entry-card h2 {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.12;
+        font-weight: 950;
+      }
+
+      .entry-card p {
+        margin: 0;
+        color: #62594f;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .mini-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .mini-actions button {
+        min-height: 36px;
+        padding: 0 10px;
+        font-size: 12px;
+      }
+
+      .scanner {
+        display: none;
+        gap: 10px;
+        grid-column: 1 / -1;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #181818;
+        color: var(--paper);
+      }
+
+      .scanner.active {
+        display: grid;
+      }
+
+      .scanner video {
+        width: 100%;
+        max-height: 260px;
+        border-radius: 6px;
+        background: #000;
+        object-fit: cover;
+      }
+
+      .scanner-status {
+        color: #f5f0e8;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .owner-surface {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 188px;
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .poke-context-card {
+        grid-column: 1 / -1;
+      }
+
+      .qr-card {
+        display: grid;
+        place-items: center;
+        min-height: 188px;
+        border: 1px dashed rgba(24, 24, 24, 0.36);
+        border-radius: 6px;
+        background:
+          linear-gradient(90deg, rgba(24, 24, 24, 0.08) 1px, transparent 1px),
+          linear-gradient(rgba(24, 24, 24, 0.08) 1px, transparent 1px),
+          var(--surface);
+        background-size: 12px 12px;
+      }
+
+      .qr-card img {
+        width: 160px;
+        height: 160px;
+        border: 8px solid var(--surface);
+        background: var(--surface);
+      }
+
+      .surface-code {
+        display: inline-flex;
+        width: max-content;
+        max-width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--paper);
+        font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+        font-size: 13px;
+        font-weight: 850;
+        overflow-wrap: anywhere;
+      }
+
+      .entry-meta {
+        display: grid;
+        gap: 6px;
+        color: #655c53;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
       .actions {
         display: flex;
         flex-wrap: wrap;
@@ -345,6 +507,28 @@
         line-height: 1.45;
       }
 
+      .mode-note {
+        margin-bottom: 14px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: rgba(66, 111, 149, 0.1);
+        color: #403a34;
+        font-size: 14px;
+        font-weight: 750;
+        line-height: 1.45;
+      }
+
+      .mode-note a {
+        color: var(--blue);
+        font-weight: 950;
+        text-decoration: none;
+      }
+
+      .mode-note a:hover {
+        text-decoration: underline;
+      }
+
       @media (max-width: 980px) {
         .hero,
         .boards {
@@ -359,6 +543,8 @@
       @media (max-width: 720px) {
         .nav,
         .form-grid,
+        .entry-grid,
+        .owner-surface,
         .status-strip {
           display: grid;
           grid-template-columns: 1fr;
@@ -390,6 +576,13 @@
     </header>
 
     <main class="shell">
+      <div class="mode-note">
+        <strong>Standalone Les Wait:</strong> this page owns the real queue prototype: camera QR,
+        owner QR creation, phone/photo fallback, and normalized wait events. Les Go only embeds a
+        lightweight ecosystem preview.
+        <a href="http://127.0.0.1:5174/">Open Les Go</a>
+      </div>
+
       <section class="hero">
         <div class="intro">
           <div>
@@ -408,6 +601,69 @@
         </div>
 
         <div class="panel" aria-label="Join waiting flow">
+          <section class="entry-grid" aria-label="Entry surfaces">
+            <div class="entry-card">
+              <h2>join with camera, code, phone, or photo</h2>
+              <p>
+                Scan the place QR, enter a short table or door code, use a phone number, or create a
+                private photo proof token. The queue sees one normalized entry.
+              </p>
+              <div class="mini-actions">
+                <button class="icon" type="button" id="start-scan">scan QR</button>
+                <button class="soft" type="button" id="stop-scan" disabled>stop</button>
+                <button class="soft" type="button" id="use-phone-entry">use phone</button>
+              </div>
+            </div>
+
+            <div class="entry-card">
+              <h2>place owner creates the entrance</h2>
+              <p>
+                A venue can create a QR, short code, counter/table label, or staff phone flow before
+                backend onboarding exists.
+              </p>
+              <div class="mini-actions">
+                <button class="icon" type="button" id="generate-surface">create QR</button>
+                <button class="soft" type="button" id="copy-surface">copy link</button>
+                <button class="soft" type="button" id="print-surface">print</button>
+              </div>
+            </div>
+
+            <div class="scanner" id="scanner-panel" aria-live="polite">
+              <video id="scanner-video" playsinline muted></video>
+              <div class="scanner-status" id="scanner-status">
+                Camera is ready to scan a Les Wait QR. If the browser cannot read QR codes yet, use
+                the short code below.
+              </div>
+            </div>
+
+            <div class="owner-surface">
+              <div class="entry-card">
+                <h2 id="surface-title">Validebag corridor queue entrance</h2>
+                <span class="surface-code" id="surface-code">WAIT-VAL-001</span>
+                <div class="entry-meta">
+                  <span id="surface-link">localhost join link will appear here</span>
+                  <span id="surface-note">Methods: QR, short code, phone fallback, staff entry.</span>
+                </div>
+              </div>
+              <div class="qr-card" aria-label="Generated QR">
+                <img id="surface-qr" alt="Les Wait QR code" />
+              </div>
+            </div>
+
+            <div class="entry-card poke-context-card">
+              <h2>place queues and Poke context</h2>
+              <p>
+                Les Wait starts from where someone is going. Les Poke can create the quest before,
+                during, or after the wait: campus task, canteen pickup, library focus, event entry,
+                route, or venue request.
+              </p>
+              <div class="mini-actions">
+                <button class="soft" type="button" id="use-poke-context">use current place context</button>
+                <button class="soft" type="button" id="request-place-wait">request Les Wait for this place</button>
+              </div>
+            </div>
+          </section>
+
           <form id="waiting-form">
             <div class="form-grid">
               <label>
@@ -420,6 +676,10 @@
                   <option value="ussd">USSD</option>
                   <option value="paper">paper token</option>
                   <option value="manual">manual / offline</option>
+                  <option value="camera_qr">camera QR</option>
+                  <option value="short_code">short code</option>
+                  <option value="phone_lookup">phone lookup</option>
+                  <option value="photo_proof">photo proof</option>
                 </select>
               </label>
               <label>
@@ -444,6 +704,18 @@
               <label>
                 Service
                 <input id="service" value="minor operation follow-up" />
+              </label>
+              <label>
+                Entry surface
+                <input id="entry-surface" value="WAIT-VAL-001" />
+              </label>
+              <label>
+                Entry proof
+                <input id="entry-proof" value="manual-or-owner-created" />
+              </label>
+              <label>
+                Photo proof
+                <input id="photo-proof" type="file" accept="image/*" capture="environment" />
               </label>
               <label class="wide">
                 Note
@@ -499,12 +771,33 @@
       const clearButton = document.querySelector("#clear-events");
       const seedButton = document.querySelector("#seed-demo");
       const exportButton = document.querySelector("#export-events");
+      const startScanButton = document.querySelector("#start-scan");
+      const stopScanButton = document.querySelector("#stop-scan");
+      const usePhoneEntryButton = document.querySelector("#use-phone-entry");
+      const generateSurfaceButton = document.querySelector("#generate-surface");
+      const copySurfaceButton = document.querySelector("#copy-surface");
+      const printSurfaceButton = document.querySelector("#print-surface");
+      const usePokeContextButton = document.querySelector("#use-poke-context");
+      const requestPlaceWaitButton = document.querySelector("#request-place-wait");
+      const scannerPanel = document.querySelector("#scanner-panel");
+      const scannerVideo = document.querySelector("#scanner-video");
+      const scannerStatus = document.querySelector("#scanner-status");
+      const surfaceTitle = document.querySelector("#surface-title");
+      const surfaceCode = document.querySelector("#surface-code");
+      const surfaceLink = document.querySelector("#surface-link");
+      const surfaceNote = document.querySelector("#surface-note");
+      const surfaceQr = document.querySelector("#surface-qr");
+      const entrySurfaceInput = document.querySelector("#entry-surface");
+      const entryProofInput = document.querySelector("#entry-proof");
+      const photoProofInput = document.querySelector("#photo-proof");
       const metrics = {
         now: document.querySelector("#metric-now"),
         waiting: document.querySelector("#metric-waiting"),
         done: document.querySelector("#metric-done"),
         next: document.querySelector("#metric-next")
       };
+      let scannerStream = null;
+      let scannerLoop = null;
 
       const initialState = {
         sequence: 1,
@@ -530,6 +823,70 @@
 
       function now() {
         return new Date().toISOString();
+      }
+
+      function compact(value) {
+        return String(value || "")
+          .trim()
+          .toUpperCase()
+          .replace(/[^A-Z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .slice(0, 18);
+      }
+
+      function shortHash(value) {
+        let hash = 2166136261;
+        const text = String(value || "lestupid-wait");
+        for (let index = 0; index < text.length; index += 1) {
+          hash ^= text.charCodeAt(index);
+          hash = Math.imul(hash, 16777619);
+        }
+        return (hash >>> 0).toString(36).toUpperCase().padStart(7, "0").slice(0, 7);
+      }
+
+      function joinBaseUrl() {
+        if (location.protocol === "file:") return "http://localhost:4010/waiting.html";
+        return `${location.origin}${location.pathname}`;
+      }
+
+      function buildSurfacePayload() {
+        const place = document.querySelector("#place").value.trim() || "Les Wait Place";
+        const flowType = document.querySelector("#flow-type").value;
+        const service = document.querySelector("#service").value.trim() || "waiting flow";
+        const code = `WAIT-${compact(place).slice(0, 3) || "LES"}-${shortHash(`${place}:${flowType}:${service}`)}`;
+        const link = `${joinBaseUrl()}?surface=${encodeURIComponent(code)}&flow=${encodeURIComponent(
+          flowType
+        )}&place=${encodeURIComponent(place)}&service=${encodeURIComponent(service)}`;
+        return { code, link, place, flowType, service };
+      }
+
+      function applySurface(payload, source = "owner_generated") {
+        surfaceTitle.textContent = `${payload.place} entrance`;
+        surfaceCode.textContent = payload.code;
+        surfaceLink.textContent = payload.link;
+        surfaceNote.textContent = `Methods: QR, short code, phone fallback, staff entry. Source: ${source}.`;
+        surfaceQr.src = `https://quickchart.io/qr?size=180&margin=1&text=${encodeURIComponent(payload.link)}`;
+        entrySurfaceInput.value = payload.code;
+        entryProofInput.value = source;
+      }
+
+      function applyUrlSurface() {
+        const params = new URLSearchParams(location.search);
+        const surface = params.get("surface");
+        if (!surface) {
+          applySurface(buildSurfacePayload());
+          return;
+        }
+
+        const place = params.get("place") || document.querySelector("#place").value;
+        const flowType = params.get("flow") || document.querySelector("#flow-type").value;
+        const service = params.get("service") || document.querySelector("#service").value;
+        document.querySelector("#place").value = place;
+        document.querySelector("#flow-type").value = flowType;
+        document.querySelector("#service").value = service;
+        document.querySelector("#channel").value = "camera_qr";
+        applySurface({ code: surface, link: location.href, place, flowType, service }, "opened_from_qr");
+        setNotice("Entrance QR opened. Add contact and join the queue.");
       }
 
       function tokenFor(action, ticket) {
@@ -575,7 +932,8 @@
           },
           evidence: {
             source: "waiting_app_prototype",
-            note: ticket.note
+            note: ticket.note,
+            entry: ticket.entry
           },
           payment: {
             status: "not_required"
@@ -608,6 +966,9 @@
             </div>
             <b>${ticket.service}</b>
             <span>${ticket.place} · ${ticket.channel} · ${ticket.contact}</span>
+            <span>${ticket.entry?.surface_id || "manual-entry"} / ${ticket.entry?.proof_type || ticket.channel} / ${
+              ticket.entry?.proof_ref || "not-provided"
+            }</span>
             <span>${ticket.note}</span>
             <div class="ticket-actions">
               ${
@@ -664,6 +1025,12 @@
           place: document.querySelector("#place").value.trim(),
           contact: document.querySelector("#contact").value.trim(),
           service: document.querySelector("#service").value.trim(),
+          entry: {
+            surface_id: entrySurfaceInput.value.trim() || "manual-entry",
+            proof_type: document.querySelector("#channel").value,
+            proof_ref: entryProofInput.value.trim() || "not-provided",
+            raw_private_data_stored: false
+          },
           note: document.querySelector("#note").value.trim(),
           joined_at: now(),
           called_at: null,
@@ -676,6 +1043,128 @@
         writeState(state);
         setNotice(`${ticket.number} joined. They can wait outside until called.`);
         render();
+      }
+
+      async function startQrScan() {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setNotice("This browser cannot open the camera. Use short code or phone fallback.");
+          return;
+        }
+
+        scannerPanel.classList.add("active");
+        startScanButton.disabled = true;
+        stopScanButton.disabled = false;
+        scannerStatus.textContent = "Opening camera...";
+
+        try {
+          scannerStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: "environment" } },
+            audio: false
+          });
+          scannerVideo.srcObject = scannerStream;
+          await scannerVideo.play();
+
+          if (!("BarcodeDetector" in window)) {
+            scannerStatus.textContent =
+              "Camera opened. This browser has no BarcodeDetector yet; type the code printed under the QR.";
+            return;
+          }
+
+          const detector = new BarcodeDetector({ formats: ["qr_code"] });
+          scannerStatus.textContent = "Scanning QR...";
+          scannerLoop = window.setInterval(async () => {
+            try {
+              const codes = await detector.detect(scannerVideo);
+              if (!codes.length) return;
+              const value = codes[0].rawValue || "";
+              handleScannedValue(value);
+              stopQrScan("QR scanned. Add contact and join the queue.");
+            } catch {
+              scannerStatus.textContent = "Still scanning. Keep the QR steady in the camera.";
+            }
+          }, 900);
+        } catch {
+          stopQrScan("Camera permission was not granted. Use short code, phone, or staff entry.");
+        }
+      }
+
+      function stopQrScan(message = "Camera stopped.") {
+        if (scannerLoop) window.clearInterval(scannerLoop);
+        scannerLoop = null;
+        if (scannerStream) scannerStream.getTracks().forEach((track) => track.stop());
+        scannerStream = null;
+        scannerVideo.srcObject = null;
+        scannerPanel.classList.remove("active");
+        startScanButton.disabled = false;
+        stopScanButton.disabled = true;
+        setNotice(message);
+      }
+
+      function handleScannedValue(value) {
+        const text = String(value || "").trim();
+        let params = new URLSearchParams();
+        if (text.startsWith("http")) {
+          try {
+            params = new URL(text).searchParams;
+          } catch {
+            params = new URLSearchParams();
+          }
+        }
+
+        const code = params.get("surface") || compact(text) || "SCANNED-ENTRY";
+        const place = params.get("place") || document.querySelector("#place").value;
+        const flowType = params.get("flow") || document.querySelector("#flow-type").value;
+        const service = params.get("service") || document.querySelector("#service").value;
+        document.querySelector("#channel").value = "camera_qr";
+        document.querySelector("#place").value = place;
+        document.querySelector("#flow-type").value = flowType;
+        document.querySelector("#service").value = service;
+        applySurface({ code, link: text || joinBaseUrl(), place, flowType, service }, "camera_qr_scan");
+      }
+
+      function usePhoneEntry() {
+        const contact = document.querySelector("#contact").value.trim();
+        const place = document.querySelector("#place").value.trim() || "Les Wait Place";
+        document.querySelector("#channel").value = "phone_lookup";
+        entrySurfaceInput.value = `PHONE-${shortHash(`${place}:${contact}`)}`;
+        entryProofInput.value = contact ? `phone:${shortHash(contact)}` : "phone:not-entered";
+        setNotice("Phone fallback selected. Backend should keep only scoped hashes for private identifiers.");
+      }
+
+      function usePokeContext() {
+        const place = document.querySelector("#place").value.trim() || "current place";
+        document.querySelector("#service").value = "Poke-linked place visit queue";
+        document.querySelector("#note").value =
+          `Poke context active: user is going to ${place}; queue can create a quest before, during, or after the wait.`;
+        document.querySelector("#channel").value = "short_code";
+        entrySurfaceInput.value = buildSurfacePayload().code;
+        entryProofInput.value = "poke-context";
+        setNotice("Poke context linked. The wait is now tied to a place visit, quest, route, or venue request.");
+      }
+
+      function requestPlaceWait() {
+        const place = document.querySelector("#place").value.trim() || "this place";
+        document.querySelector("#service").value = "request Les Wait activation";
+        document.querySelector("#note").value =
+          `User requests Les Wait for ${place}. Repeated requests become a certification and merchant lead.`;
+        document.querySelector("#channel").value = "manual";
+        entrySurfaceInput.value = `REQUEST-${shortHash(place)}`;
+        entryProofInput.value = "place-demand-signal";
+        setNotice("Place request prepared. Submit the form to record a demand signal for this venue.");
+      }
+
+      async function usePhotoProof(file) {
+        if (!file) return;
+        const buffer = await file.arrayBuffer();
+        const digest = await crypto.subtle.digest("SHA-256", buffer);
+        const hex = [...new Uint8Array(digest)]
+          .slice(0, 8)
+          .map((byte) => byte.toString(16).padStart(2, "0"))
+          .join("");
+        document.querySelector("#channel").value = "photo_proof";
+        entrySurfaceInput.value = `PHOTO-${hex.toUpperCase().slice(0, 8)}`;
+        entryProofInput.value = `sha256:${hex}`;
+        setNotice("Photo proof token created locally. The image itself is not stored in the queue event.");
       }
 
       function updateTicket(ticketId, nextStatus, action) {
@@ -734,7 +1223,13 @@
             service: "minor operation follow-up",
             note: "can wait in the garden",
             status: "called",
-            token: "Le"
+            token: "Le",
+            entry: {
+              surface_id: "WAIT-VAL-001",
+              proof_type: "paper",
+              proof_ref: "staff-card",
+              raw_private_data_stored: false
+            }
           },
           {
             number: "B002",
@@ -743,7 +1238,13 @@
             service: "lab result desk",
             note: "notify when 3 people remain",
             status: "waiting",
-            token: "La"
+            token: "La",
+            entry: {
+              surface_id: "PHONE-8F31A2",
+              proof_type: "phone_lookup",
+              proof_ref: "phone-hash",
+              raw_private_data_stored: false
+            }
           },
           {
             number: "B003",
@@ -752,7 +1253,13 @@
             service: "street seller pickup",
             note: "same event model outside the hospital",
             status: "waiting",
-            token: "La"
+            token: "La",
+            entry: {
+              surface_id: "WAIT-MAI-721K0CX",
+              proof_type: "short_code",
+              proof_ref: "seller-table-code",
+              raw_private_data_stored: false
+            }
           }
         ];
 
@@ -802,6 +1309,26 @@
 
       callNextButton.addEventListener("click", callNext);
       completeCurrentButton.addEventListener("click", completeCurrent);
+      startScanButton.addEventListener("click", startQrScan);
+      stopScanButton.addEventListener("click", () => stopQrScan());
+      usePhoneEntryButton.addEventListener("click", usePhoneEntry);
+      generateSurfaceButton.addEventListener("click", () => {
+        const payload = buildSurfacePayload();
+        applySurface(payload, "owner_generated");
+        setNotice("Owner entrance created. Print the QR, place the short code on a table, or share the link.");
+      });
+      copySurfaceButton.addEventListener("click", async () => {
+        if (!navigator.clipboard) {
+          setNotice("Clipboard is not available. Copy the link shown on the entrance card.");
+          return;
+        }
+        await navigator.clipboard.writeText(surfaceLink.textContent);
+        setNotice("Entrance link copied.");
+      });
+      printSurfaceButton.addEventListener("click", () => window.print());
+      usePokeContextButton.addEventListener("click", usePokeContext);
+      requestPlaceWaitButton.addEventListener("click", requestPlaceWait);
+      photoProofInput.addEventListener("change", (event) => usePhotoProof(event.target.files?.[0]));
       seedButton.addEventListener("click", seedDemo);
       exportButton.addEventListener("click", exportEvents);
       clearButton.addEventListener("click", () => {
@@ -810,6 +1337,7 @@
         render();
       });
 
+      applyUrlSurface();
       render();
     </script>
   </body>
