@@ -15,6 +15,15 @@ Sevgili geliştirici agent, LESTUPID ekosistemini kodlarken hem insan hem de age
 - **Gizlilik Limitlerine Uyum:** Event envelope'larında `private` seviyesindeki verilerin (`payload`) kesinlikle ortak stream'e yazılmadığından emin ol.
 - **Küçük ve Atomik Değişiklikler:** Değişiklikleri büyük bloklar halinde tek seferde yapmaktan kaçın; her bir değişiklik öncesinde `# DEĞİŞİKLİK: ...` gerekçesini içeren tek cümlelik yorum satırını eklemeyi unutma.
 
+### 3. Görsel Tasarım Tutarlılığı & Tasarım Token'ları (PWA & Arayüz Geliştirme Notları)
+- **Köşe Yuvarlama (Border Radius) Standartları:** Arayüzde legacy `10px` kullanımı kaldırılmıştır. Bileşenleri şu standartlarda tasarla:
+  - Dış ana taşıyıcılar/paneller/simülatör gövdeleri: `16px` (örn: `.sim-container`, `.sidebar-nav`, `.place-home`).
+  - Kartlar, listeler ve form panelleri: `12px` (örn: `.commerce-family-card`, `.zkp-proof-card`).
+  - Input alanları, butonlar ve küçük etkileşim ögeleri: `8px`.
+- **Gölge (Shadow) Kullanımı:** Statik veya sert kodlu `box-shadow` değerleri yerine her zaman `--shadow` ve etkileşim anları için `--shadow-hover` CSS değişkenlerini kullan.
+- **Renk Paleti:** Özel arka planlar için doğrudan `rgba(255,255,255,...)` veya uyumsuz yeşil/mavi tonları yerine sistemin yeni HSL değişkenlerini (`--surface`, `--surface-alt`, veya `--teal`/`--green` için `hsla(...)` formatları) tercih et.
+- **Tipografi:** Başlıklarda `"Outfit", sans-serif`, gövde ve input metinlerinde ise `"Plus Jakarta Sans", sans-serif` kullanılarak tutarlılık korunmalıdır.
+
 ---
 
 ## Görev Tanımı
