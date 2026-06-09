@@ -1,80 +1,59 @@
-# Implementation Plan: AI Skills & Adapter Registry
+# Implementation Plan: Styles Consistency & Premium Visual Refactoring
 
-This plan details the addition of **AI Skills (Agentic Tool Adapters)** across all 11 modules of the **LesTupid Go** PWA. 
-AI Skills define structured interfaces (JSON schemas, parameters, required permissions, and security policies) through which KADRO workers and external agents can interact with the user's local applications.
-
----
-
-## User Review Required
-
-> [!IMPORTANT]
-> - **State Integration (Simulated Execution):** Running an AI skill (either from the local app panel or the global AI Skills Directory) will *directly mutate* the corresponding application's state. For example, triggering the `wait_join_queue` skill will immediately create an active queue ticket in the "Les Wait" UI.
-> - **Zero-Knowledge Consent Policy:** Each skill includes a permission boundary status (`active`, `disabled`, `needs_approval`). If a skill is disabled or needs approval, the agent execution simulation will reflect authorization blocks, illustrating how selective disclosure and user consent govern the ecosystem.
-> - **Unified Security Console:** The "KADRO AI" view will be updated with a tabbed interface, separating the conversational KADRO chat console from the global **Ecosystem AI Skills Directory**, where users can audit past execution logs and toggle permission states globally.
-
----
+This plan outlines the steps to find, clean up, and simplify legacy or demo-heavy styling patterns in [styles.css](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/styles.css) to align them with the new premium visual identity system.
 
 ## Proposed Changes
 
-We will group the changes into the frontend files of the `les_go` application.
+We will systematically update the following areas to ensure consistency in:
+- **Border Radius**: Moving away from legacy `10px` roundings. Standardizing to `16px` for container headers/wrappers, `12px` for panels and cards, and `8px` for buttons, inputs, chips, and small items.
+- **Colors**: Standardizing custom background tones to clean HSL variables (using `--surface`, `--paper`, `--teal`, `--muted`) instead of arbitrary `rgba(...)` blocks.
+- **Shadows**: Replacing hardcoded box shadows with `--shadow` and `--shadow-hover`.
+- **Typography**: Ensuring consistent use of `"Outfit"` for headlines and `"Plus Jakarta Sans"` for body text.
 
-### [les_go](file:///b:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go)
+### Refactoring Catalog (by CSS sections)
 
-#### [MODIFY] [types.ts](file:///b:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/types.ts)
-- Add new TypeScript definitions for:
-  - `AiSkillParameter`: Defines name, parameter type, options, description, and default value.
-  - `AiSkill`: Defines skill details, parameter list, required permissions, status, execution count, last executed timestamp, and execution audit logs.
+#### 1. Global & Utility Panels
+- **`[MODIFY]` [styles.css](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/styles.css)**
+  - `.identity-card`: Change `border-radius: 10px` to `12px`.
+  - `.place-home`: Change `border-radius: 10px` to `16px`. Ensure color palette consistency.
 
-#### [MODIFY] [data.ts](file:///b:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/data.ts)
-- Populate `mockAiSkills` array containing 1-2 rich agentic skills for each of the 11 app contexts:
-  1. **Hub Feed:** `get_contextual_opportunities` (analyzes check-in history).
-  2. **Les Wait (Queue):** `wait_join_queue` (joins queue), `wait_leave_queue` (leaves queue).
-  3. **Les Poke (Quests):** `poke_list_quests` (lists nearby quests), `poke_verify_gps` (simulates quest completion).
-  4. **Les Match (Consent):** `match_search_tags` (filters profiles), `match_submit_consent` (swipes consent).
-  5. **Item Otel (Commerce):** `otel_list_inventory` (fetches custody), `otel_order_maintenance` (orders care), `otel_publish_listing` (lists item for rent/sale).
-  6. **Les Contacts (CRM):** `crm_search_timeline` (filters logs), `crm_record_interaction` (adds a log).
-  7. **Les Care (Health):** `care_fetch_clinic_slots` (scans clinic slots), `care_generate_emergency_qr` (generates response token).
-  8. **Les Harmonica (Secure P2P):** `harmonica_scan_nodes` (scans nearby), `harmonica_pair_handshake` (establishes secure link).
-  9. **Les Affiliate Oyun (Card Game):** `oyun_analyze_deck` (gets deck stats), `oyun_trigger_auto_duel` (simulates combat match).
-  10. **Les AI / KADRO (AI Workers):** `ai_compile_cv_segment` (compiles check-ins into Living CV segment).
-  11. **Les Certification (ZKP):** `cert_generate_zkp_proof` (generates zero-knowledge proof for age/student status).
+#### 2. Visual Gallery & Demos
+- **`[MODIFY]` [styles.css](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/styles.css)**
+  - `.visual-demo-hero`: Change `border-radius: 10px` to `16px`.
+  - `.visual-map`: Change `border-radius: 10px` to `16px`.
+  - `.visual-flow-card`: Change `border-radius: 10px` to `12px`.
 
-#### [MODIFY] [main.tsx](file:///b:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/main.tsx)
-- **App-level State:** Initialize `aiSkills` and `globalAuditLogs` state variables.
-- **App Panels (Inline AI Skill Adapters):** Add a collapsible section titled `🔌 AI Skill Adapters` in the layout of all 11 sub-dashboards.
-  - Lists the tools exposed by this app to AI.
-  - Displays parameter inputs based on parameter metadata.
-  - Provides a "Run Simulation" button.
-  - Renders a syntax-highlighted JSON-LD output of the return value, updating local React states (e.g. actually joining queue, completing quest, adding CRM logs, changing ZKP visible fields).
-- **KADRO AI View Refactoring:**
-  - Introduce sub-tabs: `🤖 KADRO Workers` and `🔌 AI Skills Directory`.
-  - In `AI Skills Directory`, show a grid of all available skills grouped by App.
-  - Allow users to toggle status (`active` / `disabled` / `needs_approval`) which is reflected in simulated runs.
-  - Display execution counts and a live scrollable **Global Audit Trail** of all simulated skill triggers.
+#### 3. Commerce & Hotel Modules
+- **`[MODIFY]` [styles.css](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/styles.css)**
+  - `.commerce-family-hero`: Change `border-radius: 10px` to `16px`.
+  - `.commerce-family-metrics div`: Change `border-radius: 10px` to `12px`.
+  - `.commerce-family-card`: Change `border-radius: 10px` to `12px`.
+  - `.commerce-family-contract`: Change `border-radius: 10px` to `12px`.
+  - `.commerce-family-contract span`: Change `border-radius: 10px` to `12px`.
 
-#### [MODIFY] [styles.css](file:///b:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/styles.css)
-- Add styling for the AI Skill Adapters UI:
-  - Collapsible header with interactive hover effects.
-  - Glassmorphic parameter forms (custom inputs, selects, toggles).
-  - Terminal-like JSON block displays with neon tech highlight lines.
-  - Audit log table styles with timestamp markers and success/failure indicator pills.
+#### 4. Navigation & Main Simulator Container
+- **`[MODIFY]` [styles.css](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/styles.css)**
+  - `.sidebar-nav`: Change `border-radius: 10px` to `16px`.
+  - `.sim-container`: Change `border-radius: 10px` to `16px`. Simplify background from legacy translucent `rgba(255,255,255,0.84)` to standard `--surface` with a clean border, or unified glassmorphism background `rgba(255, 255, 255, 0.85)` with `backdrop-filter: blur(16px)`.
+  - `.mode-note`: Change `border-radius: 10px` to `12px` and use HSL variant for the info/warning color palette.
+
+#### 5. Simulator Modules (Wait, ZKP, Contacts, etc.)
+- **`[MODIFY]` [styles.css](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/styles.css)**
+  - `.wait-field-grid input`: Change `border-radius: 10px` to `8px`.
+  - `.wait-notice`: Change `border-radius: 10px` to `12px`.
+  - `.zkp-proof-card`: Change `border-radius: 10px` to `12px`.
+  - `.contacts-preview-panel`: Change `border-radius: 10px` to `12px`.
+  - `.contacts-preview-card`: Change `border-radius: 10px` to `12px`.
 
 ---
 
 ## Verification Plan
 
 ### Automated Tests
-- Run TypeScript checking inside the project directory to verify syntax compliance:
-  ```powershell
-  npm run typecheck
-  ```
-- Build the Vite application to ensure zero compilation or asset errors:
+- Build the project to verify styles compilation:
   ```powershell
   npm run build
   ```
 
 ### Manual Verification
-- Open the PWA at `http://127.0.0.1:5175/` and test:
-  1. **Inline Skill Execution:** Go to "Les Wait", expand the AI Skill Adapters section, run the `wait_join_queue` skill, and verify that the UI updates immediately with an active ticket.
-  2. **Security Controls:** Go to "KADRO AI" -> "AI Skills Directory", change a skill status to `disabled`, and then attempt to execute it in the app's adapter panel. Verify that the simulation blocks execution and records a failed authorization audit entry.
-  3. **Global Audit Feed:** Verify that executing skills adds timestamped entries in the security panel.
+- Verify that the layout remains stable. The changes are strictly stylistic (radius, colors, shadows, typography) and will not affect JS execution or DOM structure.
