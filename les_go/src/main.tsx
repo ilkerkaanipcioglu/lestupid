@@ -19,6 +19,12 @@ import {
   mockAiSkills
 } from "./data";
 import { getOpportunityAdapter } from "./adapters";
+import { previewContactsDraft } from "./contactsAdapter";
+import { getCoreAdapter } from "./coreAdapter";
+import { CareView } from "./features/care/CareView";
+import { CommerceFamilyView } from "./features/commerce/CommerceFamilyView";
+import { ContactsView } from "./features/contacts/ContactsView";
+import { HarmonicaView } from "./features/harmonica/HarmonicaView";
 import type {
   CommerceFacetSignal,
   OpportunityAction,
@@ -41,7 +47,9 @@ import type {
   ZkpCredential,
   FlowTempo,
   AiSkill,
-  AiSkillAuditLog
+  AiSkillAuditLog,
+  EcosystemIdentity,
+  ContactsDraftPreview
 } from "./types";
 
 const privacyOptions: Array<{ id: PrivacyLevel; label: string }> = [
@@ -224,9 +232,25 @@ const checkMarkIcon = (
 );
 
 const opportunityAdapter = getOpportunityAdapter();
+const coreAdapter = getCoreAdapter();
 
 function sameCommerceFacet(left: CommerceFacetSignal, right: CommerceFacetSignal) {
   return left.key === right.key && left.value === right.value;
+}
+
+function normalizeActivationProductId(productId: string) {
+  if (productId === "lescommerce") return "lescommerce-core";
+  return productId;
+}
+
+function upsertActivation(activations: typeof appActivations, nextActivation: (typeof appActivations)[number]) {
+  const existingIndex = activations.findIndex((activation) => activation.productId === nextActivation.productId);
+
+  if (existingIndex === -1) {
+    return [...activations, nextActivation];
+  }
+
+  return activations.map((activation, index) => (index === existingIndex ? nextActivation : activation));
 }
 
 function normalizeCommerceFacet(value: string) {
@@ -304,6 +328,7 @@ type ViewType =
   | "wait"
   | "poke"
   | "match"
+  | "commerce"
   | "itemotel"
   | "contacts"
   | "care"
@@ -311,6 +336,158 @@ type ViewType =
   | "oyun"
   | "ai"
   | "certification";
+
+type AppModeInfo = {
+  productName: string;
+  goRole: string;
+  standaloneRole: string;
+  standaloneUrl?: string;
+  standaloneLabel?: string;
+  standaloneStatus?: "ready" | "planned";
+};
+
+const appModeInfo: Partial<Record<ViewType, AppModeInfo>> = {
+  wait: {
+    productName: "Les Wait",
+    goRole: "Queue opportunity preview, activation prompt, and light ticket simulator inside Les Go.",
+    standaloneRole: "Owns camera QR, owner QR creation, phone/photo fallback, staff actions, and normalized queue events.",
+    standaloneUrl: "http://127.0.0.1:4010/waiting.html",
+    standaloneLabel: "Open standalone Les Wait",
+    standaloneStatus: "ready"
+  },
+  poke: {
+    productName: "Les Poke",
+    goRole: "Quest cards and nearby action prompts appear in the Go feed.",
+    standaloneRole: "Owns quest creation, map/check-in verification, drops, creator quests, and XP rules.",
+    standaloneUrl: "http://127.0.0.1:8082/",
+    standaloneLabel: "Open standalone Les Poke",
+    standaloneStatus: "ready"
+  },
+  match: {
+    productName: "Les Match",
+    goRole: "Opt-in discovery previews and activation-safe prompts inside context feeds.",
+    standaloneRole: "Owns consent, profiles, candidates, matches, safety reports, and secure conversation state.",
+    standaloneLabel: "Standalone Les Match planned",
+    standaloneStatus: "planned"
+  },
+  commerce: {
+    productName: "Les Commerce",
+    goRole: "Shows the commerce family as one place: DIY, marketplace/listings, quick commerce, storefronts, and Item Otel.",
+    standaloneRole: "Owns commerce engines that can each run alone: DIY video marketplace, general listings, quick store builder, storefront theme pool, and item custody commerce.",
+    standaloneLabel: "Commerce family has multiple standalone apps",
+    standaloneStatus: "planned"
+  },
+  itemotel: {
+    productName: "Les Item Otel",
+    goRole: "Shows item storage, care, rent/sell opportunities, and courier prompts in context.",
+    standaloneRole: "Owns item custody, care logs, listing state, pickup/return workflows, and commerce operations.",
+    standaloneLabel: "Standalone Item Otel planned",
+    standaloneStatus: "planned"
+  },
+  contacts: {
+    productName: "Les Contacts",
+    goRole: "Turns people, places, products, and memories into private contextual cards.",
+    standaloneRole: "Owns personal CRM import, relationship memory, lead state, and consented integrations.",
+    standaloneLabel: "Standalone Contacts planned",
+    standaloneStatus: "planned"
+  },
+  care: {
+    productName: "Les Care",
+    goRole: "Shows verified care info, safe-mode prompts, and emergency cards without exposing private trails.",
+    standaloneRole: "Owns health guidance review, emergency handoff, source labeling, and care-specific policy.",
+    standaloneLabel: "Standalone Care planned",
+    standaloneStatus: "planned"
+  },
+  harmonica: {
+    productName: "Les Harmonica",
+    goRole: "Shows secure nearby handoff and trust opportunities inside Les Go.",
+    standaloneRole: "Owns pairwise identity, anonymous trust exchange, secure messaging, and device proximity flows.",
+    standaloneLabel: "Standalone Harmonica planned",
+    standaloneStatus: "planned"
+  },
+  oyun: {
+    productName: "Les Affiliate Oyun",
+    goRole: "Shows affiliate game opportunities, quest modifiers, and commerce rewards.",
+    standaloneRole: "Owns game rules, deck economy, affiliate rewards, and certified play sessions.",
+    standaloneLabel: "Standalone Oyun planned",
+    standaloneStatus: "planned"
+  },
+  ai: {
+    productName: "AgentAndBot / KADRO",
+    goRole: "Shows hireable AI workers and task adapters that can help inside LesTupid flows.",
+    standaloneRole: "Owns agent cards, protocol catalog, auth.md strategy, skills, tasks, and governance APIs.",
+    standaloneUrl: "http://127.0.0.1:4001/protocols",
+    standaloneLabel: "Open AgentAndBot",
+    standaloneStatus: "ready"
+  },
+  certification: {
+    productName: "Les Certification",
+    goRole: "Shows trust, proof, selective disclosure, and safety/certification prompts.",
+    standaloneRole: "Owns certificates, ZKP strategy, policy validation, app registry, and proof adapters.",
+    standaloneLabel: "Standalone Certification planned",
+    standaloneStatus: "planned"
+  }
+};
+
+const commerceProducts = [
+  {
+    id: "lescommerce-diydiy",
+    name: "DIY Marketplace",
+    status: "Standalone storefront exists",
+    stack: "Phoenix backend / Next.js storefront",
+    role: "A video starts the product page: materials, masters, finished goods, workshops, and creator promotion.",
+    path: "Les_Commerce/diy-marketplace-elixir",
+    standaloneUrl: "http://127.0.0.1:3006/",
+    actionLabel: "Open DIY storefront"
+  },
+  {
+    id: "lescommerce-marketplace",
+    name: "Marketplace & Listings",
+    status: "Engine area",
+    stack: "Elixir/Phoenix planned",
+    role: "General listing engine for products, homes, cars, services, local offers, peer gigs, and place-based listings.",
+    path: "Les_Commerce/marketplace-elixir",
+    actionLabel: "Planned standalone"
+  },
+  {
+    id: "lescommerce-books",
+    name: "Books & Sahaf Marketplace",
+    status: "Vertical marketplace",
+    stack: "Shared marketplace engine / Quick Commerce catalog",
+    role: "NadirKitap-style bookseller, sahaf, used book, academic book and collectible book marketplace.",
+    path: "Les_Commerce/books-marketplace",
+    actionLabel: "Books vertical planned"
+  },
+  {
+    id: "lescommerce-quick-commerce",
+    name: "Quick Commerce",
+    status: "Standalone storefront exists",
+    stack: "Phoenix backend / Astro storefront",
+    role: "Shopify-style fast merchant store creation, catalog, checkout, custom storefront and optional marketplace publishing.",
+    path: "Les_Commerce/quick-commerce-elixir",
+    standaloneUrl: "http://127.0.0.1:4321/",
+    actionLabel: "Open quick storefront"
+  },
+  {
+    id: "lescommerce-storefronts",
+    name: "Storefronts",
+    status: "Theme pool",
+    stack: "Astro / Next.js templates",
+    role: "Reusable storefront themes for Quick Commerce and related commerce apps.",
+    path: "Les_Commerce/storefronts",
+    actionLabel: "Theme pool planned"
+  },
+  {
+    id: "les-itemotel",
+    name: "Les Item Otel",
+    status: "Visible Go module",
+    stack: "Manifest/spec plus Go prototype",
+    role: "Item custody, storage, care, rent, sale, courier pickup/return and recall.",
+    path: "Les_Commerce/les_itemotel",
+    goView: "itemotel" as ViewType,
+    actionLabel: "Open Item Otel"
+  }
+];
 
 const visualDemoFlows: VisualDemoFlow[] = [
   {
@@ -362,7 +539,7 @@ const visualDemoFlows: VisualDemoFlow[] = [
     title: "Creator, AI and game drop",
     mood: "playful but labeled",
     tempo: "today",
-    sourceApps: ["les_poke", "les_affiliate_oyun", "les_ai", "agentandbot", "lescommerce"],
+    sourceApps: ["les_poke", "les-affiliate", "les_ai", "agentandbot", "lescommerce"],
     scene: "A quest or creator drop becomes a product card, AI task or game opportunity.",
     steps: ["Quest/drop", "Creator card", "AI helper", "Commerce link", "Reward/proof"],
     visualCue: "Playful card stack, AI label, rarity/odds and affiliate disclosure.",
@@ -414,6 +591,61 @@ const visualDemoFlows: VisualDemoFlow[] = [
   }
 ];
 
+function AppModeNote({ view }: { view: ViewType }) {
+  const info = appModeInfo[view];
+  if (!info) return null;
+
+  return (
+    <div className="mode-note">
+      <div className="mode-note-copy">
+        <span>
+          <strong>Les Go mode:</strong> {info.goRole}
+        </span>
+        <span>
+          <strong>Standalone:</strong> {info.standaloneRole}
+        </span>
+      </div>
+      {info.standaloneUrl ? (
+        <a href={info.standaloneUrl} target="_blank" rel="noreferrer">
+          {info.standaloneLabel || `Open standalone ${info.productName}`}
+        </a>
+      ) : (
+        <span className="mode-note-status">{info.standaloneLabel || "Standalone app planned"}</span>
+      )}
+    </div>
+  );
+}
+
+function compactCode(value: string) {
+  return String(value || "")
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 18);
+}
+
+function shortHash(value: string) {
+  let hash = 2166136261;
+  const text = String(value || "lestupid-wait");
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36).toUpperCase().padStart(7, "0").slice(0, 7);
+}
+
+function buildWaitSurface(placeName: string, flowType: string, service: string) {
+  const code = `WAIT-${compactCode(placeName).slice(0, 3) || "LES"}-${shortHash(
+    `${placeName}:${flowType}:${service}`
+  )}`;
+  const link = `http://127.0.0.1:4010/waiting.html?surface=${encodeURIComponent(code)}&flow=${encodeURIComponent(
+    flowType
+  )}&place=${encodeURIComponent(placeName)}&service=${encodeURIComponent(service)}`;
+  const qrUrl = `https://quickchart.io/qr?size=180&margin=1&text=${encodeURIComponent(link)}`;
+  return { code, link, qrUrl };
+}
+
 // Helper to trigger simulated audio alert
 function triggerAudioBeep() {
   try {
@@ -435,6 +667,29 @@ function triggerAudioBeep() {
 function App() {
   const [activeView, setActiveView] = useState<ViewType>("hub");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [navSearch, setNavSearch] = useState("");
+
+  const navItems = useMemo(() => [
+    { id: "hub", label: "Ecosystem Hub", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> },
+    { id: "visual", label: "Visual Flows", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 20h10M9 8h6M7 12h10"/></svg> },
+    { id: "wait", label: "Les Wait (Queue)", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+    { id: "poke", label: "Les Poke (Quests)", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> },
+    { id: "match", label: "Les Match (Match)", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> },
+    { id: "commerce", label: "Les Commerce", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22 6H6"/></svg> },
+    { id: "itemotel", label: "Eşya Otelim", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> },
+    { id: "contacts", label: "Les Contacts (CRM)", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg> },
+    { id: "care", label: "Les Care (Health)", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> },
+    { id: "harmonica", label: "Proximity (Link)", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6v6l4 2"/></svg> },
+    { id: "oyun", label: "Kart Oyunu", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><rect x="4" y="3" width="12" height="16" rx="2"/><path d="M8 7h4M8 11h5M8 15h3"/><path d="M18 7l2 10a2 2 0 0 1-2 2h-2"/></svg> },
+    { id: "ai", label: "KADRO AI", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2v9M8 5h8"/></svg> },
+    { id: "certification", label: "Selective Trust", icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> }
+  ], []);
+
+  const filteredNavItems = useMemo(() => {
+    return navItems.filter((item) =>
+      item.label.toLowerCase().includes(navSearch.toLowerCase())
+    );
+  }, [navItems, navSearch]);
 
   // Core PWA Shell states
   const [placeId, setPlaceId] = useState(places[0]?.id ?? "");
@@ -449,12 +704,23 @@ function App() {
   const [browsePlaces, setBrowsePlaces] = useState(false);
   const [browseTopics, setBrowseTopics] = useState(false);
   const [browseFeed, setBrowseFeed] = useState(false);
+  const [identityState, setIdentityState] = useState<EcosystemIdentity>(identity);
+  const [appActivationsState, setAppActivationsState] = useState(appActivations);
+  const [channelsState, setChannelsState] = useState(channels);
+  const [coreSnapshotSource, setCoreSnapshotSource] = useState<"mock" | "http">("mock");
+  const [coreActionNotice, setCoreActionNotice] = useState<string | null>(null);
 
   // CV signals tracking
   const [cvProfile, setCvProfile] = useState<StudentCvProfile>(studentCvProfile);
 
   // 1. Les Wait Simulator State
   const [waitTicket, setWaitTicket] = useState<QueueTicket | null>(null);
+  const [waitChannel, setWaitChannel] = useState<QueueTicket["channel"]>("camera_qr");
+  const [waitSurfaceCode, setWaitSurfaceCode] = useState("WAIT-CAM-READY");
+  const [waitProofRef, setWaitProofRef] = useState("go-preview");
+  const [waitNotice, setWaitNotice] = useState("Ready. Go shows the same Les Wait surface; camera opens in standalone.");
+  const [waitOwnerService, setWaitOwnerService] = useState("student queue / pickup");
+  const [waitOwnerFlow, setWaitOwnerFlow] = useState("campus_service");
 
   // 2. Les Poke Simulator State
   const [quests, setQuests] = useState<QuestItem[]>(mockQuests);
@@ -489,6 +755,9 @@ function App() {
   const [newCrmNotes, setNewCrmNotes] = useState("");
   const [newCrmContext, setNewCrmContext] = useState<"work" | "personal" | "social" | "travel">("personal");
   const [newCrmPlace, setNewCrmPlace] = useState("");
+  const [contactsDraftPreview, setContactsDraftPreview] = useState<ContactsDraftPreview | null>(null);
+  const [contactsPreviewSource, setContactsPreviewSource] = useState<"mock" | "http">("mock");
+  const [contactsPreviewLoading, setContactsPreviewLoading] = useState(false);
 
   // 6. Les Care State
   const [careSearch, setCareSearch] = useState("");
@@ -525,6 +794,23 @@ function App() {
   // 11. AI Skills Integration State
   const [aiSkills, setAiSkills] = useState<AiSkill[]>(mockAiSkills);
   const [globalAuditLogs, setGlobalAuditLogs] = useState<AiSkillAuditLog[]>(mockAiSkills.flatMap(s => s.auditLogs));
+
+  useEffect(() => {
+    let active = true;
+
+    void coreAdapter.loadSnapshot().then((snapshot) => {
+      if (!active) return;
+
+      setIdentityState(snapshot.identity);
+      setAppActivationsState(snapshot.appActivations);
+      setChannelsState(snapshot.channels);
+      setCoreSnapshotSource(snapshot.source);
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleExecuteAiSkill = (skillId: string, params: Record<string, any>): string => {
     const skill = aiSkills.find(s => s.id === skillId);
@@ -569,12 +855,16 @@ function App() {
         const ticket: QueueTicket = {
           id: `ticket-${Date.now()}`,
           venueId: targetVenueId,
-          venueName: venue.name,
-          ticketNumber: `A-${Math.floor(Math.random() * 90) + 10}`,
-          userPosition: Math.floor(Math.random() * 8) + 4,
-          estimatedMinutes: 15,
-          status: "waiting"
-        };
+      venueName: venue.name,
+      ticketNumber: `A-${Math.floor(Math.random() * 90) + 10}`,
+      userPosition: Math.floor(Math.random() * 8) + 4,
+      estimatedMinutes: 15,
+      status: "waiting",
+      channel: waitChannel,
+      surfaceId: waitSurfaceCode,
+      proofRef: waitProofRef,
+      sourceQuestId: selectedQuest?.id
+    };
         setWaitTicket(ticket);
         payload.ticket = ticket;
         payload.message = `Successfully joined wait queue for ${venue.name}`;
@@ -848,7 +1138,17 @@ function App() {
   }, [waitTicket]);
 
   // Handle joining queue in Les Wait
-  const handleJoinQueue = (venueId: string, name: string) => {
+  const handleJoinQueue = async (venueId: string, name: string) => {
+    const queuePlace = places.find((place) => place.id === venueId) ?? selectedPlace;
+    const submission = await coreAdapter.submitCheckIn({
+      placeId: venueId,
+      placeName: name,
+      placeType: queuePlace.type,
+      mode: queuePlace.modes.includes(selectedMode) ? selectedMode : queuePlace.defaultMode,
+      privacyLevel,
+      source: "manual"
+    });
+
     const ticket: QueueTicket = {
       id: `ticket-${Date.now()}`,
       venueId,
@@ -856,9 +1156,18 @@ function App() {
       ticketNumber: `A-${Math.floor(Math.random() * 90) + 10}`,
       userPosition: Math.floor(Math.random() * 8) + 4,
       estimatedMinutes: 15,
-      status: "waiting"
+      status: "waiting",
+      channel: waitChannel,
+      surfaceId: waitSurfaceCode,
+      proofRef: waitProofRef,
+      sourceQuestId: selectedQuest?.id
     };
     setWaitTicket(ticket);
+    setWaitNotice(
+      submission.accepted
+        ? `${name} queue joined through ${waitChannel}. Check-in recorded via ${submission.source}.`
+        : `${name} queue joined through ${waitChannel}. Check-in sync needs retry.`
+    );
     setActiveView("wait");
   };
 
@@ -1014,7 +1323,7 @@ function App() {
       // Add Oyun winner credential
       const newSignal = {
         id: `cv-oyun-${Date.now()}`,
-        sourceApp: "les-affiliate-oyun",
+        sourceApp: "les-affiliate",
         title: "Sertifikalı kart düellosu galibiyeti",
         detail: "Eşya ve referans kart ekonomisinde doğrulanan düello kazancı.",
         status: "verified" as const
@@ -1160,9 +1469,10 @@ function App() {
   };
 
   const selectedPlace = places.find((place) => place.id === placeId) ?? places[0]!;
+  const currentWaitSurface = buildWaitSurface(selectedPlace.name, waitOwnerFlow, waitOwnerService);
   const activeMode = selectedPlace.modes.includes(selectedMode) ? selectedMode : selectedPlace.defaultMode;
-  const activeApps = appActivations.filter((app) => app.status === "activated");
-  const activeChannels = channels.filter((channel) => channel.status === "activated");
+  const activeApps = appActivationsState.filter((app) => app.status === "activated");
+  const activeChannels = channelsState.filter((channel) => channel.status === "activated");
   const visiblePlaces =
     placeFilter === "all" ? places : places.filter((place) => place.type === placeFilter);
   const nearbyPlaces = browsePlaces ? visiblePlaces : visiblePlaces.slice(0, nearbyPlacePreviewLimit);
@@ -1178,11 +1488,11 @@ function App() {
 
   const opportunities = useMemo(() => {
     return opportunityAdapter
-      .getOpportunities(checkIn, channels)
+      .getOpportunities(checkIn, activeChannels)
       .filter((opportunity) => !dismissedIds.includes(opportunity.id))
       .filter((opportunity) => feedFilter === "all" || opportunity.type === feedFilter)
       .filter((opportunity) => opportunityMatchesCommerceFacets(opportunity, activeCommerceFacets));
-  }, [checkIn.placeId, checkIn.placeType, checkIn.mode, checkIn.privacyLevel, dismissedIds, feedFilter, activeCommerceFacets]);
+  }, [checkIn.placeId, checkIn.placeType, checkIn.mode, checkIn.privacyLevel, dismissedIds, feedFilter, activeCommerceFacets, activeChannels]);
 
   const nearbyTopics = useMemo(() => {
     // Generate topics list helper
@@ -1215,6 +1525,16 @@ function App() {
   const visibleTopics = browseTopics ? nearbyTopics : nearbyTopics.slice(0, nearbyTopicPreviewLimit);
   const visibleOpportunities = browseFeed ? opportunities : opportunities.slice(0, feedPreviewLimit);
 
+  async function handlePreviewContactsDraft() {
+    setContactsPreviewLoading(true);
+
+    const result = await previewContactsDraft(checkIn);
+
+    setContactsDraftPreview(result.draft);
+    setContactsPreviewSource(result.source);
+    setContactsPreviewLoading(false);
+  }
+
   function toggleCommerceFacet(facet: CommerceFacetSignal) {
     setActiveCommerceFacets((current) => {
       if (current.some((item) => sameCommerceFacet(item, facet))) {
@@ -1226,7 +1546,7 @@ function App() {
     setBrowseFeed(false);
   }
 
-  function handleAction(opportunity: OpportunityCard, action: OpportunityAction) {
+  async function handleAction(opportunity: OpportunityCard, action: OpportunityAction) {
     if (action.id === "dismiss") {
       setDismissedIds((ids) => [...ids, opportunity.id]);
     }
@@ -1234,14 +1554,36 @@ function App() {
       setReportedIds((ids) => [...ids, opportunity.id]);
     }
     if (action.id === "activate" && opportunity.requiredActivation) {
-      if (opportunity.requiredActivation === "lestupid-waiting-app") {
+      const activationProductId = normalizeActivationProductId(opportunity.requiredActivation);
+      const activationResult = await coreAdapter.activateApp(activationProductId);
+
+      setAppActivationsState((current) => upsertActivation(current, activationResult.activation));
+      setCoreActionNotice(`Activated ${activationResult.activation.productId} via ${activationResult.source}.`);
+
+      if (opportunity.requiredActivation === "les-wait") {
         handleJoinQueue(selectedPlace.id, selectedPlace.name);
       } else if (opportunity.requiredActivation === "les-poke") {
         setActiveView("poke");
       } else if (opportunity.requiredActivation === "les-match") {
         setActiveView("match");
+      } else if (
+        opportunity.requiredActivation === "les-ai" ||
+        opportunity.requiredActivation === "agentandbot-governance-core" ||
+        opportunity.requiredActivation === "ai-senaryo"
+      ) {
+        setActiveView("ai");
+      } else if (opportunity.requiredActivation === "les-certification") {
+        setActiveView("certification");
+      } else if (opportunity.requiredActivation === "les-affiliate") {
+        setActiveView("oyun");
       } else if (opportunity.requiredActivation === "les-itemotel") {
         setActiveView("itemotel");
+      } else if (
+        opportunity.requiredActivation === "lescommerce" ||
+        opportunity.requiredActivation === "lescommerce-core" ||
+        opportunity.requiredActivation.startsWith("lescommerce-")
+      ) {
+        setActiveView("commerce");
       } else if (opportunity.requiredActivation === "les-harmonica") {
         setActiveView("harmonica");
       }
@@ -1292,103 +1634,55 @@ function App() {
           </button>
         </div>
 
+        {!sidebarCollapsed && (
+          <div className="sidebar-search" style={{ padding: "0 12px 12px" }}>
+            <input
+              type="text"
+              placeholder="Search apps..."
+              value={navSearch}
+              onChange={(e) => setNavSearch(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                fontSize: "13px",
+                border: "1px solid var(--line)",
+                borderRadius: "8px",
+                background: "rgba(18, 22, 25, 0.03)",
+                color: "var(--ink)",
+                outline: "none",
+                transition: "all 0.2s ease"
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "var(--ink)";
+                e.target.style.background = "#fff";
+                e.target.style.boxShadow = "0 0 0 3px hsla(210, 24%, 12%, 0.08)";
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "var(--line)";
+                e.target.style.background = "rgba(18, 22, 25, 0.03)";
+                e.target.style.boxShadow = "none";
+              }}
+            />
+          </div>
+        )}
+
         <nav className="nav-menu">
-          <button
-            className={`nav-item ${activeView === "hub" ? "active" : ""}`}
-            onClick={() => setActiveView("hub")}
-            data-label="Ecosystem Hub"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-            <span>Ecosystem Hub</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "visual" ? "active" : ""}`}
-            onClick={() => setActiveView("visual")}
-            data-label="Visual Flows"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 20h10M9 8h6M7 12h10"/></svg>
-            <span>Visual Flows</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "wait" ? "active" : ""}`}
-            onClick={() => setActiveView("wait")}
-            data-label="Les Wait (Queue)"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>Les Wait (Queue)</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "poke" ? "active" : ""}`}
-            onClick={() => setActiveView("poke")}
-            data-label="Les Poke (Quests)"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>Les Poke (Quests)</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "match" ? "active" : ""}`}
-            onClick={() => setActiveView("match")}
-            data-label="Les Match (Match)"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            <span>Les Match (Match)</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "itemotel" ? "active" : ""}`}
-            onClick={() => setActiveView("itemotel")}
-            data-label="Eşya Otelim"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-            <span>Eşya Otelim</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "contacts" ? "active" : ""}`}
-            onClick={() => setActiveView("contacts")}
-            data-label="Les Contacts (CRM)"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8M16 17H8M10 9H8"/></svg>
-            <span>Les Contacts (CRM)</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "care" ? "active" : ""}`}
-            onClick={() => setActiveView("care")}
-            data-label="Les Care (Health)"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            <span>Les Care (Health)</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "harmonica" ? "active" : ""}`}
-            onClick={() => setActiveView("harmonica")}
-            data-label="Proximity (Link)"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6v6l4 2"/></svg>
-            <span>Proximity (Link)</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "oyun" ? "active" : ""}`}
-            onClick={() => setActiveView("oyun")}
-            data-label="Kart Oyunu"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><rect x="4" y="3" width="12" height="16" rx="2"/><path d="M8 7h4M8 11h5M8 15h3"/><path d="M18 7l2 10a2 2 0 0 1-2 2h-2"/></svg>
-            <span>Kart Oyunu</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "ai" ? "active" : ""}`}
-            onClick={() => setActiveView("ai")}
-            data-label="KADRO AI"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M12 2v9M8 5h8"/></svg>
-            <span>KADRO AI</span>
-          </button>
-          <button
-            className={`nav-item ${activeView === "certification" ? "active" : ""}`}
-            onClick={() => setActiveView("certification")}
-            data-label="Selective Trust"
-          >
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2.5" fill="none"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-            <span>Selective Trust</span>
-          </button>
+          {filteredNavItems.map((item) => (
+            <button
+              key={item.id}
+              className={`nav-item ${activeView === item.id ? "active" : ""}`}
+              onClick={() => setActiveView(item.id as ViewType)}
+              data-label={item.label}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          ))}
+          {filteredNavItems.length === 0 && (
+            <div style={{ padding: "20px 12px", color: "var(--muted)", fontSize: "13px", textAlign: "center" }}>
+              No apps found
+            </div>
+          )}
         </nav>
       </aside>
 
@@ -1406,8 +1700,8 @@ function App() {
               <div className="identity-card">
                 <span className="status-dot" />
                 <div>
-                  <strong>{identity.label}</strong>
-                  <span>{identity.status}</span>
+                  <strong>{identityState.label}</strong>
+                  <span>{identityState.status} via {coreSnapshotSource}</span>
                 </div>
               </div>
             </section>
@@ -1532,6 +1826,7 @@ function App() {
 
                 <StatusGroup title="Apps" items={activeApps.map((app) => app.productId)} />
                 <StatusGroup title="Channels" items={activeChannels.map((channel) => channel.channelId)} />
+                {coreActionNotice ? <p className="small-note">{coreActionNotice}</p> : null}
               </aside>
 
               <section className="feed-section" aria-labelledby="feed-title">
@@ -1624,11 +1919,211 @@ function App() {
         {activeView === "wait" && (
           <div className="sim-container">
             <div className="sim-header">
-              <h2>Les Wait Dashboard</h2>
-              <p>Breathable wait states, active queue tracking, and smart arrival windows.</p>
+              <h2>Waiting without trapping people.</h2>
+              <p>A fair waiting flow for places, services, pickups, rooms, gates, and Poke-driven visits.</p>
+              <AppModeNote view="wait" />
             </div>
 
-            <div className="wait-dashboard">
+            <div className="wait-unified-shell">
+              <section className="wait-entry-grid" aria-label="Les Wait entry surfaces">
+                <article className="wait-entry-card">
+                  <h3>Join with camera, code, phone, or photo</h3>
+                  <p>
+                    Same as standalone Les Wait: every entry method becomes one queue event. In Go,
+                    camera opens in standalone, while code, phone and photo proof are simulated here.
+                  </p>
+                  <div className="wait-chip-row">
+                    <button
+                      className={waitChannel === "camera_qr" ? "wait-chip active" : "wait-chip"}
+                      type="button"
+                      onClick={() => {
+                        setWaitChannel("camera_qr");
+                        setWaitSurfaceCode(currentWaitSurface.code);
+                        setWaitProofRef("go-camera-preview");
+                        setWaitNotice("Camera QR selected. Open standalone for real camera permission.");
+                      }}
+                    >
+                      QR
+                    </button>
+                    <button
+                      className={waitChannel === "short_code" ? "wait-chip active" : "wait-chip"}
+                      type="button"
+                      onClick={() => {
+                        setWaitChannel("short_code");
+                        setWaitSurfaceCode(currentWaitSurface.code);
+                        setWaitProofRef("short-code");
+                        setWaitNotice("Short code selected. This can be printed on a table, door, or counter.");
+                      }}
+                    >
+                      Code
+                    </button>
+                    <button
+                      className={waitChannel === "phone_lookup" ? "wait-chip active" : "wait-chip"}
+                      type="button"
+                      onClick={() => {
+                        setWaitChannel("phone_lookup");
+                        setWaitSurfaceCode(`PHONE-${shortHash(selectedPlace.name)}`);
+                        setWaitProofRef("phone-hash");
+                        setWaitNotice("Phone fallback selected. Backend should store scoped hashes, not raw numbers.");
+                      }}
+                    >
+                      Phone
+                    </button>
+                    <label className={waitChannel === "photo_proof" ? "wait-chip active file-chip" : "wait-chip file-chip"}>
+                      Photo
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) => {
+                          const file = event.currentTarget.files?.[0];
+                          setWaitChannel("photo_proof");
+                          setWaitSurfaceCode(`PHOTO-${shortHash(file?.name || selectedPlace.name)}`);
+                          setWaitProofRef(`photo:${shortHash(`${file?.name || "local-photo"}:${file?.size || 0}`)}`);
+                          setWaitNotice("Photo proof token created locally. The image itself is not stored.");
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <div className="wait-field-grid">
+                    <label>
+                      Surface
+                      <input value={waitSurfaceCode} onChange={(event) => setWaitSurfaceCode(event.target.value)} />
+                    </label>
+                    <label>
+                      Proof
+                      <input value={waitProofRef} onChange={(event) => setWaitProofRef(event.target.value)} />
+                    </label>
+                  </div>
+                </article>
+
+                <article className="wait-entry-card">
+                  <h3>Place owner creates the entrance</h3>
+                  <p>
+                    The owner/staff side creates QR, short code and join link. Go shows the same
+                    surface; standalone owns print, camera, and future staff persistence.
+                  </p>
+                  <div className="wait-field-grid">
+                    <label>
+                      Flow
+                      <input value={waitOwnerFlow} onChange={(event) => setWaitOwnerFlow(event.target.value)} />
+                    </label>
+                    <label>
+                      Service
+                      <input value={waitOwnerService} onChange={(event) => setWaitOwnerService(event.target.value)} />
+                    </label>
+                  </div>
+                  <div className="wait-owner-surface">
+                    <div>
+                      <strong>{currentWaitSurface.code}</strong>
+                      <span>{currentWaitSurface.link}</span>
+                    </div>
+                    <img src={currentWaitSurface.qrUrl} alt="Les Wait QR" />
+                  </div>
+                  <div className="wait-chip-row">
+                    <button
+                      className="wait-chip active"
+                      type="button"
+                      onClick={() => {
+                        setWaitSurfaceCode(currentWaitSurface.code);
+                        setWaitProofRef("owner-generated");
+                        setWaitNotice("Owner entrance created. It matches the standalone join link.");
+                      }}
+                    >
+                      Create QR
+                    </button>
+                    <a className="wait-chip link-chip" href={currentWaitSurface.link} target="_blank" rel="noreferrer">
+                      Open link
+                    </a>
+                  </div>
+                </article>
+              </section>
+
+              <section className="wait-live-layout">
+                <div className="ticket-stub wait-ticket-stub">
+                  <div className="ticket-header">
+                    <span>Queue ticket</span>
+                    <span>{waitTicket?.venueName || selectedPlace.name}</span>
+                  </div>
+                  {waitTicket ? (
+                    <>
+                      <div className="ticket-num">{waitTicket.ticketNumber}</div>
+                      <div className="wait-ticket-meta">
+                        <span>{waitTicket.surfaceId}</span>
+                        <span>{waitTicket.channel}</span>
+                        <span>{waitTicket.proofRef}</span>
+                      </div>
+                      {waitTicket.status === "waiting" ? (
+                        <div className="progress-circle-box wait-progress-box">
+                          <span>Estimated wait</span>
+                          <div className="countdown-timer">
+                            {waitTicket.estimatedMinutes} <small>min</small>
+                          </div>
+                          <p>
+                            Your position: <strong>{waitTicket.userPosition}</strong>. You can leave the
+                            line area and come back when called.
+                          </p>
+                          <button className="action-button primary" onClick={handleFastForwardQueue}>
+                            Move queue forward
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="wait-called-state">
+                          <strong>Your turn is ready.</strong>
+                          <span>Go to the desk, pickup point, room, table, or gate.</span>
+                        </div>
+                      )}
+                      <button className="action-button secondary" onClick={() => setWaitTicket(null)}>
+                        Cancel ticket
+                      </button>
+                    </>
+                  ) : (
+                    <div className="wait-empty-ticket">
+                      <strong>No active ticket</strong>
+                      <span>Choose an entry method and join a place queue.</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="wait-place-panel">
+                  <div className="wait-panel-head">
+                    <div>
+                      <h3>Place queues and Poke context</h3>
+                      <p>
+                        Les Wait starts from where you are going. Les Poke can create the quest before,
+                        during, or after the wait.
+                      </p>
+                    </div>
+                    <button className="action-button secondary" type="button" onClick={() => setActiveView("poke")}>
+                      Open Poke
+                    </button>
+                  </div>
+                  <div className="wait-notice">{waitNotice}</div>
+                  <div className="wait-place-list">
+                    {places
+                      .filter((p) => p.id === selectedPlace.id || p.modes.includes("service") || p.type === "canteen")
+                      .slice(0, 6)
+                      .map((p, index) => (
+                        <article className="wait-place-row" key={p.id}>
+                          <div>
+                            <strong>{p.name}</strong>
+                            <span>
+                              {p.type.replace(/_/g, " ")} / {p.defaultMode} / density %{58 + index * 7}
+                            </span>
+                            <small>
+                              Poke link: {selectedQuest?.name || "nearby quest"} can become a wait-aware task.
+                            </small>
+                          </div>
+                          <button className="action-button secondary" onClick={() => handleJoinQueue(p.id, p.name)}>
+                            Join
+                          </button>
+                        </article>
+                      ))}
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div className="wait-dashboard legacy-wait-dashboard">
               <div>
                 {waitTicket ? (
                   <div className="ticket-stub">
@@ -1719,7 +2214,7 @@ function App() {
             </div>
 
             <InlineSkillAdapters 
-              productId="lestupid-waiting-app" 
+              productId="les-wait" 
               skills={aiSkills} 
               onExecute={handleExecuteAiSkill} 
               onUpdateStatus={handleUpdateSkillStatus} 
@@ -1733,6 +2228,7 @@ function App() {
             <div className="sim-header">
               <h2>Les Poke (City Quests)</h2>
               <p>Safe real-world challenges, public coordinates check-ins, and local drop policies.</p>
+              <AppModeNote view="poke" />
             </div>
 
             <div className="poke-dashboard">
@@ -1809,6 +2305,7 @@ function App() {
             <div className="sim-header">
               <h2>Les Match (Matchmaking)</h2>
               <p>Consent-first discovery, pseudonym listings, and certified interest matching.</p>
+              <AppModeNote view="match" />
             </div>
 
             {activeChatMatch ? (
@@ -1951,12 +2448,30 @@ function App() {
           </div>
         )}
 
-        {/* 4. Les Commerce & Item Otel View */}
+        {/* 4. Les Commerce Family View */}
+        {activeView === "commerce" && (
+          <CommerceFamilyView
+            modeNote={<AppModeNote view="commerce" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="lescommerce-core"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            products={commerceProducts}
+            onOpenGoView={(viewId) => setActiveView(viewId as ViewType)}
+          />
+        )}
+
+        {/* 5. Les Commerce & Item Otel View */}
         {activeView === "itemotel" && (
           <div className="sim-container">
             <div className="sim-header">
               <h2>Les Item Otel</h2>
               <p>Circular commerce workspace: personal items storage, care, and active listings.</p>
+              <AppModeNote view="itemotel" />
             </div>
 
             <div className="itemotel-dashboard">
@@ -2220,309 +2735,81 @@ function App() {
 
         {/* 5. Les Contacts Private CRM View */}
         {activeView === "contacts" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>Les Contacts (Private CRM)</h2>
-              <p>Context-separated private timeline logs, interactions, and safe place memories.</p>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: "28px" }}>
-              <div>
-                <h3>Yeni Hafıza Ekle</h3>
-                <form onSubmit={handleAddCrmLog} style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "12px" }}>
-                  <div className="form-group">
-                    <label>Mekan/Yer</label>
-                    <input
-                      type="text"
-                      placeholder="Örn: Canteen, Kütüphane"
-                      value={newCrmPlace}
-                      onChange={(e) => setNewCrmPlace(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label>Bağlam (Context)</label>
-                    <select
-                      value={newCrmContext}
-                      onChange={(e: any) => setNewCrmContext(e.target.value)}
-                    >
-                      <option value="personal">Kişisel (Personal)</option>
-                      <option value="work">İş (Work)</option>
-                      <option value="social">Sosyal (Social)</option>
-                      <option value="travel">Seyahat (Travel)</option>
-                    </select>
-                  </div>
-                  <div className="form-group">
-                    <label>Özel Notlar</label>
-                    <textarea
-                      placeholder="Gizli notların..."
-                      value={newCrmNotes}
-                      onChange={(e) => setNewCrmNotes(e.target.value)}
-                      style={{ padding: "10px", borderRadius: "8px", border: "1px solid var(--line)", minHeight: "80px", resize: "none" }}
-                      required
-                    />
-                  </div>
-                  <button className="action-button primary"> CRM Belleğine Kaydet </button>
-                </form>
-              </div>
-
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                  <h3>Timeline Akışı</h3>
-                  <select
-                    value={crmFilter}
-                    onChange={(e: any) => setCrmFilter(e.target.value)}
-                    style={{ padding: "6px 12px", borderRadius: "6px", border: "1px solid var(--line)" }}
-                  >
-                    <option value="all">Filtrele: Tümü</option>
-                    <option value="personal">Kişisel</option>
-                    <option value="work">İş</option>
-                    <option value="social">Sosyal</option>
-                    <option value="travel">Seyahat</option>
-                  </select>
-                </div>
-
-                <div className="crm-timeline">
-                  {crmLogs
-                    .filter((log) => crmFilter === "all" || log.context === crmFilter)
-                    .map((log) => (
-                      <div className="crm-timeline-item" key={log.id}>
-                        <div className="crm-timeline-dot" />
-                        <div className="crm-timeline-content">
-                          <div className="crm-timeline-header">
-                            <span>{log.placeName}</span>
-                            <span>{log.date}</span>
-                          </div>
-                          <p style={{ margin: "6px 0", fontSize: "14px", color: "var(--ink)", lineHeight: 1.4 }}>
-                            {log.notes}
-                          </p>
-                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--muted)", fontWeight: 700 }}>
-                            <span style={{ textTransform: "uppercase" }}>{log.context}</span>
-                            {log.people && <span>Kişi: {log.people}</span>}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            </div>
-
-            <InlineSkillAdapters 
-              productId="les-contacts" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
+          <ContactsView
+            modeNote={<AppModeNote view="contacts" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-contacts"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            newCrmPlace={newCrmPlace}
+            newCrmContext={newCrmContext}
+            newCrmNotes={newCrmNotes}
+            crmFilter={crmFilter}
+            crmLogs={crmLogs}
+            contactsDraftPreview={contactsDraftPreview}
+            contactsPreviewSource={contactsPreviewSource}
+            contactsPreviewLoading={contactsPreviewLoading}
+            onNewCrmPlaceChange={setNewCrmPlace}
+            onNewCrmContextChange={setNewCrmContext}
+            onNewCrmNotesChange={setNewCrmNotes}
+            onCrmFilterChange={setCrmFilter}
+            onAddCrmLog={handleAddCrmLog}
+            onPreviewContactsDraft={() => void handlePreviewContactsDraft()}
+          />
         )}
 
         {/* 6. Les Care Health View */}
         {activeView === "care" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>Les Care (Safe Health Support)</h2>
-              <p>Pseudonymous health routing, emergency certified alarms, and verified first-aid guidance.</p>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "28px" }}>
-              <div>
-                <div className="form-group" style={{ marginBottom: "20px" }}>
-                  <input
-                    type="text"
-                    placeholder="İlk yardım konularını ara (Örn: bayılma, kesik, yanık)..."
-                    value={careSearch}
-                    onChange={(e) => setCareSearch(e.target.value)}
-                    style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid var(--line)" }}
-                  />
-                </div>
-
-                <h3>Doğrulanmış İlk Yardım Kılavuzu</h3>
-                <div style={{ display: "grid", gap: "12px", marginTop: "12px" }}>
-                  {firstAidGuides
-                    .filter((g) => g.title.toLowerCase().includes(careSearch.toLowerCase()) || g.steps.toLowerCase().includes(careSearch.toLowerCase()))
-                    .map((g, idx) => (
-                      <div key={idx} style={{ border: "1px solid var(--line)", padding: "16px", borderRadius: "12px" }}>
-                        <span className="place-type" style={{ background: "rgba(217, 79, 69, 0.1)", color: "var(--red)" }}>
-                          Önemli Rehber
-                        </span>
-                        <h4 style={{ marginTop: "10px", fontSize: "16px" }}>{g.title}</h4>
-                        <p style={{ fontSize: "13px", color: "var(--muted)", lineHeight: 1.4, margin: "8px 0 0" }}>
-                          {g.steps}
-                        </p>
-                      </div>
-                    ))}
-                </div>
-              </div>
-
-              <div>
-                <div className={`care-emergency-panel ${emergencyActive ? "active" : ""}`}>
-                  <h3 style={{ margin: 0, color: emergencyActive ? "var(--red)" : "var(--ink)", textAlign: "center" }}>
-                    {emergencyActive ? "🚨 ACİL ALARM AKTİF" : "Acil Durum Paneli"}
-                  </h3>
-                  <p style={{ fontSize: "13px", color: "var(--muted)", textAlign: "center", lineHeight: 1.4 }}>
-                    {emergencyActive
-                      ? "Çevredeki en yakın sertifikalı ilk yardım ekibine konumsuz acil durum çağrısı ve kimliksiz tıbbi kartınız yayınlanıyor."
-                      : "Gerektiğinde yakın mesafedeki sertifikalı öğrencilere veya görevlilere anonim tıbbi çağrı yapın."}
-                  </p>
-
-                  {emergencyActive ? (
-                    <>
-                      <div className="zkp-qr-container">
-                        <div className="zkp-qr-mock">
-                          {Array.from({ length: 144 }).map((_, idx) => (
-                            <div
-                              key={idx}
-                              className={`qr-dot ${Math.sin(idx * 0.9) > 0.1 ? "off" : ""}`}
-                              style={{ background: "var(--red)" }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      <div style={{ textAlign: "center", fontSize: "11px", fontWeight: 700, color: "var(--red)" }}>
-                        TIBBİ BARKOD (ZKP)
-                      </div>
-                      <button
-                        className="action-button secondary"
-                        style={{ width: "100%" }}
-                        onClick={() => setEmergencyActive(false)}
-                      >
-                        Çağrıyı Sonlandır
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      className="action-button primary"
-                      style={{ background: "var(--red)", width: "100%" }}
-                      onClick={() => setEmergencyActive(true)}
-                    >
-                      Acil Durum Çağrısı Yap
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <InlineSkillAdapters 
-              productId="les-care" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
+          <CareView
+            modeNote={<AppModeNote view="care" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-care"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            careSearch={careSearch}
+            firstAidGuides={firstAidGuides}
+            emergencyActive={emergencyActive}
+            onCareSearchChange={setCareSearch}
+            onEmergencyActiveChange={setEmergencyActive}
+          />
         )}
 
         {/* 7. Les Harmonica Proximity scanner View */}
         {activeView === "harmonica" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>Les Harmonica (Secure Handoff)</h2>
-              <p>Domain-scoped pairwise credential exchanges, peer pairing, and ephemeral messaging.</p>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "360px 1fr", gap: "28px" }}>
-              <div>
-                <div className="harmonica-radar">
-                  <div className="radar-beam" style={{ display: scanning ? "block" : "none" }} />
-                  <div className="radar-circle circle-1" />
-                  <div className="radar-circle circle-2" />
-                  <div className="radar-circle circle-3" />
-
-                  {/* Device dots */}
-                  {!scanning &&
-                    harmonicaDevices.map((d, idx) => {
-                      const offsets = [
-                        { left: "30%", top: "40%" },
-                        { left: "70%", top: "30%" },
-                        { left: "55%", top: "75%" }
-                      ];
-                      return (
-                        <div
-                          key={d.id}
-                          className="radar-ping"
-                          style={{ ...offsets[idx], background: d.paired ? "var(--green)" : "var(--yellow)" }}
-                          onClick={() => setPairedDevice(d)}
-                        />
-                      );
-                    })}
-                </div>
-
-                <button
-                  className="action-button primary"
-                  style={{ width: "100%", background: "var(--teal)" }}
-                  onClick={handleRadarScan}
-                  disabled={scanning}
-                >
-                  {scanning ? "Güvenli Yakınlık Taranıyor..." : "Yakındaki Cihazları Tara"}
-                </button>
-              </div>
-
-              <div>
-                {pairedDevice ? (
-                  <div style={{ border: "1px solid var(--line)", padding: "20px", borderRadius: "16px" }}>
-                    <h3>{pairedDevice.name}</h3>
-                    <div style={{ fontSize: "11px", color: "var(--muted)" }}>
-                      Sinyal Gücü: %{pairedDevice.signalStrength} | Kamu Anahtarı: <code>{pairedDevice.publicKey}</code>
-                    </div>
-
-                    {pairedDevice.paired ? (
-                      <div style={{ marginTop: "16px" }}>
-                        <div style={{ background: "#f5f5f5", padding: "12px", borderRadius: "8px", minHeight: "100px", marginBottom: "12px", maxHeight: "160px", overflowY: "auto" }}>
-                          <p style={{ fontSize: "11px", color: "var(--muted)", margin: "0 0 8px", textAlign: "center" }}>
-                            Geçici pairwise oturumu açıldı. Mesajlar yerel olarak yok edilir.
-                          </p>
-                          {secChatHistory.map((m, idx) => (
-                            <div key={idx} style={{ fontSize: "13px", margin: "4px 0" }}>
-                              {m}
-                            </div>
-                          ))}
-                        </div>
-                        <form onSubmit={handleSendSecureMsg} style={{ display: "flex", gap: "10px" }}>
-                          <input
-                            type="text"
-                            placeholder="Pairwise kanalıyla şifreli ilet..."
-                            value={secChatMsg}
-                            onChange={(e) => setSecChatMsg(e.target.value)}
-                            style={{ flex: 1, padding: "8px 12px", border: "1px solid var(--line)", borderRadius: "8px" }}
-                          />
-                          <button className="action-button primary" style={{ minHeight: "auto" }}>
-                            Gönder
-                          </button>
-                        </form>
-                      </div>
-                    ) : (
-                      <div style={{ marginTop: "16px" }}>
-                        <p style={{ fontSize: "13px", color: "var(--muted)", lineHeight: 1.4 }}>
-                          Bu cihazla el sıkışma (handoff) başlatarak pseudonymous pairwise anahtar alışverişi yapabilirsiniz.
-                        </p>
-                        <button
-                          className="action-button primary"
-                          style={{ width: "100%", marginTop: "12px" }}
-                          onClick={() => {
-                            setHarmonicaDevices((prev) =>
-                              prev.map((d) => (d.id === pairedDevice.id ? { ...d, paired: true } : d))
-                            );
-                            setPairedDevice({ ...pairedDevice, paired: true });
-                          }}
-                        >
-                          Pairwise Bağlantıyı Onayla
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "center", color: "var(--muted)", padding: "60px 0" }}>
-                    Bağlantı kurmak için soldaki radarda bulunan bir sinyal noktasına tıklayın.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <InlineSkillAdapters 
-              productId="les-harmonica" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
+          <HarmonicaView
+            modeNote={<AppModeNote view="harmonica" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-harmonica"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            scanning={scanning}
+            harmonicaDevices={harmonicaDevices}
+            pairedDevice={pairedDevice}
+            secChatHistory={secChatHistory}
+            secChatMsg={secChatMsg}
+            onRadarScan={handleRadarScan}
+            onPairedDeviceChange={setPairedDevice}
+            onSecChatMsgChange={setSecChatMsg}
+            onSendSecureMsg={handleSendSecureMsg}
+            onConfirmPairwiseConnection={(device) => {
+              setHarmonicaDevices((prev) =>
+                prev.map((entry) => (entry.id === device.id ? { ...entry, paired: true } : entry))
+              );
+              setPairedDevice({ ...device, paired: true });
+            }}
+          />
         )}
 
         {/* 8. Les Affiliate Oyun Card Game View */}
@@ -2531,6 +2818,7 @@ function App() {
             <div className="sim-header">
               <h2>Les Affiliate Oyun (Card Game)</h2>
               <p>Social commerce card battles, quest item modifiers, and certified gaming economy.</p>
+              <AppModeNote view="oyun" />
             </div>
 
             <div className="duel-arena">
@@ -2616,7 +2904,7 @@ function App() {
             </div>
 
             <InlineSkillAdapters 
-              productId="les-affiliate-oyun" 
+              productId="les-affiliate" 
               skills={aiSkills} 
               onExecute={handleExecuteAiSkill} 
               onUpdateStatus={handleUpdateSkillStatus} 
@@ -2630,6 +2918,7 @@ function App() {
             <div className="sim-header">
               <h2>KADRO AI Console</h2>
               <p>Interact with certified AI workers, manage tool adapters, and inspect audit logs.</p>
+              <AppModeNote view="ai" />
               
               <div className="sub-tab-bar" style={{ display: "flex", gap: "20px", marginTop: "16px", borderBottom: "1px solid var(--line)", paddingBottom: "10px" }}>
                 <button 
@@ -2881,6 +3170,7 @@ function App() {
             <div className="sim-header">
               <h2>Selective Disclosure & ZKP</h2>
               <p>Select credentials to compile dynamic ZKP tokens with complete identity privacy.</p>
+              <AppModeNote view="certification" />
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "28px" }}>
@@ -2995,11 +3285,11 @@ function App() {
             <span>Quests</span>
           </button>
           <button
-            className={`mobile-nav-item ${activeView === "itemotel" ? "active" : ""}`}
-            onClick={() => setActiveView("itemotel")}
+            className={`mobile-nav-item ${activeView === "commerce" || activeView === "itemotel" ? "active" : ""}`}
+            onClick={() => setActiveView("commerce")}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/></svg>
-            <span>Storage</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h8.7a2 2 0 0 0 2-1.6L22 6H6"/></svg>
+            <span>Commerce</span>
           </button>
           <button
             className={`mobile-nav-item ${activeView === "match" ? "active" : ""}`}
@@ -3033,8 +3323,12 @@ function VisualFlowGallery({
     les_contacts: "contacts",
     les_care: "care",
     les_certification: "certification",
-    lescommerce: "itemotel",
-    les_affiliate_oyun: "oyun"
+    lescommerce: "commerce",
+    "lescommerce-marketplace": "commerce",
+    "lescommerce-diydiy": "commerce",
+    "lescommerce-quick-commerce": "commerce",
+    "lescommerce-storefronts": "commerce",
+    "les-affiliate": "oyun"
   };
 
   return (
