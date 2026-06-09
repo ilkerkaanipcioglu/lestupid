@@ -1,18 +1,14 @@
-<!-- OPENSPEC:START -->
-# OpenSpec Instructions
+# les_wait Module
 
-These instructions are for AI assistants working in this project.
+This module contains the queue simulator, ticket generation, and waiting duration estimation workflows.
 
-Always open `@/openspec/AGENTS.md` when the request:
-- Mentions planning or proposals (words like proposal, spec, change, plan)
-- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
-- Sounds ambiguous and you need the authoritative spec before coding
+## Role & Responsibility
 
-Use `@/openspec/AGENTS.md` to learn:
-- How to create and apply change proposals
-- Spec format and conventions
-- Project structure and guidelines
+- Simulates active queue progression.
+- Users can join mock queues (canteen, clinic, student affairs) and track their progress live.
 
-Keep this managed block so 'openspec update' can refresh the instructions.
+## Local Configuration & Running
 
-<!-- OPENSPEC:END -->
+- **Mock API Server**: Serves files in the `les_wait/` directory.
+- **Port**: Listens on `http://127.0.0.1:4010/waiting.html`.
+- **Run Command**: `node dev-server.mjs`

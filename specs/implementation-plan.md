@@ -1,45 +1,27 @@
-# Implementation Plan: Les Commerce Local Launch & Integration
+# Implementation Plan: DOX Framework Integration
 
-This plan outlines the steps to run all existing **Les Commerce** family components locally and update the main **Les Go PWA** to link directly to these live local instances.
+This plan outlines the integration of the **DOX framework** (Self-documenting `AGENTS.md` hierarchy) into the **LESTUPID** repository. This will ensure that all developer agents working on this project traverse a unified chain of local rules and keep documentation up-to-date.
 
 ## Proposed Changes
 
-### 1. PWA Storefront Link Alignment
-- **`[MODIFY]` [main.tsx](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/src/main.tsx)**
-  - Align Quick Commerce storefront standalone URL to port `3005` (matching the Astro server configuration):
-    ```diff
-    - standaloneUrl: "http://127.0.0.1:4321/",
-    + standaloneUrl: "http://127.0.0.1:3005/",
-    ```
+### 1. Root AGENTS.md Creation
+- **`[NEW]` [AGENTS.md](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/AGENTS.md)**
+  - Establish the root contract using the DOX framework guidelines.
+  - Map project-wide design systems (Outfit/Jakarta fonts, border-radius standards, HSL colors, no-rewrite rules).
+  - Index the sub-projects pointing to their respective local `AGENTS.md` files.
 
-### 2. Launching Backends & Storefronts
-We will launch the following 4 servers as background processes:
-1. **Dukkadee DIY Backend** (Elixir/Phoenix):
-   - Directory: `Les_Commerce/commerce-backend`
-   - Command: `PowerShell.exe -File start_diy.ps1` (runs on Port 4003)
-2. **Dukkadee Quick Commerce Backend** (Elixir/Phoenix):
-   - Directory: `Les_Commerce/commerce-backend`
-   - Command: `PowerShell.exe -File start_quick.ps1` (runs on Port 4005)
-3. **DIY Marketplace Storefront** (Next.js):
-   - Directory: `Les_Commerce/diy-marketplace-elixir/storefront`
-   - Command: `npx next dev -p 3006` (runs on Port 3006)
-4. **Quick Commerce Storefront** (Astro):
-   - Directory: `Les_Commerce/quick-commerce-elixir/storefront`
-   - Command: `npm run dev` (runs on Port 3005 based on `astro.config.mjs`)
+### 2. Child AGENTS.md Creation for Sub-apps
+Create initial local contracts indexing sub-app roles, constraints, and dependencies:
+- **`[NEW]` [les_go/AGENTS.md](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_go/AGENTS.md)**: Details the PWA React client, mock adapter modes, and visual assets rules.
+- **`[NEW]` [Les_Commerce/AGENTS.md](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/Les_Commerce/AGENTS.md)**: Details the marketplace engines, Astro/Next storefront configurations, and sqlite database scopes.
+- **`[NEW]` [Les_poke/AGENTS.md](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/Les_poke/AGENTS.md)**: Details the Phoenix API on port 4000.
+- **`[NEW]` [les_contacts/AGENTS.md](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_contacts/AGENTS.md)**: Details the private timeline memory module.
+- **`[NEW]` [les_wait/AGENTS.md](file:///B:/DEV/HAREZM_EKOSISTEMI/LesTupid/les_wait/AGENTS.md)**: Details the queue simulator and mock server port 4010.
 
 ---
 
 ## Verification Plan
 
-### Port Scanning
-Verify that the following local ports are active and listening:
-- `3005` (Astro storefront)
-- `3006` (Next.js storefront)
-- `4003` (DIY Backend)
-- `4005` (Quick Commerce Backend)
-
 ### Manual Verification
-- Access `http://127.0.0.1:5174/` (PWA)
-- Click on "Les Commerce" tab
-- Verify that clicking "Open DIY storefront" opens the Next.js app at port `3006`
-- Verify that clicking "Open quick storefront" opens the Astro app at port `3005`
+- Review the `AGENTS.md` hierarchy locally to verify that all relative file links resolve correctly.
+- Ensure the project compiles successfully with `npm run build` in `les_go`.
