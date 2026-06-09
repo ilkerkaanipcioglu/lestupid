@@ -22,9 +22,19 @@ import { getOpportunityAdapter } from "./adapters";
 import { previewContactsDraft } from "./contactsAdapter";
 import { getCoreAdapter } from "./coreAdapter";
 import { CareView } from "./features/care/CareView";
+import { AiConsoleView } from "./features/ai/AiConsoleView";
+import { AffiliateOyunView } from "./features/affiliate/AffiliateOyunView";
+import { CertificationView } from "./features/certification/CertificationView";
 import { CommerceFamilyView } from "./features/commerce/CommerceFamilyView";
 import { ContactsView } from "./features/contacts/ContactsView";
 import { HarmonicaView } from "./features/harmonica/HarmonicaView";
+import { HubView } from "./features/hub/HubView";
+import { ItemOtelView } from "./features/itemotel/ItemOtelView";
+import { MatchView } from "./features/match/MatchView";
+import { PokeView } from "./features/poke/PokeView";
+import { VisualFlowGallery } from "./features/visual/VisualFlowGallery";
+import { WaitView } from "./features/wait/WaitView";
+import type { VisualDemoFlow } from "./features/visual/VisualFlowGallery";
 import type {
   CommerceFacetSignal,
   OpportunityAction,
@@ -253,6 +263,16 @@ function upsertActivation(activations: typeof appActivations, nextActivation: (t
   return activations.map((activation, index) => (index === existingIndex ? nextActivation : activation));
 }
 
+function upsertChannel(channelsList: typeof channels, nextChannel: (typeof channels)[number]) {
+  const existingIndex = channelsList.findIndex((channel) => channel.channelId === nextChannel.channelId);
+
+  if (existingIndex === -1) {
+    return [...channelsList, nextChannel];
+  }
+
+  return channelsList.map((channel, index) => (index === existingIndex ? nextChannel : channel));
+}
+
 function normalizeCommerceFacet(value: string) {
   return value
     .toLocaleLowerCase("tr-TR")
@@ -306,21 +326,24 @@ type NearbyTopic = {
   safety: string;
 };
 
-type VisualDemoFlow = {
-  id: string;
-  title: string;
-  mood: string;
-  tempo: FlowTempo;
-  sourceApps: string[];
-  scene: string;
-  steps: string[];
-  visualCue: string;
-  trustRule: string;
-};
-
 const nearbyPlacePreviewLimit = 6;
 const nearbyTopicPreviewLimit = 4;
 const feedPreviewLimit = 5;
+
+const firstAidGuides = [
+  {
+    title: "Bayilma / Senkop",
+    steps: "Kisiyi sirtustu yatirin, ayaklarini 30 cm kaldirin. Solunumunu kontrol edin. Sikan giysileri gevsedin. Kendine gelene kadar agizdan yiyecek/icecek vermeyin."
+  },
+  {
+    title: "Ciddi Kanama",
+    steps: "Yara uzerine temiz bir bezle dogrudan basin uygulayin. Kanayan bolgeyi kalp seviyesinin uzerine kaldirin. Basincli sargi yapin ve tibbi yardim cagirin."
+  },
+  {
+    title: "Isi Yaniklari",
+    steps: "Yanan bolgeyi en az 10-15 dakika soguk ancak buzlu olmayan su altinda tutun. Su toplayan yerleri patlatmayin. Uzerine dis macunu veya yag surmeyin."
+  }
+];
 
 type ViewType =
   | "hub"
@@ -1558,7 +1581,19 @@ function App() {
       const activationResult = await coreAdapter.activateApp(activationProductId);
 
       setAppActivationsState((current) => upsertActivation(current, activationResult.activation));
-      setCoreActionNotice(`Activated ${activationResult.activation.productId} via ${activationResult.source}.`);
+      let notice = `Activated ${activationResult.activation.productId} via ${activationResult.source}.`;
+
+      if (activationProductId === "les-match") {
+        const channelResult = await coreAdapter.activateChannel("matchmaking");
+        setChannelsState((current) => upsertChannel(current, channelResult.channel));
+        notice = `${notice} Channel ${channelResult.channel.channelId} activated via ${channelResult.source}.`;
+      } else if (activationProductId === "les-harmonica") {
+        const channelResult = await coreAdapter.activateChannel("safe_contact");
+        setChannelsState((current) => upsertChannel(current, channelResult.channel));
+        notice = `${notice} Channel ${channelResult.channel.channelId} activated via ${channelResult.source}.`;
+      }
+
+      setCoreActionNotice(notice);
 
       if (opportunity.requiredActivation === "les-wait") {
         handleJoinQueue(selectedPlace.id, selectedPlace.name);
@@ -1691,761 +1726,168 @@ function App() {
         {activeView === "visual" && <VisualFlowGallery flows={visualDemoFlows} onOpenView={setActiveView} />}
 
         {activeView === "hub" && (
-          <div className="app-shell">
-            <section className="top-bar" aria-label="LesTupid Go status">
-              <div>
-                <p className="eyebrow">LesTupid Go</p>
-                <h1>{modeHeadlines[activeMode]}</h1>
-              </div>
-              <div className="identity-card">
-                <span className="status-dot" />
-                <div>
-                  <strong>{identityState.label}</strong>
-                  <span>{identityState.status} via {coreSnapshotSource}</span>
-                </div>
-              </div>
-            </section>
-
-            <section className="place-home" aria-labelledby="place-title">
-              <div className="place-hero">
-                <span className="place-type">{selectedPlace.type.replace("_", " ")}</span>
-                <h2 id="place-title">{selectedPlace.name}</h2>
-                <p>{selectedPlace.headline}</p>
-                <div className="mode-row" aria-label="Current mode">
-                  {selectedPlace.modes.map((mode) => (
-                    <button
-                      className={mode === activeMode ? "mode-chip active" : "mode-chip"}
-                      key={mode}
-                      type="button"
-                      onClick={() => {
-                        setSelectedMode(mode);
-                        setDismissedIds([]);
-                        setFeedFilter("all");
-                        setActiveCommerceFacets([]);
-                      }}
-                    >
-                      {modeLabels[mode]}
-                    </button>
-                  ))}
-                </div>
-                <div className="place-meta">
-                  <span>{selectedPlace.area}</span>
-                  <span>{selectedPlace.distance}</span>
-                  <span>{selectedPlace.signal}</span>
-                  <span>{modeLabels[activeMode]} mode</span>
-                </div>
-              </div>
-
-              <div className="place-actions-container">
-                <div className="place-actions-row">
-                  <button
-                    className="primary-button check-in-btn"
-                    type="button"
-                    onClick={() => handleJoinQueue(selectedPlace.id, selectedPlace.name)}
-                  >
-                    {checkMarkIcon}
-                    <span>Sıraya Gir</span>
-                  </button>
-                  <button
-                    className={`settings-toggle-button ${showSettings ? "active" : ""}`}
-                    type="button"
-                    onClick={() => setShowSettings(!showSettings)}
-                    aria-label="Gizlilik Ayarları"
-                    title="Gizlilik Seçenekleri"
-                  >
-                    {settingsIcon}
-                  </button>
-                </div>
-
-                <div className={`expanded-settings-panel ${showSettings ? "visible" : ""}`}>
-                  <p className="settings-title">Privacy Level</p>
-                  <div className="segmented-control" aria-label="Privacy level">
-                    {privacyOptions.map((option) => (
-                      <button
-                        className={option.id === privacyLevel ? "segment active" : "segment"}
-                        key={option.id}
-                        type="button"
-                        onClick={() => setPrivacyLevel(option.id)}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <section className="ai-crew-strip" aria-label="AI Crew">
-              {aiCrew.map((member) => (
-                <article className="ai-crew-card" key={member.source}>
-                  <span>{member.source}</span>
-                  <h3>{member.title}</h3>
-                  <p>{member.text}</p>
-                </article>
-              ))}
-            </section>
-
-            <CvSnapshot profile={cvProfile} place={selectedPlace} mode={activeMode} />
-
-            <section className="content-grid">
-              <aside className="static-rail" aria-labelledby="places-title">
-                <div className="rail-heading">
-                  <div>
-                    <p className="eyebrow">Nearby</p>
-                    <h2 id="places-title">Places near me</h2>
-                  </div>
-                </div>
-
-                <FilterRow
-                  items={placeFilters}
-                  activeId={placeFilter}
-                  onPick={(id) => setPlaceFilter(id)}
-                />
-
-                <div className="place-list">
-                  {nearbyPlaces.map((place) => (
-                    <PlaceDoor
-                      key={place.id}
-                      place={place}
-                      active={place.id === selectedPlace.id}
-                      onOpen={handlePlaceOpen}
-                    />
-                  ))}
-                </div>
-                {visiblePlaces.length > nearbyPlacePreviewLimit ? (
-                  <button
-                    className="browse-button"
-                    type="button"
-                    onClick={() => setBrowsePlaces((value) => !value)}
-                  >
-                    {browsePlaces
-                      ? "Show less places"
-                      : `Browse ${visiblePlaces.length - nearbyPlacePreviewLimit} more places`}
-                  </button>
-                ) : null}
-
-                <StatusGroup title="Apps" items={activeApps.map((app) => app.productId)} />
-                <StatusGroup title="Channels" items={activeChannels.map((channel) => channel.channelId)} />
-                {coreActionNotice ? <p className="small-note">{coreActionNotice}</p> : null}
-              </aside>
-
-              <section className="feed-section" aria-labelledby="feed-title">
-                <div className="feed-heading">
-                  <div>
-                    <p className="eyebrow">Flow & Opportunities</p>
-                    <h2 id="feed-title">Focus on what matters now</h2>
-                  </div>
-                  {reportedIds.length > 0 ? (
-                    <span className="report-pill">{reportedIds.length} report queued</span>
-                  ) : null}
-                </div>
-
-                <section className="nearby-topics" aria-label="Nearby topics">
-                  <div className="topic-heading">
-                    <div>
-                      <span>Nearby topics</span>
-                      <strong>{visibleTopics.length} of {nearbyTopics.length}</strong>
-                    </div>
-                  </div>
-                  <div className="topic-grid">
-                    {visibleTopics.map((topic) => (
-                      <button className={`topic-chip heat-${topic.heat}`} key={topic.id} type="button">
-                        <span>{topic.label}</span>
-                        <small>{topic.detail}</small>
-                        <em>{topic.safety}</em>
-                      </button>
-                    ))}
-                  </div>
-                </section>
-
-                <FilterRow
-                  items={feedFilters}
-                  activeId={feedFilter}
-                  onPick={(id) => {
-                    setFeedFilter(id);
-                    setBrowseFeed(false);
-                  }}
-                />
-
-                <CommerceFacetBar
-                  activeFacets={activeCommerceFacets}
-                  total={opportunities.length}
-                  onToggle={toggleCommerceFacet}
-                  onClear={() => setActiveCommerceFacets([])}
-                />
-
-                <div className="feed-stack">
-                  <FlowIntro place={selectedPlace} mode={activeMode} />
-                  {visibleOpportunities.map((opportunity) => (
-                    <Opportunity
-                      key={opportunity.id}
-                      opportunity={opportunity}
-                      onAction={handleAction}
-                      activeCommerceFacets={activeCommerceFacets}
-                      onCommerceFacetSelect={toggleCommerceFacet}
-                    />
-                  ))}
-                  {opportunities.length === 0 ? (
-                    <div className="empty-feed-card">
-                      <strong>No cards match these commerce filters.</strong>
-                      <span>Clear a facet or change the nearby context.</span>
-                    </div>
-                  ) : null}
-                  {opportunities.length > feedPreviewLimit ? (
-                    <button
-                      className="browse-feed-button"
-                      type="button"
-                      onClick={() => setBrowseFeed((value) => !value)}
-                    >
-                      {browseFeed
-                        ? "Show fewer cards"
-                        : `Browse ${opportunities.length - feedPreviewLimit} more cards`}
-                    </button>
-                  ) : null}
-                </div>
-              </section>
-            </section>
-
-            <InlineSkillAdapters 
-              productId="les-go" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
-      )}
+          <HubView
+            activeMode={activeMode}
+            activeApps={activeApps}
+            activeChannels={activeChannels}
+            activeCommerceFacets={activeCommerceFacets}
+            aiCrew={aiCrew}
+            browseFeed={browseFeed}
+            browsePlaces={browsePlaces}
+            checkMarkIcon={checkMarkIcon}
+            coreActionNotice={coreActionNotice}
+            coreSnapshotSource={coreSnapshotSource}
+            cvProfile={cvProfile}
+            feedFilter={feedFilter}
+            feedFilters={feedFilters}
+            feedPreviewLimit={feedPreviewLimit}
+            identityState={identityState}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-go"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            modeHeadlines={modeHeadlines}
+            modeLabels={modeLabels}
+            nearbyPlacePreviewLimit={nearbyPlacePreviewLimit}
+            nearbyPlaces={nearbyPlaces}
+            nearbyTopics={nearbyTopics}
+            opportunities={opportunities}
+            opportunityIcons={opportunityIcons}
+            opportunityLabels={opportunityLabels}
+            placeFilter={placeFilter}
+            placeFilters={placeFilters}
+            privacyLevel={privacyLevel}
+            privacyOptions={privacyOptions}
+            reportedIds={reportedIds}
+            selectedPlace={selectedPlace}
+            settingsIcon={settingsIcon}
+            showSettings={showSettings}
+            visibleOpportunities={visibleOpportunities}
+            visiblePlaces={visiblePlaces}
+            visibleTopics={visibleTopics}
+            onAction={handleAction}
+            onJoinQueue={handleJoinQueue}
+            onOpenPlace={handlePlaceOpen}
+            onSetActiveCommerceFacets={setActiveCommerceFacets}
+            onSetBrowseFeed={setBrowseFeed}
+            onSetBrowsePlaces={setBrowsePlaces}
+            onSetDismissedIds={setDismissedIds}
+            onSetFeedFilter={setFeedFilter}
+            onSetPlaceFilter={setPlaceFilter}
+            onSetPrivacyLevel={setPrivacyLevel}
+            onSetSelectedMode={setSelectedMode}
+            onSetShowSettings={setShowSettings}
+            onToggleCommerceFacet={toggleCommerceFacet}
+          />
+        )}
 
         {/* 1. Les Wait Queue Simulator View */}
         {activeView === "wait" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>Waiting without trapping people.</h2>
-              <p>A fair waiting flow for places, services, pickups, rooms, gates, and Poke-driven visits.</p>
-              <AppModeNote view="wait" />
-            </div>
-
-            <div className="wait-unified-shell">
-              <section className="wait-entry-grid" aria-label="Les Wait entry surfaces">
-                <article className="wait-entry-card">
-                  <h3>Join with camera, code, phone, or photo</h3>
-                  <p>
-                    Same as standalone Les Wait: every entry method becomes one queue event. In Go,
-                    camera opens in standalone, while code, phone and photo proof are simulated here.
-                  </p>
-                  <div className="wait-chip-row">
-                    <button
-                      className={waitChannel === "camera_qr" ? "wait-chip active" : "wait-chip"}
-                      type="button"
-                      onClick={() => {
-                        setWaitChannel("camera_qr");
-                        setWaitSurfaceCode(currentWaitSurface.code);
-                        setWaitProofRef("go-camera-preview");
-                        setWaitNotice("Camera QR selected. Open standalone for real camera permission.");
-                      }}
-                    >
-                      QR
-                    </button>
-                    <button
-                      className={waitChannel === "short_code" ? "wait-chip active" : "wait-chip"}
-                      type="button"
-                      onClick={() => {
-                        setWaitChannel("short_code");
-                        setWaitSurfaceCode(currentWaitSurface.code);
-                        setWaitProofRef("short-code");
-                        setWaitNotice("Short code selected. This can be printed on a table, door, or counter.");
-                      }}
-                    >
-                      Code
-                    </button>
-                    <button
-                      className={waitChannel === "phone_lookup" ? "wait-chip active" : "wait-chip"}
-                      type="button"
-                      onClick={() => {
-                        setWaitChannel("phone_lookup");
-                        setWaitSurfaceCode(`PHONE-${shortHash(selectedPlace.name)}`);
-                        setWaitProofRef("phone-hash");
-                        setWaitNotice("Phone fallback selected. Backend should store scoped hashes, not raw numbers.");
-                      }}
-                    >
-                      Phone
-                    </button>
-                    <label className={waitChannel === "photo_proof" ? "wait-chip active file-chip" : "wait-chip file-chip"}>
-                      Photo
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(event) => {
-                          const file = event.currentTarget.files?.[0];
-                          setWaitChannel("photo_proof");
-                          setWaitSurfaceCode(`PHOTO-${shortHash(file?.name || selectedPlace.name)}`);
-                          setWaitProofRef(`photo:${shortHash(`${file?.name || "local-photo"}:${file?.size || 0}`)}`);
-                          setWaitNotice("Photo proof token created locally. The image itself is not stored.");
-                        }}
-                      />
-                    </label>
-                  </div>
-                  <div className="wait-field-grid">
-                    <label>
-                      Surface
-                      <input value={waitSurfaceCode} onChange={(event) => setWaitSurfaceCode(event.target.value)} />
-                    </label>
-                    <label>
-                      Proof
-                      <input value={waitProofRef} onChange={(event) => setWaitProofRef(event.target.value)} />
-                    </label>
-                  </div>
-                </article>
-
-                <article className="wait-entry-card">
-                  <h3>Place owner creates the entrance</h3>
-                  <p>
-                    The owner/staff side creates QR, short code and join link. Go shows the same
-                    surface; standalone owns print, camera, and future staff persistence.
-                  </p>
-                  <div className="wait-field-grid">
-                    <label>
-                      Flow
-                      <input value={waitOwnerFlow} onChange={(event) => setWaitOwnerFlow(event.target.value)} />
-                    </label>
-                    <label>
-                      Service
-                      <input value={waitOwnerService} onChange={(event) => setWaitOwnerService(event.target.value)} />
-                    </label>
-                  </div>
-                  <div className="wait-owner-surface">
-                    <div>
-                      <strong>{currentWaitSurface.code}</strong>
-                      <span>{currentWaitSurface.link}</span>
-                    </div>
-                    <img src={currentWaitSurface.qrUrl} alt="Les Wait QR" />
-                  </div>
-                  <div className="wait-chip-row">
-                    <button
-                      className="wait-chip active"
-                      type="button"
-                      onClick={() => {
-                        setWaitSurfaceCode(currentWaitSurface.code);
-                        setWaitProofRef("owner-generated");
-                        setWaitNotice("Owner entrance created. It matches the standalone join link.");
-                      }}
-                    >
-                      Create QR
-                    </button>
-                    <a className="wait-chip link-chip" href={currentWaitSurface.link} target="_blank" rel="noreferrer">
-                      Open link
-                    </a>
-                  </div>
-                </article>
-              </section>
-
-              <section className="wait-live-layout">
-                <div className="ticket-stub wait-ticket-stub">
-                  <div className="ticket-header">
-                    <span>Queue ticket</span>
-                    <span>{waitTicket?.venueName || selectedPlace.name}</span>
-                  </div>
-                  {waitTicket ? (
-                    <>
-                      <div className="ticket-num">{waitTicket.ticketNumber}</div>
-                      <div className="wait-ticket-meta">
-                        <span>{waitTicket.surfaceId}</span>
-                        <span>{waitTicket.channel}</span>
-                        <span>{waitTicket.proofRef}</span>
-                      </div>
-                      {waitTicket.status === "waiting" ? (
-                        <div className="progress-circle-box wait-progress-box">
-                          <span>Estimated wait</span>
-                          <div className="countdown-timer">
-                            {waitTicket.estimatedMinutes} <small>min</small>
-                          </div>
-                          <p>
-                            Your position: <strong>{waitTicket.userPosition}</strong>. You can leave the
-                            line area and come back when called.
-                          </p>
-                          <button className="action-button primary" onClick={handleFastForwardQueue}>
-                            Move queue forward
-                          </button>
-                        </div>
-                      ) : (
-                        <div className="wait-called-state">
-                          <strong>Your turn is ready.</strong>
-                          <span>Go to the desk, pickup point, room, table, or gate.</span>
-                        </div>
-                      )}
-                      <button className="action-button secondary" onClick={() => setWaitTicket(null)}>
-                        Cancel ticket
-                      </button>
-                    </>
-                  ) : (
-                    <div className="wait-empty-ticket">
-                      <strong>No active ticket</strong>
-                      <span>Choose an entry method and join a place queue.</span>
-                    </div>
-                  )}
-                </div>
-
-                <div className="wait-place-panel">
-                  <div className="wait-panel-head">
-                    <div>
-                      <h3>Place queues and Poke context</h3>
-                      <p>
-                        Les Wait starts from where you are going. Les Poke can create the quest before,
-                        during, or after the wait.
-                      </p>
-                    </div>
-                    <button className="action-button secondary" type="button" onClick={() => setActiveView("poke")}>
-                      Open Poke
-                    </button>
-                  </div>
-                  <div className="wait-notice">{waitNotice}</div>
-                  <div className="wait-place-list">
-                    {places
-                      .filter((p) => p.id === selectedPlace.id || p.modes.includes("service") || p.type === "canteen")
-                      .slice(0, 6)
-                      .map((p, index) => (
-                        <article className="wait-place-row" key={p.id}>
-                          <div>
-                            <strong>{p.name}</strong>
-                            <span>
-                              {p.type.replace(/_/g, " ")} / {p.defaultMode} / density %{58 + index * 7}
-                            </span>
-                            <small>
-                              Poke link: {selectedQuest?.name || "nearby quest"} can become a wait-aware task.
-                            </small>
-                          </div>
-                          <button className="action-button secondary" onClick={() => handleJoinQueue(p.id, p.name)}>
-                            Join
-                          </button>
-                        </article>
-                      ))}
-                  </div>
-                </div>
-              </section>
-            </div>
-
-            <div className="wait-dashboard legacy-wait-dashboard">
-              <div>
-                {waitTicket ? (
-                  <div className="ticket-stub">
-                    <div className="ticket-header">
-                      <span>Sıra Bileti</span>
-                      <span>{waitTicket.venueName}</span>
-                    </div>
-                    <div className="ticket-num">{waitTicket.ticketNumber}</div>
-                    <div style={{ textAlign: "center", marginBottom: "16px" }}>
-                      {waitTicket.status === "waiting" ? (
-                        <p style={{ margin: 0, fontWeight: 700, color: "#fffaf1" }}>
-                          Sıranız: <strong>{waitTicket.userPosition}.</strong> kişi
-                        </p>
-                      ) : waitTicket.status === "called" ? (
-                        <p style={{ margin: 0, fontWeight: 900, color: "#ffe4a3" }}>
-                          Sıranız Geldi! Kabul Masasına Geçin.
-                        </p>
-                      ) : (
-                        <p style={{ margin: 0, color: "#ff8888" }}>Süreç tamamlandı.</p>
-                      )}
-                    </div>
-                    {waitTicket.status === "waiting" && (
-                      <div className="progress-circle-box" style={{ background: "rgba(255,255,255,0.08)" }}>
-                        <span style={{ color: "#ffe4a3", fontSize: "11px", fontWeight: 800 }}>TAHMİNİ BEKLEME</span>
-                        <div className="countdown-timer" style={{ color: "#ffffff" }}>
-                          {waitTicket.estimatedMinutes} <small style={{ fontSize: "20px" }}>dk</small>
-                        </div>
-                        <button
-                          className="action-button primary"
-                          style={{ width: "100%", marginTop: "12px", background: "#ffffff", color: "#000000" }}
-                          onClick={handleFastForwardQueue}
-                        >
-                          Sırayı İlerlet (-1 Kişi)
-                        </button>
-                      </div>
-                    )}
-                    <button
-                      className="action-button secondary"
-                      style={{ width: "100%", marginTop: "12px", background: "rgba(255,255,255,0.15)", color: "#ffffff", border: "0" }}
-                      onClick={() => setWaitTicket(null)}
-                    >
-                      Bileti İptal Et
-                    </button>
-                  </div>
-                ) : (
-                  <div className="ticket-stub" style={{ background: "#f8f8f8", border: "1px dashed var(--line)", color: "var(--ink)", textAlign: "center" }}>
-                    <p style={{ color: "var(--muted)", margin: "40px 0" }}>Aktif bir sıranız bulunmuyor.</p>
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <h3>Mekan Sırasına Katıl</h3>
-                <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>
-                  Mevcut check-in noktalarından birini seçerek anında sanal kuyruğa katılabilirsiniz.
-                </p>
-                <div style={{ display: "grid", gap: "10px" }}>
-                  {places
-                    .filter((p) => p.modes.includes("service") || p.type === "canteen")
-                    .map((p) => (
-                      <div
-                        key={p.id}
-                        style={{
-                          display: "flex",
-                          justifyContent: spaceBetweenHelper(p),
-                          alignItems: "center",
-                          border: "1px solid var(--line)",
-                          padding: "16px",
-                          borderRadius: "12px"
-                        }}
-                      >
-                        <div>
-                          <strong>{p.name}</strong>
-                          <div style={{ fontSize: "12px", color: "var(--muted)" }}>
-                            Ortalama Yoğunluk: %{Math.floor(Math.random() * 40) + 50}
-                          </div>
-                        </div>
-                        <button
-                          className="action-button secondary"
-                          onClick={() => handleJoinQueue(p.id, p.name)}
-                        >
-                          Sıraya Gir
-                        </button>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            </div>
-
-            <InlineSkillAdapters 
-              productId="les-wait" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
+          <WaitView
+            modeNote={<AppModeNote view="wait" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-wait"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            waitChannel={waitChannel}
+            waitSurfaceCode={waitSurfaceCode}
+            phoneSurfaceCode={`PHONE-${shortHash(selectedPlace.name)}`}
+            waitProofRef={waitProofRef}
+            waitNotice={waitNotice}
+            waitOwnerService={waitOwnerService}
+            waitOwnerFlow={waitOwnerFlow}
+            waitTicket={waitTicket}
+            selectedPlace={selectedPlace}
+            selectedQuest={selectedQuest}
+            currentWaitSurface={currentWaitSurface}
+            waitPlaces={places
+              .filter((place) => place.id === selectedPlace.id || place.modes.includes("service") || place.type === "canteen")
+              .slice(0, 6)}
+            onWaitChannelChange={setWaitChannel}
+            onWaitSurfaceCodeChange={setWaitSurfaceCode}
+            onWaitProofRefChange={setWaitProofRef}
+            onWaitNoticeChange={setWaitNotice}
+            onWaitOwnerServiceChange={setWaitOwnerService}
+            onWaitOwnerFlowChange={setWaitOwnerFlow}
+            onPhotoProofSelect={(file) => {
+              setWaitChannel("photo_proof");
+              setWaitSurfaceCode(`PHOTO-${shortHash(file?.name || selectedPlace.name)}`);
+              setWaitProofRef(`photo:${shortHash(`${file?.name || "local-photo"}:${file?.size || 0}`)}`);
+              setWaitNotice("Photo proof token created locally. The image itself is not stored.");
+            }}
+            onUseOwnerQr={() => {
+              setWaitSurfaceCode(currentWaitSurface.code);
+              setWaitProofRef("owner-generated");
+              setWaitNotice("Owner entrance created. It matches the standalone join link.");
+            }}
+            onOpenPoke={() => setActiveView("poke")}
+            onJoinQueue={handleJoinQueue}
+            onFastForwardQueue={handleFastForwardQueue}
+            onCancelTicket={() => setWaitTicket(null)}
+          />
         )}
-
         {/* 2. Les Poke Quest Simulator View */}
         {activeView === "poke" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>Les Poke (City Quests)</h2>
-              <p>Safe real-world challenges, public coordinates check-ins, and local drop policies.</p>
-              <AppModeNote view="poke" />
-            </div>
-
-            <div className="poke-dashboard">
-              <div>
-                <div className="map-container">
-                  <div className="map-grid-overlay" />
-                  {quests.map((q) => (
-                    <div
-                      key={q.id}
-                      className="map-marker"
-                      style={{ left: `${q.coordinates.x}%`, top: `${q.coordinates.y}%` }}
-                      onClick={() => setSelectedQuest(q)}
-                    >
-                      <div className={`marker-beacon ${q.status}`} />
-                      <div className="marker-tooltip">{q.name}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: "12px", display: "flex", justifyContent: "space-between", fontSize: "13px" }}>
-                  <span>Seviye XP: <strong>{questXp}</strong></span>
-                  <span style={{ color: "var(--green)" }}>Haritada 4 Quest Aktif</span>
-                </div>
-              </div>
-
-              <div>
-                {selectedQuest ? (
-                  <div style={{ border: "1px solid var(--line)", padding: "20px", borderRadius: "16px" }}>
-                    <span className="place-type" style={{ background: "var(--green)", color: "#fff" }}>
-                      +{selectedQuest.xp} XP
-                    </span>
-                    <h3 style={{ marginTop: "10px" }}>{selectedQuest.name}</h3>
-                    <p style={{ fontSize: "14px", color: "var(--ink)", lineHeight: 1.4 }}>
-                      {selectedQuest.detail}
-                    </p>
-                    <div style={{ margin: "16px 0", fontSize: "12px", color: "var(--muted)" }}>
-                      Konum ID: <code>{selectedQuest.placeId}</code>
-                    </div>
-
-                    {selectedQuest.status === "completed" ? (
-                      <div style={{ background: "rgba(101, 201, 143, 0.1)", color: "var(--green)", padding: "12px", borderRadius: "8px", fontWeight: 700, textAlign: "center" }}>
-                        ✓ Görev Başarıyla Tamamlandı
-                      </div>
-                    ) : (
-                      <button
-                        className="action-button primary"
-                        style={{ width: "100%" }}
-                        onClick={handleSimulateGps}
-                        disabled={simulatingGps}
-                      >
-                        {simulatingGps ? "GPS Doğrulanıyor..." : "Konumda Check-in Yap (GPS Simüle)"}
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  <div style={{ textAlign: "center", color: "var(--muted)", padding: "40px 0" }}>
-                    Quest detayları için haritadaki noktalara tıklayın.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <InlineSkillAdapters 
-              productId="les-poke" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
+          <PokeView
+            modeNote={<AppModeNote view="poke" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-poke"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            quests={quests}
+            selectedQuest={selectedQuest}
+            questXp={questXp}
+            simulatingGps={simulatingGps}
+            onSelectQuest={setSelectedQuest}
+            onSimulateGps={handleSimulateGps}
+          />
         )}
-
         {/* 3. Les Match Simulator View */}
         {activeView === "match" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>Les Match (Matchmaking)</h2>
-              <p>Consent-first discovery, pseudonym listings, and certified interest matching.</p>
-              <AppModeNote view="match" />
-            </div>
-
-            {activeChatMatch ? (
-              <div style={{ border: "1px solid var(--line)", borderRadius: "16px", overflow: "hidden", display: "flex", flexDirection: "column", height: "460px" }}>
-                <div style={{ background: "var(--ink)", color: "#fff", padding: "16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <strong>{activeChatMatch.pseudonym}</strong>
-                    <div style={{ fontSize: "11px", opacity: 0.8 }}>Secure Channel [Açık Bağlantı]</div>
-                  </div>
-                  <button
-                    className="action-button secondary"
-                    style={{ padding: "6px 12px", minHeight: "auto", background: "rgba(255,255,255,0.15)", color: "#fff", border: "0" }}
-                    onClick={() => {
-                      setActiveChatMatch(null);
-                      setMatchChatHistory([]);
-                    }}
-                  >
-                    Kapat
-                  </button>
-                </div>
-                <div style={{ flex: 1, padding: "16px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "10px", background: "#f9f9f9" }}>
-                  <div style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center", fontStyle: "italic" }}>
-                    Eşleşme sağlandı. Bu kanal geçici bir önizlemedir.
-                  </div>
-                  {matchChatHistory.map((m, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        alignSelf: m.startsWith("Sen:") ? "flex-end" : "flex-start",
-                        background: m.startsWith("Sen:") ? "var(--ink)" : "#ffffff",
-                        color: m.startsWith("Sen:") ? "#ffffff" : "var(--ink)",
-                        padding: "10px 14px",
-                        borderRadius: "12px",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.04)",
-                        maxWidth: "80%"
-                      }}
-                    >
-                      {m.replace(/^(Sen:|[^:]+:)/, "")}
-                    </div>
-                  ))}
-                </div>
-                <form onSubmit={handleSendMatchMsg} style={{ display: "flex", borderTop: "1px solid var(--line)" }}>
-                  <input
-                    type="text"
-                    placeholder="Güvenli mesaj yaz..."
-                    value={matchChatMsg}
-                    onChange={(e) => setMatchChatMsg(e.target.value)}
-                    style={{ flex: 1, border: "0", padding: "16px", outline: "none" }}
-                  />
-                  <button className="action-button primary" style={{ borderRadius: "0", minHeight: "auto" }}>
-                    Gönder
-                  </button>
-                </form>
-              </div>
-            ) : (
-              <div className="matchmaker-suite">
-                <div className="swipe-deck">
-                  {matchProfiles.map((p, idx) => {
-                    if (idx !== matchIndex) return null;
-                    return (
-                      <div className="swipe-card" key={p.id}>
-                        <div>
-                          <div className="match-avatar-circle">👤</div>
-                          <h2>{p.pseudonym}</h2>
-                          <div style={{ color: "var(--muted)", fontSize: "13px", marginBottom: "12px" }}>
-                            Uzaklık: {p.distance}
-                          </div>
-                          <div className="pill-row" style={{ justifyContent: "center", marginBottom: "14px" }}>
-                            {p.tags.map((t) => (
-                              <span key={t} className="pill" style={{ background: "rgba(18,22,25,0.04)" }}>
-                                {t}
-                              </span>
-                            ))}
-                          </div>
-                          <p style={{ fontSize: "14px", color: "var(--muted)", lineHeight: 1.4 }}>
-                            {p.description}
-                          </p>
-                        </div>
-
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                          <button
-                            className="action-button secondary"
-                            onClick={() => handleMatchChoice(false)}
-                          >
-                            Geç (Skip)
-                          </button>
-                          <button
-                            className="action-button primary"
-                            style={{ background: "var(--red)" }}
-                            onClick={() => handleMatchChoice(true)}
-                          >
-                            İlgi Göster (Like)
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+          <MatchView
+            modeNote={<AppModeNote view="match" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-match"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
             )}
-
-            {showMatchPopup && (
-              <div className="match-popup">
-                <div className="match-popup-content">
-                  <div className="match-pulse-ring">💖</div>
-                  <h2>Karşılıklı İlgi!</h2>
-                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>
-                    <strong>{matchProfiles[matchIndex]?.pseudonym}</strong> da seninle eşleşmek istiyor. Güvenli sohbete geçebilirsiniz.
-                  </p>
-                  <div style={{ display: "grid", gap: "10px" }}>
-                    <button
-                      className="action-button primary"
-                      onClick={() => {
-                        setActiveChatMatch(matchProfiles[matchIndex]!);
-                        setShowMatchPopup(false);
-                      }}
-                    >
-                      Mesaj Gönder
-                    </button>
-                    <button
-                      className="action-button secondary"
-                      onClick={() => {
-                        setShowMatchPopup(false);
-                        setMatchIndex((prev) => (prev + 1) % matchProfiles.length);
-                      }}
-                    >
-                      Sonra (Kapat)
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <InlineSkillAdapters 
-              productId="les-match" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
+            activeChatMatch={activeChatMatch}
+            matchChatHistory={matchChatHistory}
+            matchChatMsg={matchChatMsg}
+            matchProfiles={matchProfiles}
+            matchIndex={matchIndex}
+            showMatchPopup={showMatchPopup}
+            onCloseChat={() => {
+              setActiveChatMatch(null);
+              setMatchChatHistory([]);
+            }}
+            onMatchChatMsgChange={setMatchChatMsg}
+            onSendMatchMsg={handleSendMatchMsg}
+            onMatchChoice={handleMatchChoice}
+            onOpenChatFromPopup={() => {
+              setActiveChatMatch(matchProfiles[matchIndex]!);
+              setShowMatchPopup(false);
+            }}
+            onDismissPopup={() => {
+              setShowMatchPopup(false);
+              setMatchIndex((prev) => (prev + 1) % matchProfiles.length);
+            }}
+          />
         )}
 
         {/* 4. Les Commerce Family View */}
@@ -2467,270 +1909,42 @@ function App() {
 
         {/* 5. Les Commerce & Item Otel View */}
         {activeView === "itemotel" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>Les Item Otel</h2>
-              <p>Circular commerce workspace: personal items storage, care, and active listings.</p>
-              <AppModeNote view="itemotel" />
-            </div>
-
-            <div className="itemotel-dashboard">
-              <div className="itemotel-stats-grid">
-                <div className="stat-card">
-                  <span className="stat-num">{items.length}</span>
-                  <span className="stat-label">Toplam Eşya</span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-num">{items.filter((i) => i.status.startsWith("listed")).length}</span>
-                  <span className="stat-label">Aktif İlan</span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-num">450 TL</span>
-                  <span className="stat-label">Pasif Gelir</span>
-                </div>
-              </div>
-
-              <div className="itemotel-actions-header">
-                <h3>Kişisel Eşya Depom</h3>
-                <button
-                  className="action-button primary"
-                  onClick={() => setShowNewItemForm(!showNewItemForm)}
-                  type="button"
-                >
-                  {showNewItemForm ? "Formu Kapat" : "Yeni Eşya Gönder"}
-                </button>
-              </div>
-
-              {showNewItemForm && (
-                <form onSubmit={handleCreateItem} className="itemotel-new-item-form">
-                  <h4>Yeni Eşya Kabul Talebi</h4>
-                  <div className="form-group">
-                    <label htmlFor="item-name">Eşya Adı</label>
-                    <input
-                      type="text"
-                      id="item-name"
-                      placeholder="Örn: Pro-Ride Kayak Takımı"
-                      value={newItemName}
-                      onChange={(e) => setNewItemName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="item-category">Kategori</label>
-                    <select
-                      id="item-category"
-                      value={newItemCategory}
-                      onChange={(e: any) => setNewItemCategory(e.target.value)}
-                    >
-                      <option value="sports">Spor Ekipmanı</option>
-                      <option value="automotive">Otomotiv / Lastik</option>
-                      <option value="wedding">Gelinlik & Özel Gün</option>
-                      <option value="apparel">Giyim / Sezonluk Dolap</option>
-                      <option value="other">Diğer</option>
-                    </select>
-                  </div>
-                  <button type="submit" className="action-button primary">Depolama İçin Gönder</button>
-                </form>
-              )}
-
-              {loadingItems && <p className="loading-text">Eşya listesi güncelleniyor...</p>}
-
-              <div className="itemotel-grid">
-                {items.map((item) => {
-                  const isExpanded = expandedItemId === item.id;
-                  const activeListing = item.listing;
-
-                  return (
-                    <article key={item.id} className={`itemotel-card ${item.status} ${isExpanded ? "expanded" : ""}`}>
-                      <button
-                        className="card-expand-toggle"
-                        onClick={() => setExpandedItemId(isExpanded ? null : item.id)}
-                        aria-label="Toggle details"
-                        type="button"
-                      >
-                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" className="plus-icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                      </button>
-
-                      <div className="itemotel-card-header">
-                        <span className={`status-badge status-${item.status}`}>
-                          {item.status.replace(/_/g, " ")}
-                        </span>
-                        <h3>{item.name}</h3>
-                        <p className="item-cat-label">{item.category.toUpperCase()}</p>
-                      </div>
-
-                      {isExpanded && (
-                        <div className="itemotel-card-details">
-                          <hr className="details-divider" />
-
-                          <div className="details-meta-grid">
-                            <div className="meta-item">
-                              <span className="meta-label">Depo Konumu</span>
-                              <span className="meta-val">{item.storage_location || "Yolda / Sevk Ediliyor"}</span>
-                            </div>
-                            <div className="meta-item">
-                              <span className="meta-label">Kondisyon Skoru</span>
-                              <span className="meta-val">{item.condition_rating ? `${item.condition_rating}/10` : "Belirlenmedi"}</span>
-                            </div>
-                          </div>
-
-                          {/* Care logs section */}
-                          <div className="details-section">
-                            <h4 className="section-title">Bakım & Koruma Geçmişi</h4>
-                            {item.care_logs && item.care_logs.length > 0 ? (
-                              <div className="care-logs-list">
-                                {item.care_logs.map((log) => (
-                                  <div key={log.id} className="care-log-item">
-                                    <div className="care-log-header">
-                                      <strong>{log.care_type.replace(/_/g, " ").toUpperCase()}</strong>
-                                      <span>{new Date(log.performed_at).toLocaleDateString()}</span>
-                                    </div>
-                                    {log.notes && <p className="care-log-notes">{log.notes}</p>}
-                                    <div className="care-log-meta">
-                                      <span>Yapan: {log.provider_id || "Sistem"}</span>
-                                      {log.certificate_id && (
-                                        <span className="cert-pill">✓ Sertifikalı: {log.certificate_id}</span>
-                                      )}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="no-data-text">Henüz yapılmış bir bakım kaydı bulunmuyor.</p>
-                            )}
-                          </div>
-
-                          {/* Request care form */}
-                          {item.status !== "shipped_back" && item.status !== "sold" && (
-                            <div className="details-section care-request-section">
-                              <h4 className="section-title">Profesyonel Bakım Siparişi</h4>
-                              <div className="care-request-form">
-                                <select
-                                  value={careTypeInput[item.id] || "general_maintenance"}
-                                  onChange={(e) => setCareTypeInput((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                                >
-                                  <option value="general_maintenance">Genel Kontrol & Bakım</option>
-                                  <option value="cleaning">Kuru Temizleme / Yıkama</option>
-                                  <option value="repair">Profesyonel Onarım</option>
-                                  {item.category === "sports" && <option value="waxing">Waxing & Cila</option>}
-                                  {item.category === "automotive" && <option value="tire_rotation">Lastik Rotasyonu & Balans</option>}
-                                </select>
-                                <input
-                                  type="text"
-                                  placeholder="Özel istekleriniz veya notlar..."
-                                  value={careNotesInput[item.id] || ""}
-                                  onChange={(e) => setCareNotesInput((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                                />
-                                <button
-                                  className="action-button secondary"
-                                  onClick={() => handleCare(item.id)}
-                                  type="button"
-                                >
-                                  Bakım Siparişi Ver
-                                </button>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Circular commerce management */}
-                          <div className="details-section monetization-section">
-                            <h4 className="section-title">Döngüsel Ticaret ve Monetizasyon</h4>
-
-                            {activeListing ? (
-                              <div className="active-listing-info">
-                                <p>
-                                  İlan Aktif: <strong>{activeListing.listing_type.toUpperCase()}</strong>
-                                  {activeListing.price_rent_daily && <span> - Günlük Kira: {activeListing.price_rent_daily} TL</span>}
-                                  {activeListing.price_sale && <span> - Satış Bedeli: {activeListing.price_sale} TL</span>}
-                                </p>
-                                <button
-                                  className="action-button warning"
-                                  onClick={() => handleUnlist(item.id)}
-                                  type="button"
-                                >
-                                  İlandan Kaldır
-                                </button>
-                              </div>
-                            ) : (
-                              item.status !== "shipped_back" && item.status !== "sold" && (
-                                <div className="listing-setup-form">
-                                  <div className="form-row">
-                                    <label>Listeleme Türü</label>
-                                    <select
-                                      value={listTypeInput[item.id] || "rent"}
-                                      onChange={(e: any) => setListTypeInput((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                                    >
-                                      <option value="rent">Kirala (Pasif Gelir)</option>
-                                      <option value="sale">Doğrudan Sat</option>
-                                      <option value="both">İkisi De (Hem Sat hem Kirala)</option>
-                                    </select>
-                                  </div>
-
-                                  {(listTypeInput[item.id] === "sale" || listTypeInput[item.id] === "both") && (
-                                    <div className="form-row">
-                                      <label>Satış Fiyatı (TL)</label>
-                                      <input
-                                        type="number"
-                                        placeholder="Satış Bedeli Girin"
-                                        value={priceSaleInput[item.id] || ""}
-                                        onChange={(e) => setPriceSaleInput((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                                      />
-                                    </div>
-                                  )}
-
-                                  {(listTypeInput[item.id] === "rent" || listTypeInput[item.id] === "both" || !listTypeInput[item.id]) && (
-                                    <div className="form-row">
-                                      <label>Günlük Kira Bedeli (TL)</label>
-                                      <input
-                                        type="number"
-                                        placeholder="Kira Bedeli Girin"
-                                        value={priceRentInput[item.id] || ""}
-                                        onChange={(e) => setPriceRentInput((prev) => ({ ...prev, [item.id]: e.target.value }))}
-                                      />
-                                    </div>
-                                  )}
-
-                                  <button
-                                    className="action-button primary"
-                                    onClick={() => handleList(item.id)}
-                                    type="button"
-                                  >
-                                    Pazaryerinde Yayına Al
-                                  </button>
-                                </div>
-                              )
-                            )}
-                          </div>
-
-                          {/* Retrieval / Recall action */}
-                          {item.status !== "shipped_back" && item.status !== "sold" && (
-                            <div className="details-section recall-section">
-                              <h4 className="section-title">Eşyayı Geri Çağır (İade)</h4>
-                              <p className="info-text">Eşyanız depodan alınarak kurye ile kayıtlı adresinize teslim edilecektir.</p>
-                              <button
-                                className="action-button secondary"
-                                onClick={() => handleRecall(item.id)}
-                                type="button"
-                              >
-                                Adresime Gönderilmesini İstiyorum
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-
-            <InlineSkillAdapters 
-              productId="les-itemotel" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
+          <ItemOtelView
+            modeNote={<AppModeNote view="itemotel" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-itemotel"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            items={items}
+            loadingItems={loadingItems}
+            expandedItemId={expandedItemId}
+            showNewItemForm={showNewItemForm}
+            newItemName={newItemName}
+            newItemCategory={newItemCategory}
+            careTypeInput={careTypeInput}
+            careNotesInput={careNotesInput}
+            listTypeInput={listTypeInput}
+            priceSaleInput={priceSaleInput}
+            priceRentInput={priceRentInput}
+            onExpandedItemChange={setExpandedItemId}
+            onShowNewItemFormChange={setShowNewItemForm}
+            onNewItemNameChange={setNewItemName}
+            onNewItemCategoryChange={setNewItemCategory}
+            onCareTypeInputChange={setCareTypeInput}
+            onCareNotesInputChange={setCareNotesInput}
+            onListTypeInputChange={setListTypeInput}
+            onPriceSaleInputChange={setPriceSaleInput}
+            onPriceRentInputChange={setPriceRentInput}
+            onCreateItem={handleCreateItem}
+            onCare={handleCare}
+            onList={handleList}
+            onUnlist={handleUnlist}
+            onRecall={handleRecall}
+          />
         )}
 
         {/* 5. Les Contacts Private CRM View */}
@@ -2811,445 +2025,94 @@ function App() {
             }}
           />
         )}
-
         {/* 8. Les Affiliate Oyun Card Game View */}
         {activeView === "oyun" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>Les Affiliate Oyun (Card Game)</h2>
-              <p>Social commerce card battles, quest item modifiers, and certified gaming economy.</p>
-              <AppModeNote view="oyun" />
-            </div>
-
-            <div className="duel-arena">
-              <div className="arena-grid">
-                <div className="arena-player">
-                  <strong>Sen (Player)</strong>
-                  <div className="health-bar">
-                    <div className="health-bar-fill" style={{ width: `${playerHp}%` }} />
-                  </div>
-                  <div style={{ fontSize: "12px", marginTop: "4px" }}>HP: {playerHp}/100</div>
-                </div>
-
-                <div style={{ fontSize: "20px", fontWeight: 900 }}>VS</div>
-
-                <div className="arena-player">
-                  <strong>AI Rakipler</strong>
-                  <div className="health-bar">
-                    <div
-                      className={`health-bar-fill ${aiHp < 30 ? "warning" : ""}`}
-                      style={{ width: `${aiHp}%` }}
-                    />
-                  </div>
-                  <div style={{ fontSize: "12px", marginTop: "4px" }}>HP: {aiHp}/100</div>
-                </div>
-              </div>
-
-              {winnerMessage ? (
-                <div style={{ background: "rgba(255, 255, 255, 0.1)", padding: "24px", borderRadius: "12px", textAlign: "center", marginBottom: "16px" }}>
-                  <h3 style={{ margin: 0 }}>{winnerMessage}</h3>
-                  <button
-                    className="action-button primary"
-                    style={{ marginTop: "12px" }}
-                    onClick={() => {
-                      setPlayerHp(100);
-                      setAiHp(100);
-                      setGameLogs([]);
-                      setWinnerMessage(null);
-                      setDuelActive(true);
-                    }}
-                  >
-                    Yeni Oyun Başlat
-                  </button>
-                </div>
-              ) : duelActive ? (
-                <div>
-                  <div style={{ background: "rgba(0,0,0,0.3)", padding: "12px", borderRadius: "8px", height: "100px", overflowY: "auto", fontSize: "12px", color: "#aaa", marginBottom: "20px", display: "flex", flexDirection: "column-reverse" }}>
-                    {gameLogs.map((log, idx) => (
-                      <div key={idx} style={{ margin: "2px 0" }}>
-                        {log}
-                      </div>
-                    ))}
-                  </div>
-
-                  <h4 style={{ textAlign: "center", margin: "0 0 10px", fontSize: "13px" }}>Oynamak İçin Bir Kart Seç</h4>
-                  <div className="game-card-fan">
-                    {oyunHand.map((card) => (
-                      <button
-                        className={`game-card ${card.rarity}`}
-                        key={card.id}
-                        onClick={() => handleOyunCardPlay(card)}
-                      >
-                        <div style={{ fontSize: "24px", textAlign: "center" }}>{card.image}</div>
-                        <div style={{ fontSize: "10px", fontWeight: 800, textAlign: "center" }}>{card.name}</div>
-                        <div className="game-card-stats">
-                          <span style={{ color: "var(--red)" }}>ATK:{card.power}</span>
-                          <span style={{ color: "var(--green)" }}>DEF:{card.defense}</span>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <div style={{ textAlign: "center", padding: "40px 0" }}>
-                  <p style={{ color: "#aaa" }}>Desten hazır: 3 adet affiliate ve quest kartı aktif.</p>
-                  <button
-                    className="action-button primary"
-                    onClick={() => setDuelActive(true)}
-                  >
-                    Düello Arenasını Başlat
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <InlineSkillAdapters 
-              productId="les-affiliate" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
+          <AffiliateOyunView
+            modeNote={<AppModeNote view="oyun" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-affiliate"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            playerHp={playerHp}
+            aiHp={aiHp}
+            winnerMessage={winnerMessage}
+            duelActive={duelActive}
+            gameLogs={gameLogs}
+            oyunHand={oyunHand}
+            onResetGame={() => {
+              setPlayerHp(100);
+              setAiHp(100);
+              setGameLogs([]);
+              setWinnerMessage(null);
+              setDuelActive(true);
+            }}
+            onStartDuel={() => setDuelActive(true)}
+            onPlayCard={handleOyunCardPlay}
+          />
         )}
 
         {/* 9. Les AI / KADRO View */}
         {activeView === "ai" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>KADRO AI Console</h2>
-              <p>Interact with certified AI workers, manage tool adapters, and inspect audit logs.</p>
-              <AppModeNote view="ai" />
-              
-              <div className="sub-tab-bar" style={{ display: "flex", gap: "20px", marginTop: "16px", borderBottom: "1px solid var(--line)", paddingBottom: "10px" }}>
-                <button 
-                  className={`sub-tab-btn ${aiSubTab === "agents" ? "active" : ""}`}
-                  onClick={() => setAiSubTab("agents")}
-                  style={{ background: "none", border: "none", color: aiSubTab === "agents" ? "var(--teal)" : "var(--muted)", fontWeight: "bold", fontSize: "14px", cursor: "pointer", paddingBottom: "4px", borderBottom: aiSubTab === "agents" ? "2px solid var(--teal)" : "none" }}
-                >
-                  🤖 KADRO Workers
-                </button>
-                <button 
-                  className={`sub-tab-btn ${aiSubTab === "skills" ? "active" : ""}`}
-                  onClick={() => setAiSubTab("skills")}
-                  style={{ background: "none", border: "none", color: aiSubTab === "skills" ? "var(--teal)" : "var(--muted)", fontWeight: "bold", fontSize: "14px", cursor: "pointer", paddingBottom: "4px", borderBottom: aiSubTab === "skills" ? "2px solid var(--teal)" : "none" }}
-                >
-                  🔌 Ecosystem AI Skills & Security
-                </button>
-              </div>
-            </div>
-
-            {aiSubTab === "agents" ? (
-              <div className="kadro-market-layout">
-                <div className="kadro-roster-panel">
-                  <div className="kadro-panel-title">
-                    <h3>Ajan Kadrosu</h3>
-                    <span>{kadroMarketplaceAgents.length} worker</span>
-                  </div>
-                  <div className="kadro-agent-grid">
-                    {kadroMarketplaceAgents.map((agent) => (
-                      <button
-                        type="button"
-                        className={`kadro-agent-card ${selectedAgent.id === agent.id ? "selected" : ""}`}
-                        key={agent.id}
-                        onClick={() => {
-                          setSelectedAgent(agent);
-                          setAiConsoleContent("");
-                          setAiOutputReady(false);
-                        }}
-                      >
-                        <div className="kadro-avatar-wrap">
-                          {agent.imageUrl ? (
-                            <img
-                              src={agent.imageUrl}
-                              alt={agent.name}
-                              onError={(event) => {
-                                event.currentTarget.style.display = "none";
-                              }}
-                            />
-                          ) : null}
-                          <span>{agent.avatar}</span>
-                        </div>
-                        <div className="kadro-card-copy">
-                          <strong>{agent.name}</strong>
-                          <small>{agent.role}</small>
-                          <div className="kadro-mini-meta">
-                            <span>{agent.category || "Worker"}</span>
-                            <span>{agent.availability || "Ready"}</span>
-                          </div>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="kadro-detail-card">
-                    <div className="kadro-detail-hero">
-                      <div className="kadro-detail-photo">
-                        {selectedAgent.imageUrl ? (
-                          <img
-                            src={selectedAgent.imageUrl}
-                            alt={selectedAgent.name}
-                            onError={(event) => {
-                              event.currentTarget.style.display = "none";
-                            }}
-                          />
-                        ) : null}
-                        <span>{selectedAgent.avatar}</span>
-                      </div>
-                      <div className="kadro-detail-copy">
-                        <div className="kadro-status-row">
-                          <span>{selectedAgent.identityClass || "ai_worker"}</span>
-                          <span>{selectedAgent.sourceApp || "les_ai/kadro"}</span>
-                          <span>{selectedAgent.country || "Global"}</span>
-                        </div>
-                        <h3>{selectedAgent.name}</h3>
-                        <p>{selectedAgent.role}</p>
-                      </div>
-                    </div>
-
-                    <p className="kadro-agent-bio">{selectedAgent.bio}</p>
-
-                    <div className="kadro-skill-row">
-                      {(selectedAgent.skills || []).map((skill) => (
-                        <span key={skill}>{skill}</span>
-                      ))}
-                    </div>
-
-                    <div className="kadro-hire-strip">
-                      <div>
-                        <small>Hire mode</small>
-                        <strong>{selectedAgent.hireMode || "Task workspace"}</strong>
-                      </div>
-                      <div>
-                        <small>Price</small>
-                        <strong>{selectedAgent.hourlyRate || "Demo credits"}</strong>
-                      </div>
-                      <div>
-                        <small>Status</small>
-                        <strong>{selectedAgent.availability || "Ready"}</strong>
-                      </div>
-                    </div>
-
-                    <div className="kadro-action-row">
-                      <button
-                        className="action-button primary"
-                        onClick={() => {
-                          setAiConsoleContent(`${selectedAgent.name} hire request drafted.\nTask: ${selectedAgent.hireMode || "Task workspace"}\nConsent: user approval required before execution.`);
-                          setAiOutputReady(true);
-                        }}
-                      >
-                        Hire / Task
-                      </button>
-                      <button
-                        className="action-button"
-                        onClick={() => {
-                          setAiConsoleContent(`${selectedAgent.name} AgentAndBot card opened in demo mode.\nSource: ${selectedAgent.sourceApp || "agentandbot.com"}\nIdentity: ${selectedAgent.identityClass || "ai_worker"}`);
-                        }}
-                      >
-                        Agent Card
-                      </button>
-                      {selectedAgent.cvUrl ? (
-                        <button
-                          className="action-button"
-                          onClick={() => {
-                            setAiConsoleContent(`${selectedAgent.name} CV preview is available at ${selectedAgent.cvUrl}.\nIn production this opens AgentAndBot governance profile.`);
-                          }}
-                        >
-                          CV Preview
-                        </button>
-                      ) : null}
-                    </div>
-
-                    <form onSubmit={handleSendAiPrompt} style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
-                      <input
-                        type="text"
-                        placeholder={`${selectedAgent.name} için bir talimat yaz...`}
-                        value={aiPrompt}
-                        onChange={(e) => setAiPrompt(e.target.value)}
-                        style={{ flex: 1, padding: "10px 14px", border: "1px solid var(--line)", borderRadius: "8px" }}
-                        disabled={isAiTyping}
-                      />
-                      <button className="action-button primary" disabled={isAiTyping}>
-                        Çalıştır
-                      </button>
-                    </form>
-
-                    <strong>Ajan Konsol Çıktısı [Simüle]:</strong>
-                    <div className="ai-terminal">
-                      <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                        {aiConsoleContent || "Talebinizi bekliyor..."}
-                      </pre>
-                    </div>
-
-                    {aiOutputReady && (
-                      <button
-                        className="action-button primary"
-                        style={{ width: "100%", marginTop: "16px", background: "var(--teal)" }}
-                        onClick={handleExportAiDraftToCv}
-                      >
-                        Bu Taslağı Living CV'ye Ekle (Export)
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 350px", gap: "28px" }}>
-                <div>
-                  <h3 style={{ marginBottom: "12px" }}>Ecosystem Tool Adapters</h3>
-                  <div style={{ display: "grid", gap: "14px" }}>
-                    {aiSkills.map(skill => (
-                      <div key={skill.id} style={{ padding: "16px", border: "1px solid var(--line)", borderRadius: "12px", background: "var(--surface)" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                          <div>
-                            <span style={{ fontSize: "11px", textTransform: "uppercase", background: "rgba(32,117,111,0.1)", color: "var(--teal)", padding: "2px 6px", borderRadius: "4px", marginRight: "8px" }}>
-                              {skill.productId}
-                            </span>
-                            <span style={{ fontWeight: "bold", fontFamily: "monospace" }}>{skill.id}()</span>
-                          </div>
-                          <select 
-                            value={skill.status} 
-                            onChange={(e) => handleUpdateSkillStatus(skill.id, e.target.value as any)}
-                            className={`skill-status-select ${skill.status}`}
-                          >
-                            <option value="active">Active</option>
-                            <option value="needs_approval">Needs Approval</option>
-                            <option value="disabled">Disabled</option>
-                          </select>
-                        </div>
-                        <h4 style={{ margin: "4px 0" }}>{skill.name}</h4>
-                        <p style={{ fontSize: "13px", color: "var(--muted)", margin: "4px 0" }}>{skill.description}</p>
-                        
-                        <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--muted)", display: "flex", gap: "16px" }}>
-                          <span>Calls: <strong>{skill.executionCount}</strong></span>
-                          {skill.lastExecutedAt && (
-                            <span>Last run: <strong>{new Date(skill.lastExecutedAt).toLocaleTimeString()}</strong></span>
-                          )}
-                          <span>Permissions: <strong>{skill.requiredPermissions.join(", ")}</strong></span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 style={{ marginBottom: "12px" }}>🛡️ Live Security Audit Trail</h3>
-                  <div style={{ padding: "16px", border: "1px solid var(--line)", borderRadius: "12px", background: "var(--surface)", maxHeight: "500px", overflowY: "auto" }}>
-                    {globalAuditLogs.length === 0 ? (
-                      <div style={{ textAlign: "center", color: "var(--muted)", padding: "24px 0" }}>No executions logged.</div>
-                    ) : (
-                      <div style={{ display: "grid", gap: "12px" }}>
-                        {globalAuditLogs.map((log, idx) => (
-                          <div key={idx} style={{ padding: "10px", borderBottom: "1px solid var(--line)", fontSize: "12px" }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                              <strong style={{ color: log.status === "success" ? "var(--teal)" : "var(--rose)" }}>
-                                {log.status === "success" ? "✓ SUCCESS" : "✗ BLOCKED"}
-                              </strong>
-                              <span style={{ fontSize: "10px", color: "var(--muted)" }}>
-                                {new Date(log.timestamp).toLocaleTimeString()}
-                              </span>
-                            </div>
-                            <div style={{ fontSize: "11px", color: "var(--muted)", fontFamily: "monospace" }}>
-                              Params: {JSON.stringify(log.input)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          <AiConsoleView
+            modeNote={<AppModeNote view="ai" />}
+            aiSubTab={aiSubTab}
+            selectedAgent={selectedAgent}
+            aiPrompt={aiPrompt}
+            aiConsoleContent={aiConsoleContent}
+            aiOutputReady={aiOutputReady}
+            isAiTyping={isAiTyping}
+            marketplaceAgents={kadroMarketplaceAgents}
+            aiSkills={aiSkills}
+            globalAuditLogs={globalAuditLogs}
+            onAiSubTabChange={setAiSubTab}
+            onSelectedAgentChange={setSelectedAgent}
+            onAiPromptChange={setAiPrompt}
+            onSendAiPrompt={handleSendAiPrompt}
+            onExportAiDraftToCv={handleExportAiDraftToCv}
+            onUpdateSkillStatus={handleUpdateSkillStatus}
+            onResetAiConsole={() => {
+              setAiConsoleContent("");
+              setAiOutputReady(false);
+            }}
+            onHireAgent={(agent) => {
+              setAiConsoleContent(`${agent.name} hire request drafted.\nTask: ${agent.hireMode || "Task workspace"}\nConsent: user approval required before execution.`);
+              setAiOutputReady(true);
+            }}
+            onOpenAgentCard={(agent) => {
+              setAiConsoleContent(`${agent.name} AgentAndBot card opened in demo mode.\nSource: ${agent.sourceApp || "agentandbot.com"}\nIdentity: ${agent.identityClass || "ai_worker"}`);
+            }}
+            onOpenCvPreview={(agent) => {
+              setAiConsoleContent(`${agent.name} CV preview is available at ${agent.cvUrl}.\nIn production this opens AgentAndBot governance profile.`);
+            }}
+          />
         )}
-
         {/* 10. Les Certification ZKP View */}
         {activeView === "certification" && (
-          <div className="sim-container">
-            <div className="sim-header">
-              <h2>Selective Disclosure & ZKP</h2>
-              <p>Select credentials to compile dynamic ZKP tokens with complete identity privacy.</p>
-              <AppModeNote view="certification" />
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: "28px" }}>
-              <div>
-                <h3>Güvenilir Kimlik Bilgilerim</h3>
-                <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "16px" }}>
-                  İstediğiniz bilginin yanındaki onay kutusunu işaretleyerek veya kaldırarak sadece ilgili verilerin ZKP QR koduna eklenmesini sağlayabilirsiniz.
-                </p>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  {zkpCredentials.map((cred) => (
-                    <div
-                      key={cred.id}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "14px",
-                        border: "1px solid var(--line)",
-                        padding: "16px",
-                        borderRadius: "12px",
-                        background: cred.hidden ? "rgba(18,22,25,0.02)" : "var(--surface)",
-                        opacity: cred.hidden ? 0.6 : 1
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={!cred.hidden}
-                        onChange={() => {
-                          setZkpCredentials((prev) =>
-                            prev.map((c) => (c.id === cred.id ? { ...c, hidden: !c.hidden } : c))
-                          );
-                          setQrSeed(Math.random());
-                        }}
-                        style={{ width: "18px", height: "18px", cursor: "pointer" }}
-                      />
-                      <div style={{ flex: 1 }}>
-                        <span style={{ fontSize: "10px", textTransform: "uppercase", color: "var(--teal)", fontWeight: 800 }}>
-                          {cred.type}
-                        </span>
-                        <h4 style={{ margin: "2px 0 4px", fontSize: "16px" }}>{cred.title}</h4>
-                        <div style={{ fontSize: "12px", color: "var(--muted)", fontFamily: "monospace" }}>
-                          {cred.hidden ? "••••••••••••• (GİZLİ)" : cred.value}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <div style={{ border: "1px solid var(--line)", padding: "24px", borderRadius: "16px", background: "#fafafa" }}>
-                  <h3 style={{ textAlign: "center", marginBottom: "16px" }}>ZKP Kanıt Barkodu</h3>
-                  <div className="zkp-qr-container">
-                    <div className="zkp-qr-mock">
-                      {Array.from({ length: 144 }).map((_, idx) => {
-                        const stateVal = Math.sin(idx * qrSeed) > 0;
-                        return (
-                          <div
-                            key={idx}
-                            className={`qr-dot ${stateVal ? "" : "off"}`}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <p style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center", marginTop: "14px", lineHeight: 1.4 }}>
-                    Yukarıdaki QR kod ZKP (Sıfır Bilgi Kanıtı) ile kriptografik olarak imzalanmıştır. Sadece seçtiğiniz bilgileri açığa çıkarır.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <InlineSkillAdapters 
-              productId="les-certification" 
-              skills={aiSkills} 
-              onExecute={handleExecuteAiSkill} 
-              onUpdateStatus={handleUpdateSkillStatus} 
-            />
-          </div>
+          <CertificationView
+            modeNote={<AppModeNote view="certification" />}
+            inlineSkills={(
+              <InlineSkillAdapters
+                productId="les-certification"
+                skills={aiSkills}
+                onExecute={handleExecuteAiSkill}
+                onUpdateStatus={handleUpdateSkillStatus}
+              />
+            )}
+            zkpCredentials={zkpCredentials}
+            qrSeed={qrSeed}
+            onToggleCredential={(credentialId) => {
+              setZkpCredentials((prev) =>
+                prev.map((credential) =>
+                  credential.id === credentialId ? { ...credential, hidden: !credential.hidden } : credential
+                )
+              );
+              setQrSeed(Math.random());
+            }}
+          />
         )}
       </main>
 
@@ -3301,448 +2164,6 @@ function App() {
         </div>
       </div>
     </div>
-  );
-}
-
-function VisualFlowGallery({
-  flows,
-  onOpenView
-}: {
-  flows: VisualDemoFlow[];
-  onOpenView: (view: ViewType) => void;
-}) {
-  const openableViews: Record<string, ViewType> = {
-    les_wait: "wait",
-    les_poke: "poke",
-    les_match: "match",
-    les_itemotel: "itemotel",
-    les_harmonica: "harmonica",
-    les_travel: "hub",
-    les_ai: "ai",
-    agentandbot: "ai",
-    les_contacts: "contacts",
-    les_care: "care",
-    les_certification: "certification",
-    lescommerce: "commerce",
-    "lescommerce-marketplace": "commerce",
-    "lescommerce-diydiy": "commerce",
-    "lescommerce-quick-commerce": "commerce",
-    "lescommerce-storefronts": "commerce",
-    "les-affiliate": "oyun"
-  };
-
-  return (
-    <div className="visual-demo-shell">
-      <header className="visual-demo-hero">
-        <p className="eyebrow">Visual Demo System</p>
-        <h1>See the ecosystem as flows.</h1>
-        <p>
-          Each card shows how a real moment becomes app UI: places stay grounded,
-          feeds move, risk is visible, and every product keeps its own mood.
-        </p>
-      </header>
-
-      <section className="visual-map" aria-label="LesTupid flow map">
-        <div className="visual-node root">LesTupid Go</div>
-        <div className="visual-line" />
-        <div className="visual-node-grid">
-          {["Wait", "Poke", "Match", "Commerce", "Contacts", "AI", "Care", "Trust"].map((label) => (
-            <span className="visual-node small" key={label}>{label}</span>
-          ))}
-        </div>
-      </section>
-
-      <section className="visual-flow-grid">
-        {flows.map((flow) => (
-          <article className={`visual-flow-card tempo-${flow.tempo}`} key={flow.id}>
-            <div className="visual-flow-top">
-              <span className="visual-flow-mood">{flow.mood}</span>
-              <span className="card-time">{flow.tempo}</span>
-            </div>
-            <h2>{flow.title}</h2>
-            <p>{flow.scene}</p>
-
-            <div className="visual-step-rail">
-              {flow.steps.map((step, index) => (
-                <div className="visual-step" key={step}>
-                  <span>{index + 1}</span>
-                  <strong>{step}</strong>
-                </div>
-              ))}
-            </div>
-
-            <div className="visual-app-row">
-              {flow.sourceApps.map((app) => {
-                const target = openableViews[app];
-                return target ? (
-                  <button className="visual-app-pill" key={app} type="button" onClick={() => onOpenView(target)}>
-                    {app}
-                  </button>
-                ) : (
-                  <span className="visual-app-pill passive" key={app}>{app}</span>
-                );
-              })}
-            </div>
-
-            <div className="visual-rule-grid">
-              <div>
-                <span>Visual cue</span>
-                <p>{flow.visualCue}</p>
-              </div>
-              <div>
-                <span>Trust rule</span>
-                <p>{flow.trustRule}</p>
-              </div>
-            </div>
-          </article>
-        ))}
-      </section>
-    </div>
-  );
-}
-
-// Helpers
-function spaceBetweenHelper(p: PlaceOption) {
-  return "space-between";
-}
-
-const firstAidGuides = [
-  {
-    title: "Bayılma / Senkop",
-    steps: "Kişiyi sırtüstü yatırın, ayaklarını 30 cm kaldırın (Şok pozisyonu). Solunumunu kontrol edin. Sıkan giysileri gevşetin. Kendine gelene kadar ağızdan yiyecek/içecek vermeyin."
-  },
-  {
-    title: "Ciddi Kanama",
-    steps: "Yara üzerine temiz bir bezle doğrudan basınç uygulayın. Kanayan bölgeyi kalp seviyesinin üzerine kaldırın. Basınçlı sargı yapın ve tıbbi yardım çağırın."
-  },
-  {
-    title: "Isı Yanıkları",
-    steps: "Yanan bölgeyi en az 10-15 dakika akan soğuk (ancak buzlu olmayan) su altında tutun. Su toplayan yerleri patlatmayın. Üzerine diş macunu veya yağ sürmeyin."
-  }
-];
-
-function CvSnapshot({
-  profile,
-  place,
-  mode
-}: {
-  profile: StudentCvProfile;
-  place: PlaceOption;
-  mode: PlaceMode;
-}) {
-  const topSignals = profile.signals.slice(0, 3);
-
-  return (
-    <section className="cv-snapshot" aria-label="Living CV">
-      <div className="cv-main">
-        <div>
-          <p className="eyebrow">Living CV</p>
-          <h2>CV burada büyüsün</h2>
-          <p>
-            {profile.headline}. {place.name} ve {modeLabels[mode]} modu; quest, başvuru,
-            servis işi, sertifika ve AI taslaklarını paylaşmadan önce kontrol edilen CV sinyaline çevirir.
-          </p>
-        </div>
-        <div className="cv-meter" aria-label={`CV completion ${profile.completionPercent}%`}>
-          <strong>{profile.completionPercent}%</strong>
-          <span>ready</span>
-          <i style={{ width: `${profile.completionPercent}%` }} />
-        </div>
-      </div>
-
-      <div className="cv-track-row">
-        {profile.targetTracks.map((track) => (
-          <span key={track}>{track.replace("_", " ")}</span>
-        ))}
-      </div>
-
-      <div className="cv-signal-grid">
-        {topSignals.map((signal) => (
-          <article className="cv-signal" key={signal.id}>
-            <span>{signal.sourceApp}</span>
-            <strong>{signal.title}</strong>
-            <small>{signal.detail}</small>
-            <em>{signal.status.replace("_", " ")}</em>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function FilterRow<T extends string>({
-  items,
-  activeId,
-  onPick
-}: {
-  items: Array<{ id: T; label: string }>;
-  activeId: T;
-  onPick: (id: T) => void;
-}) {
-  return (
-    <div className="filter-row">
-      {items.map((item) => (
-        <button
-          className={item.id === activeId ? "filter-chip active" : "filter-chip"}
-          key={item.id}
-          type="button"
-          onClick={() => onPick(item.id)}
-        >
-          {item.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function PlaceDoor({
-  place,
-  active,
-  onOpen
-}: {
-  place: PlaceOption;
-  active: boolean;
-  onOpen: (place: PlaceOption) => void;
-}) {
-  return (
-    <button className={active ? "place-door active" : "place-door"} type="button" onClick={() => onOpen(place)}>
-      <span>{place.type.replace("_", " ")}</span>
-      <strong>{place.name}</strong>
-      <small>{place.area}</small>
-    </button>
-  );
-}
-
-function FlowIntro({ place, mode }: { place: PlaceOption; mode: PlaceMode }) {
-  return (
-    <article className="flow-card flow-intro">
-      <div className="flow-image" />
-      <div className="flow-body">
-        <div className="card-topline">
-          <span>Check-in context</span>
-          <span>{place.distance}</span>
-        </div>
-        <h3>{place.headline}</h3>
-        <p>{contextLine(place, mode)}</p>
-        <div className="safety-row">
-          <span>{modeLabels[mode]} mode</span>
-          {place.tags.map((tag) => (
-            <span key={tag}>{tag}</span>
-          ))}
-        </div>
-      </div>
-    </article>
-  );
-}
-
-function contextLine(place: PlaceOption, mode: PlaceMode): string {
-  const modeCopy: Record<PlaceMode, string> = {
-    study: "Study mode prefers focus quests, group study, quiet rooms and AI help.",
-    eat: "Eat mode brings menu, queue, lunch plan and nearby food offers forward.",
-    work: "Work mode lifts tasks, listings, lunch windows, mentors and service needs.",
-    train: "Train mode follows workout, team, gear, locker, care and recovery signals.",
-    social: "Social mode shows public, opt-in group, club and event opportunities.",
-    date: "Date mode stays opt-in and consent-first; people stay hidden until Match is active.",
-    relax: "Relax mode slows the feed toward beach, break, safety, music and low-pressure offers.",
-    shop: "Shop mode surfaces things to buy, rent, sell, store or compare nearby.",
-    care: "Care mode prioritizes clinic, safety, first-aid, pharmacy and private context.",
-    travel: "Travel mode follows routes, local places, trip needs, rentals and memories.",
-    service: "Service mode focuses on queue, appointment, documents, pickup and staff actions.",
-    safe: "Safe mode restricts people matching and prioritizes age, school or legal boundaries."
-  };
-
-  return `${place.signal}. ${modeCopy[mode]}`;
-}
-
-function StatusGroup({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div className="status-group">
-      <h3>{title}</h3>
-      <div className="pill-row">
-        {items.map((item) => (
-          <span className="pill" key={item}>
-            {item}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function CommerceFacetBar({
-  activeFacets,
-  total,
-  onToggle,
-  onClear
-}: {
-  activeFacets: CommerceFacetSignal[];
-  total: number;
-  onToggle: (facet: CommerceFacetSignal) => void;
-  onClear: () => void;
-}) {
-  return (
-    <section className="commerce-facet-bar" aria-label="Commerce facet filters">
-      <div>
-        <span>Tap-to-filter</span>
-        <strong>{activeFacets.length > 0 ? `${total} matching cards` : "Tap commerce values on cards"}</strong>
-      </div>
-      <div className="commerce-facet-active-list">
-        {activeFacets.length === 0 ? (
-          <em>Brand, model, size, place, item or service chips will appear on commerce cards.</em>
-        ) : (
-          activeFacets.map((facet) => (
-            <button
-              key={`${facet.key}-${facet.value}`}
-              type="button"
-              className="commerce-facet-chip active"
-              onClick={() => onToggle(facet)}
-              title={`${facet.label} filtresini kaldir`}
-            >
-              <small>{facet.key}</small>
-              {facet.label}
-            </button>
-          ))
-        )}
-        {activeFacets.length > 0 ? (
-          <button type="button" className="commerce-facet-clear" onClick={onClear}>
-            Clear
-          </button>
-        ) : null}
-      </div>
-    </section>
-  );
-}
-
-function CommerceFacetChips({
-  facets,
-  activeFacets,
-  onSelect
-}: {
-  facets?: CommerceFacetSignal[];
-  activeFacets: CommerceFacetSignal[];
-  onSelect: (facet: CommerceFacetSignal) => void;
-}) {
-  if (!facets || facets.length === 0) return null;
-
-  return (
-    <div className="commerce-facet-row" aria-label="Commerce filter values">
-      {facets.map((facet) => {
-        const active = activeFacets.some((candidate) => sameCommerceFacet(candidate, facet));
-
-        return (
-          <button
-            key={`${facet.key}-${facet.value}`}
-            type="button"
-            className={active ? "commerce-facet-chip active" : "commerce-facet-chip"}
-            onClick={() => onSelect(facet)}
-            title={`Filter by ${facet.label}`}
-          >
-            <small>{facet.key}</small>
-            {facet.label}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-function Opportunity({
-  opportunity,
-  onAction,
-  activeCommerceFacets,
-  onCommerceFacetSelect
-}: {
-  opportunity: OpportunityCard;
-  onAction: (opportunity: OpportunityCard, action: OpportunityAction) => void;
-  activeCommerceFacets: CommerceFacetSignal[];
-  onCommerceFacetSelect: (facet: CommerceFacetSignal) => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  const primaryAction = opportunity.actions.find((action) => action.kind === "primary") || opportunity.actions[0];
-
-  return (
-    <article className={`flow-card opportunity-card ${opportunity.type} tempo-${opportunity.tempo} ${expanded ? "expanded" : ""}`}>
-      <button
-        className="card-expand-toggle"
-        onClick={() => setExpanded(!expanded)}
-        aria-label="Toggle details"
-        title={expanded ? "Detayları Kapat" : "Detayları Göster"}
-      >
-        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round" className="plus-icon"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      </button>
-
-      <div className="card-topline">
-        <span className="card-badge">
-          {opportunityIcons[opportunity.type]}
-          <span>{opportunityLabels[opportunity.type]}</span>
-        </span>
-        <span className="card-time">{opportunity.timeLabel}</span>
-      </div>
-
-      <h3 className="card-title">{opportunity.title}</h3>
-      <p className="card-reason">{opportunity.reason}</p>
-      <CommerceFacetChips
-        facets={opportunity.commerceFacets}
-        activeFacets={activeCommerceFacets}
-        onSelect={onCommerceFacetSelect}
-      />
-
-      {!expanded && primaryAction && (
-        <div className="action-row simple-action">
-          <button
-            className={`action-button ${primaryAction.kind}`}
-            type="button"
-            onClick={() => onAction(opportunity, primaryAction)}
-          >
-            {primaryAction.label}
-          </button>
-        </div>
-      )}
-
-      <div className={`card-details-panel ${expanded ? "visible" : ""}`}>
-        <hr className="details-divider" />
-
-        <div className="details-meta-grid">
-          <div className="meta-item">
-            <span className="meta-label">Source App</span>
-            <span className="meta-val">{opportunity.sourceApp}</span>
-          </div>
-          <div className="meta-item">
-            <span className="meta-label">Activation</span>
-            {opportunity.requiredActivation ? (
-              <span className="meta-val warn">Requires {opportunity.requiredActivation}</span>
-            ) : (
-              <span className="meta-val success">None needed</span>
-            )}
-          </div>
-        </div>
-
-        {opportunity.safetyLabels.length > 0 && (
-          <div className="details-section">
-            <h4 className="section-title">Safety & Consent</h4>
-            <div className="safety-row">
-              {opportunity.safetyLabels.map((label) => (
-                <span key={label} className="safety-pill">{label}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="action-row expanded-actions">
-          {opportunity.actions.map((action) => (
-            <button
-              className={`action-button ${action.kind}`}
-              key={action.id}
-              type="button"
-              onClick={() => onAction(opportunity, action)}
-            >
-              {action.label}
-            </button>
-          ))}
-        </div>
-      </div>
-    </article>
   );
 }
 
@@ -3944,3 +2365,10 @@ createRoot(document.getElementById("root")!).render(
     <App />
   </React.StrictMode>
 );
+
+
+
+
+
+
+

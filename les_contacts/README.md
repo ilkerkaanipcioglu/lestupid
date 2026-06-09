@@ -34,6 +34,18 @@ It owns:
 
 Other apps consume it through optional adapters.
 
+## Current Runtime Slice
+
+The first runtime MVP now exists as a small Elixir package in this directory.
+It currently focuses on one thing only:
+
+- turn check-in context into a private draft relationship timeline event;
+- keep visibility private by default;
+- mark clinic/adult/private-context drafts as sensitive;
+- require user review before any cross-app promotion.
+
+This is intentionally smaller than full import/CRM/contact sync behavior.
+
 ## Context Spaces
 
 Les Contacts is one private graph with multiple context spaces. The same person,

@@ -64,6 +64,30 @@
       "manifest": "lestupid.app.json"
     },
     {
+      "id": "les-core",
+      "name": "Les Core",
+      "type": "identity_activation_and_event_contract_app",
+      "directory": "les_core",
+      "manifest": "les_core/lestupid.app.json",
+      "status": "internal_candidate",
+      "priority": 1.5,
+      "certificate_route": "certify lightweight identity status, app activation, channel activation, event envelope validation, privacy payload guard, and separable-app contract boundaries",
+      "agent_friendly": true,
+      "lescommerce_integration": true,
+      "web3_ready": false,
+      "runtime_modes": [
+        "standalone_app",
+        "ecosystem_activated_app"
+      ],
+      "portability": {
+        "standalone_ready": true,
+        "ecosystem_activation_optional": true,
+        "extraction_difficulty": "low",
+        "cross_app_integrations_optional": true,
+        "export_required": true
+      }
+    },
+    {
       "id": "les-certification",
       "name": "Les Certification",
       "type": "certification_registry_and_policy_app",
@@ -112,7 +136,7 @@
       }
     },
     {
-      "id": "lestupid-waiting-app",
+      "id": "les-wait",
       "name": "lestupid bekleme",
       "type": "waiting_queue_app",
       "directory": "les_wait/lestupid-waiting-app-spec.md",
@@ -377,7 +401,7 @@
       }
     },
     {
-      "id": "les-affiliate-oyun",
+      "id": "les-affiliate",
       "name": "Les Affiliate Oyun",
       "type": "social_commerce_affiliate_card_game",
       "directory": "les_affiliate_oyun",
@@ -556,7 +580,7 @@
       }
     },
     {
-      "id": "e-any-online-tools",
+      "id": "e-any",
       "name": "e-any.online",
       "type": "tools_and_integration_hub",
       "directory": "e-any.online",

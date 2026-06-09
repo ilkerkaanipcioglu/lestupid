@@ -45,6 +45,31 @@ events.
 
 No channel is mandatory. No wallet is mandatory. AI and Web3 are optional.
 
+## Current Prototype
+
+`waiting.html` now demonstrates the first simple-but-useful Les Wait loop:
+
+- users can join by camera QR, short code, phone fallback, photo proof, staff
+  entry, paper, or manual/offline channel;
+- venue owners can create a printable entrance surface with QR, short code and
+  shareable join link;
+- photo proof creates only a local hash token and does not store the image in
+  the queue event;
+- phone and photo flows are represented as scoped proof references, so a future
+  backend can avoid storing raw private identifiers;
+- every join method lands in the same normalized `queue_joined` event with
+  `evidence.entry`.
+- Les Go and standalone Les Wait should expose the same Wait surface. Go may
+  disable or preview some capabilities such as live camera permission, owner
+  print, or future staff persistence, but it should not look like a different
+  product.
+- Les Wait is also place/Poke aware: a quest, route, campus visit, venue demand
+  signal, pickup, or focus task can become a queue context before, during, or
+  after the wait.
+
+For camera testing, serve the folder on `localhost`; browser camera permission
+usually will not work from a direct `file://` open.
+
 ## Service Flow Direction
 
 The E-SWSP Ar-Ge outline is useful as a broader direction for Les Wait. We

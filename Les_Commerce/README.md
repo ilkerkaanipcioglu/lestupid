@@ -11,8 +11,28 @@ havuzundan olusur.
 | `diy-marketplace-elixir/` | DIY marketplace. Videodan DIY urunleri, malzeme bundle'lari, usta/mentor randevulari ve hazir el isi urunleri uretir. Ornek: orgu videosu -> ip/sis malzemeleri -> orgu ustasi -> hazir kazak. | Elixir/Phoenix, Next.js |
 | `les_itemotel/` | Esya oteli. Ayakkabi, kayak takimi, gelinlik, sezonluk kiyafet, araba lastigi gibi fiziksel esyalarin saklama, bakim, kiralama, satis ve geri cagirma akisini yonetir. | Manifest/spec |
 | `marketplace-elixir/` | Genel marketplace ve listing motoru. Ev, araba, hizmet, ikinci el urun, yerel teklif, freelance is, mekan veya kisi bazli ilanlar burada konumlanir. | Elixir/Phoenix |
+| `books-marketplace/` | NadirKitap benzeri kitapci, sahaf, ikinci el, akademik/ders kitabi ve koleksiyon kitap marketplace vertical'i. Ortak marketplace altyapisini kullanir. | Marketplace vertical/spec |
 | `quick-commerce-elixir/` | Shopify benzeri hizli e-ticaret sitesi acma motoru. Merchant magaza acar, tema/storefront secer, katalog ve checkout yayinlar. | Elixir/Phoenix, Astro |
 | `storefronts/` | Quick Commerce icin ortak tema ve storefront havuzu. Aktif vitrinler simdilik kendi urun klasorlerinde durur; ortaklasan sablonlar buraya gelir. | Planlanan |
+
+## Ortak Altyapi Kurali
+
+Commerce ailesindeki shoplar, marketplaceler ve dikey pazarlar mumkun oldugunca
+ayni cekirdekleri kullanir:
+
+- katalog ve varyant modeli;
+- listing yayinlama ve geri cekme;
+- stok, fiyat, kargo/teslimat ve siparis olaylari;
+- merchant/satici profili;
+- komisyon, odeme, iade ve fatura kayitlari;
+- tap-to-filter facet sinyalleri;
+- certification, reward ve private CRM adapter'lari.
+
+Quick Commerce ile shop acan bir satici urununu once kendi vitrini icin
+yayinlar. Isterse ayni urunu uygun marketplace'lere de ekler: genel
+Marketplace, Books/Sahaf Marketplace, DIY bundle, Item Otel rent/resale gibi.
+Marketplace yayinlamak kopya urun yaratmak degil, ayni katalog kaydinin yeni
+bir listing kanali kazanmasidir.
 
 ## Iliski Modeli
 
@@ -20,6 +40,9 @@ havuzundan olusur.
   usta/mentor, hazir urun.
 - Marketplace ilan ve pazar mantigini tasir: ev, araba, hizmet, ikinci el,
   yerel listing, kampus ilanlari ve teklif akislari.
+- Books Marketplace, marketplace altyapisinin kitapci/sahaf vertical'idir:
+  kitap adi, yazar, yayinevi, ISBN, baski, kondisyon, imzali/ilk baski ve
+  teslimat yeri gibi facetlerle calisir.
 - Item Otel esya custody mantigini tasir: kullanicinin esyasi depoda durur,
   bakimi yapilir, sahibi isterse kiralanir veya satilir, satilmadiysa geri
   cagirilir.
@@ -73,10 +96,11 @@ Ortak kontrat: `tap-to-filter-commerce-spec.md`.
 ## Guncel Yapi
 
 ```text
-Les_Commerce/
+  Les_Commerce/
   diy-marketplace-elixir/
     backend/
     storefront/
+  books-marketplace/
   les_itemotel/
   marketplace-elixir/
     commerce-engine/

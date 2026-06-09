@@ -33,6 +33,8 @@ defmodule DukkadeeWeb.Router do
   scope "/api", DukkadeeWeb.Api do
     pipe_through :api
 
+    get "/health", EcosystemController, :health
+    get "/ecosystem/endpoints", EcosystemController, :endpoints
     get "/products", ProductController, :index
     get "/products/:id", ProductController, :show
     get "/videos", VideoController, :index
@@ -54,6 +56,7 @@ defmodule DukkadeeWeb.Router do
 
     get "/agent-manifest.json", AgentManifestController, :show
     get "/.well-known/ai-agent.json", AgentManifestController, :show
+    get "/.well-known/lestupid-app.json", LestupidManifestController, :show
   end
 
   pipeline :store_owner do

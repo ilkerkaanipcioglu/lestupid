@@ -3,6 +3,7 @@ import path from "node:path";
 
 const root = process.cwd();
 const registryPath = path.join(root, "les_certification", "certification-registry.json");
+const productIdsPath = path.join(root, "docs", "PRODUCT_IDS.md");
 const registry = JSON.parse(fs.readFileSync(registryPath, "utf8"));
 
 const errors = [];
@@ -23,6 +24,32 @@ function warnPath(relativePath, label) {
     warnings.push(`${label} missing: ${relativePath || "(empty)"}`);
   }
 }
+
+function canonicalProductIds() {
+  if (!fs.existsSync(productIdsPath)) {
+    errors.push("docs/PRODUCT_IDS.md missing");
+    return new Set();
+  }
+
+  const text = fs.readFileSync(productIdsPath, "utf8");
+  const match = text.match(/<!-- canonical-product-ids:start -->([\s\S]*?)<!-- canonical-product-ids:end -->/);
+
+  if (!match) {
+    errors.push("docs/PRODUCT_IDS.md missing canonical-product-ids markers");
+    return new Set();
+  }
+
+  return new Set(
+    match[1]
+      .split(/\r?\n/)
+      .map((line) => line.match(/^\|\s*`([^`]+)`\s*\|/))
+      .filter(Boolean)
+      .map((lineMatch) => lineMatch[1])
+  );
+}
+
+const canonicalIds = canonicalProductIds();
+const idPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 if (registry.schema_version !== "lestupid.certification_registry.v1") {
   errors.push("schema_version must be lestupid.certification_registry.v1");
@@ -45,6 +72,14 @@ for (const product of registry.products ?? []) {
   if (!product.id) errors.push("product without id");
   if (ids.has(product.id)) errors.push(`duplicate product id: ${product.id}`);
   ids.add(product.id);
+
+  if (product.id && !idPattern.test(product.id)) {
+    errors.push(`${product.id} must be lowercase and hyphen-separated`);
+  }
+
+  if (product.id && canonicalIds.size > 0 && !canonicalIds.has(product.id)) {
+    errors.push(`${product.id} is not listed in docs/PRODUCT_IDS.md`);
+  }
 
   if (product.priority == null) errors.push(`${product.id} missing priority`);
   if (priorities.has(product.priority)) warnings.push(`duplicate priority: ${product.priority}`);

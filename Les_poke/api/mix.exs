@@ -31,7 +31,9 @@ defmodule LesPokeApi.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.4"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:les_core, path: "../../les_core"},
+      {:les_contacts, path: "../../les_contacts"}
     ]
   end
 

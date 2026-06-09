@@ -1,6 +1,6 @@
 {
   "schema_version": "lestupid.app_manifest.v1",
-  "product_id": "lestupid-waiting-app",
+  "product_id": "les-wait",
   "name": "Les Wait",
   "service": "les_wait",
   "version": "0.1.0",
@@ -25,7 +25,7 @@
     "model": "shared_lestupid_identity",
     "registration": "local_or_lestupid_identity_layer",
     "app_activation_required": true,
-    "activation_product_id": "lestupid-waiting-app",
+    "activation_product_id": "les-wait",
     "activation_permissions": [
       "queue_profile",
       "service_notifications",
@@ -196,7 +196,7 @@
     },
     "les_certification": {
       "ready": true,
-      "registry_id": "lestupid-waiting-app"
+      "registry_id": "les-wait"
     },
     "les_block": {
       "ready": false,

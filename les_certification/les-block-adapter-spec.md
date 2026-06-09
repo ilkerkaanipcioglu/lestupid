@@ -43,7 +43,7 @@ Each app may emit local ledger events first:
 {
   "schema_version": "lestupid.value_event.v1",
   "event_type": "point_earned",
-  "product_id": "lestupid-waiting-app",
+  "product_id": "les-wait",
   "identity_id": "id_123",
   "subject_type": "queue",
   "subject_id": "queue_456",

@@ -19,6 +19,9 @@
     "circular_commerce",
     "marketplace",
     "listing_marketplace",
+    "bookseller_marketplace",
+    "used_book_marketplace",
+    "antiquarian_book_marketplace",
     "tap_to_filter_discovery",
     "facet_signal_search",
     "quick_commerce",
@@ -44,6 +47,11 @@
       "role": "marketplace_and_listing_engine_for_home_car_service_product_and_local_offers"
     },
     {
+      "id": "lescommerce-books",
+      "directory": "Les_Commerce/books-marketplace",
+      "role": "bookseller_sahaf_used_book_and_collectible_book_marketplace"
+    },
+    {
       "id": "lescommerce-quick-commerce",
       "directory": "Les_Commerce/quick-commerce-elixir",
       "role": "shopify_style_fast_store_builder"
@@ -64,6 +72,7 @@
       "orders",
       "merchant_storefront",
       "marketplace_listings",
+      "book_marketplace_listings",
       "diy_creator_drops",
       "creator_promotion_briefs",
       "affiliate_campaigns",

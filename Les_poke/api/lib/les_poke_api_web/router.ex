@@ -12,6 +12,7 @@ defmodule LesPokeApiWeb.Router do
     get "/cities", CityController, :index
     get "/quests", QuestController, :index
     get "/quests/:id", QuestController, :show
+    post "/check-ins", CheckInController, :create
   end
 
   scope "/", LesPokeApiWeb do

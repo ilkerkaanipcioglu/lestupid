@@ -175,6 +175,15 @@ npm run dev
 
 ## Runtime Config
 
+- `VITE_CORE_ADAPTER=mock` keeps identity, activation, and check-in state on
+  local fixtures.
+- `VITE_CORE_ADAPTER=http` tries to load identity/activation state from
+  `VITE_LESTUPID_API_BASE_URL` and submit check-ins to
+  `VITE_LES_POKE_API_BASE_URL`, then falls back to mock data if those APIs are
+  unavailable.
+- When an opportunity requires activation, Go now attempts a real app
+  activation write through `les_core` before switching into the related
+  product view.
 - `VITE_OPPORTUNITY_ADAPTER=mock` keeps the deterministic demo feed.
 - `VITE_OPPORTUNITY_ADAPTER=http` selects the future HTTP adapter boundary,
   currently falling back to mock until Phoenix APIs are connected.

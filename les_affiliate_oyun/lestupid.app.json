@@ -1,6 +1,6 @@
 {
   "schema_version": "lestupid.app_manifest.v1",
-  "product_id": "les-affiliate-oyun",
+  "product_id": "les-affiliate",
   "name": "Les Affiliate Oyun",
   "service": "les_affiliate_oyun",
   "version": "0.1.0",
@@ -21,7 +21,7 @@
     "model": "local_or_shared_lestupid_identity",
     "registration": "local_first_linkable_to_lestupid_identity",
     "app_activation_required": false,
-    "activation_product_id": "les-affiliate-oyun",
+    "activation_product_id": "les-affiliate",
     "activation_permissions": [
       "card_inventory",
       "deck_builder",

@@ -264,7 +264,7 @@ export const lesWaitAdapter = {
           sourceApp: "les_wait",
           title: "Sira yogun, 12 dk sonra gel",
           reason: `${checkIn.placeName} lunch rush icinde. Les Wait seni simdi bekletmek yerine daha sakin pencereye yonlendirir.`,
-          requiredActivation: "lestupid-waiting-app",
+          requiredActivation: "les-wait",
           safetyLabels: ["queue estimate", "no hidden location trail"]
         }),
         card({
@@ -275,7 +275,7 @@ export const lesWaitAdapter = {
           sourceApp: "les_wait",
           title: "On siparis ver",
           reason: "Kantin hazirlik penceresi acik; siparisini feed uzerinden baslatip bekleme suresini azaltabilirsin.",
-          requiredActivation: "lestupid-waiting-app",
+          requiredActivation: "les-wait",
           safetyLabels: ["student canteen", "staff confirmation"]
         }),
         card({
@@ -286,7 +286,7 @@ export const lesWaitAdapter = {
           sourceApp: "les_wait",
           title: "Siraya gir",
           reason: "Fiziksel olarak kalabaliga takilmadan siraya katil ve sirani feed'de takip et.",
-          requiredActivation: "lestupid-waiting-app",
+          requiredActivation: "les-wait",
           safetyLabels: ["explicit action", "queue only"]
         })
       ];
@@ -302,7 +302,7 @@ export const lesWaitAdapter = {
           sourceApp: "les_wait",
           title: "Kahve molasi icin hizli pencere",
           reason: "Ders arasi yogunlugunda siparis ve teslim penceresini feed'de takip et.",
-          requiredActivation: "lestupid-waiting-app",
+          requiredActivation: "les-wait",
           safetyLabels: ["short window", "student break"]
         })
       ];
@@ -318,7 +318,7 @@ export const lesWaitAdapter = {
           sourceApp: "les_wait",
           title: "Berber sirasi yaklasiyor",
           reason: "Walk-in dalgasina takilmadan uygun koltuk penceresini bekleyebilirsin.",
-          requiredActivation: "lestupid-waiting-app",
+          requiredActivation: "les-wait",
           safetyLabels: ["local service", "staff confirmation"]
         })
       ];
@@ -334,7 +334,7 @@ export const lesWaitAdapter = {
           sourceApp: "les_wait",
           title: waitContextTitle(checkIn),
           reason: waitContextReason(checkIn),
-          requiredActivation: "lestupid-waiting-app",
+          requiredActivation: "les-wait",
           safetyLabels: ["queue only", "venue controlled"]
         })
       ];
@@ -350,7 +350,7 @@ export const lesWaitAdapter = {
           sourceApp: "les_wait",
           title: "Sessiz calisma odasi bosaliyor",
           reason: `${checkIn.placeName} icinde bir masa/oda penceresi yaklasiyor; istersen bildirimle acilinca donersin.`,
-          requiredActivation: "lestupid-waiting-app",
+          requiredActivation: "les-wait",
           safetyLabels: ["study space", "reservation preview"]
         })
       ];
@@ -366,7 +366,7 @@ export const lesWaitAdapter = {
           sourceApp: "les_wait",
           title: "Klinik sirani takip et",
           reason: "Klinik desk yogunlugunu zaman penceresiyle gosterir; hassas notlar v1'de yayinlanmaz.",
-          requiredActivation: "lestupid-waiting-app",
+          requiredActivation: "les-wait",
           safetyLabels: ["private context", "no diagnosis in feed"]
         })
       ];
@@ -382,7 +382,7 @@ export const lesWaitAdapter = {
           sourceApp: "les_wait",
           title: "Ogrenci isleri sirana gir",
           reason: "Belge, onay ve danisma islemleri icin sirani gor; eksik evrak varsa agent kartina gec.",
-          requiredActivation: "lestupid-waiting-app",
+          requiredActivation: "les-wait",
           safetyLabels: ["service queue", "document-safe"]
         })
       ];
@@ -413,7 +413,7 @@ export const lesWaitAdapter = {
         sourceApp: "les_wait",
         title: "Bu mekanda bekleme sistemi aktif degil",
         reason: `${checkIn.placeName} icin Les Wait talep sinyali birak; yeterli ogrenci isterse mekan bekleme sistemine zorlanir.`,
-        requiredActivation: "lestupid-waiting-app",
+        requiredActivation: "les-wait",
         safetyLabels: ["venue request", "community signal"]
       })
     ];
@@ -911,10 +911,10 @@ export const lesAffiliateOyunAdapter = {
         type: "affiliate_game",
         tempo: affiliateGameTempo(checkIn),
         timeLabel: affiliateGameTimeLabel(checkIn),
-        sourceApp: "les_affiliate_oyun",
+        sourceApp: "les-affiliate",
         title: affiliateGameTitle(checkIn),
         reason: affiliateGameReason(checkIn),
-        requiredActivation: "les-affiliate-oyun",
+        requiredActivation: "les-affiliate",
         safetyLabels: [
           "affiliate labeled",
           "checkout in Les Commerce",

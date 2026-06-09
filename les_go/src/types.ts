@@ -68,6 +68,12 @@ export interface AppActivation {
   permissions: string[];
 }
 
+export interface EcosystemIdentity {
+  id: string;
+  label: string;
+  status: string;
+}
+
 export interface InteractionChannel {
   channelId: string;
   status: ActivationStatus;
@@ -81,6 +87,39 @@ export interface PlaceCheckIn {
   mode: PlaceMode;
   privacyLevel: PrivacyLevel;
   source: "manual" | "qr";
+}
+
+export interface EcosystemSnapshot {
+  identity: EcosystemIdentity;
+  appActivations: AppActivation[];
+  channels: InteractionChannel[];
+  source: "mock" | "http";
+}
+
+export interface CheckInSubmission {
+  accepted: boolean;
+  source: "mock" | "http";
+  privacyLevel: PrivacyLevel;
+  eventId?: string;
+}
+
+export interface ContactsDraftPreview {
+  eventId: string;
+  draftStatus: string;
+  visibility: string;
+  crossAppShareDefault: string;
+  userReviewRequired: boolean;
+  sourceApp: string;
+  identityId: string;
+  contextSpace: string;
+  sensitivity: string;
+  tags: string[];
+  place: {
+    placeId?: string;
+    placeName: string;
+    placeType: string;
+  };
+  createdFrom: string;
 }
 
 export interface OpportunityAction {
@@ -201,6 +240,10 @@ export interface QueueTicket {
   userPosition: number;
   estimatedMinutes: number;
   status: "waiting" | "called" | "missed" | "completed";
+  channel?: "web" | "camera_qr" | "short_code" | "phone_lookup" | "photo_proof" | "staff_entry";
+  surfaceId?: string;
+  proofRef?: string;
+  sourceQuestId?: string;
 }
 
 export interface QuestItem {

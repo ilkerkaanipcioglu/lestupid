@@ -26,7 +26,7 @@ commerce surfaces.
 {
   "schema_version": "lestupid.affiliate_game_event.v1",
   "event_type": "product_card_earned",
-  "product_id": "les-affiliate-oyun",
+  "product_id": "les-affiliate",
   "identity_id": "id_123",
   "card_id": "card_456",
   "source_app": "lescommerce",
@@ -115,4 +115,3 @@ LesTupid-compatible rewrite:
 - original owner may get a small transparent affiliate reward;
 - high-risk tournaments need explicit opt-in and no hidden real-value loss;
 - real product purchase is always separate from card ownership loss.
-

@@ -33,7 +33,7 @@ export const appActivations: AppActivation[] = [
     permissions: ["quest_profile", "city_selection"]
   },
   {
-    productId: "lestupid-waiting-app",
+    productId: "les-wait",
     status: "activated",
     permissions: ["queue_profile", "service_notifications"]
   },
@@ -46,6 +46,11 @@ export const appActivations: AppActivation[] = [
     productId: "les-ai",
     status: "activated",
     permissions: ["agent_tasks", "evidence_summary"]
+  },
+  {
+    productId: "lescommerce-core",
+    status: "activated",
+    permissions: ["commerce_profile", "marketplace_listings", "book_marketplace_listings", "diy_creator_drops", "merchant_storefront"]
   },
   {
     productId: "les-itemotel",
@@ -73,7 +78,7 @@ export const appActivations: AppActivation[] = [
     permissions: ["trip_intent", "visa_source_check", "stay_safety_preview", "travel_risk_briefing"]
   },
   {
-    productId: "les-affiliate-oyun",
+    productId: "les-affiliate",
     status: "available",
     permissions: ["card_drop_preview", "affiliate_reward_preview", "quest_deck_preview"]
   }
@@ -128,7 +133,7 @@ export const channels: InteractionChannel[] = [
   {
     channelId: "game",
     status: "available",
-    allowedApps: ["les-go", "les-affiliate-oyun", "les-poke", "lescommerce", "les-match", "les-certification"]
+    allowedApps: ["les-go", "les-affiliate", "les-poke", "lescommerce", "les-match", "les-certification"]
   }
 ];
 
@@ -911,7 +916,7 @@ export const mockAiSkills: AiSkill[] = [
   },
   {
     id: "wait_join_queue",
-    productId: "lestupid-waiting-app",
+    productId: "les-wait",
     name: "Join Venue Queue",
     description: "Joins queue at canteens, clinics, or student services on user behalf.",
     parameters: [
@@ -925,7 +930,7 @@ export const mockAiSkills: AiSkill[] = [
   },
   {
     id: "wait_leave_queue",
-    productId: "lestupid-waiting-app",
+    productId: "les-wait",
     name: "Leave Venue Queue",
     description: "Leaves the currently active wait queue.",
     parameters: [],
@@ -1106,7 +1111,7 @@ export const mockAiSkills: AiSkill[] = [
   },
   {
     id: "oyun_analyze_deck",
-    productId: "les-affiliate-oyun",
+    productId: "les-affiliate",
     name: "Get Deck Optimization",
     description: "Analyzes items and badges to suggest ideal card combos for affiliate rewards.",
     parameters: [],
@@ -1117,7 +1122,7 @@ export const mockAiSkills: AiSkill[] = [
   },
   {
     id: "oyun_trigger_auto_duel",
-    productId: "les-affiliate-oyun",
+    productId: "les-affiliate",
     name: "Run Automated Card Duel",
     description: "Simulates full game round against AI deck to harvest loyalty rewards.",
     parameters: [],
